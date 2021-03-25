@@ -27,7 +27,7 @@ Start and run BootNode device we use below command.
         bootnode -nodekey boot.key -verbosity 9 -addr :31313
 ```
 
-More info about bootnode command is in source [2].
+More info about BootNode command is below.
 ```shell
         bootnode -help
 ```
