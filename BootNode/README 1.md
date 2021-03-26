@@ -8,14 +8,14 @@ The first time a node connects to the network it uses one of the predefined boot
 
 ## Set and Run BootNode device
 
-First must we genereted BootNode key for device that will be working as BootNode in private Ethereum Network. BootNode Hash key is only posible genereted thro comande bootnode, previously installed on this device.
+First we must genereted BootNode key for device that will be working as BootNode in private Ethereum Network. BootNode Hash key is only posible genereted thro comande bootnode, previously installed on this device.
 
 ```shell
         cd /EthStevec/BootNode/
         bootnode -genkey boot.key
 ```
 
-When we generate BootNode key on device we check what is it like.
+When we generate BootNode key on device check number genereted key.
 
 ```shell
         bootnode -nodekey boot.key -writeaddress
@@ -28,6 +28,7 @@ Start and run BootNode device we use below command.
 ```
 
 More info about BootNode command is below.
+
 ```shell
         bootnode -help
 ```
