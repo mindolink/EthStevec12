@@ -12,6 +12,7 @@ Devices must have genesis block that device could start or joined to private Eth
  ```
 
 All information how creat genesis block thro plugings pupeth is in below link.
+
 <https://yenhuang.gitbooks.io/blockchain/content/chapter1/creating-the-genesis-block.html>
 
 ### b) Copy alredy made Genesis Block
