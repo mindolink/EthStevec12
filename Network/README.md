@@ -3,26 +3,25 @@
 ## 1. SET Ethereum Network
 
 Devices must have genesis block that device could start or joined to private Ethereum Network. Genesis block we can be created with program Puppeth (previous install on device) or we copy precreating sample genesis block that is stored in folder /EthStevec/GenesisBlock/.
+<ol>
 
-### a) Made own Genesis Block and SET Ethereum Network Properties
+#### a) Made own Genesis Block and SET Ethereum Network Properties
 
 ```shell
     cd /EthStevec/Network/puppeth
     geth --datadir "." init nameOfMadeGenesisBlock.json
  ```
 
-All information how creat genesis block thro plugings pupeth is in below link.
+All information how creat genesis block thro plugings pupeth is in [[1]](https://yenhuang.gitbooks.io/blockchain/content/chapter1/creating-the-genesis-block.html).
 
-[1] https://yenhuang.gitbooks.io/blockchain/content/chapter1/creating-the-genesis-block.html
-
-### b) Copy existing Genesis Block and SET Ethereum Network Properties
+#### b) Copy existing Genesis Block and SET Ethereum Network Properties
 
 ```shell
     cd /EthStevec/Network
     cp /EthStevec/GenesisBlocks/genesisPoA5s.json /EthStevec/Network/
     geth --datadir "." init genesisPoA5s.json
 ```
-
+</ol>
 Important it is that all devices in system initialize a same genesis block!
 
 ## 2. RUN Ethereum Network
