@@ -9,18 +9,18 @@ Devices must have genesis block that device could start or joined to private Eth
 #### a) Made own Genesis Block and SET Ethereum Network Properties
 
 ```shell
-    cd /EthStevec/Network/puppeth
-    geth --datadir "." init nameOfMadeGenesisBlock.json
- ```
+        cd /EthStevec/Network/puppeth
+        geth --datadir "." init nameOfMadeGenesisBlock.json
+```
 
 All information how creat genesis block thro plugings pupeth is in [[1]](https://yenhuang.gitbooks.io/blockchain/content/chapter1/creating-the-genesis-block.html).
 
 #### b) Copy existing Genesis Block and SET Ethereum Network Properties
 
 ```shell
-    cd /EthStevec/Network
-    cp /EthStevec/GenesisBlocks/genesisPoA5s.json /EthStevec/Network/
-    geth --datadir "." init genesisPoA5s.json
+        cd /EthStevec/Network
+        cp ~/EthStevec/GenesisBlocks/genesisPoA5s.json ~/EthStevec/Network/
+        geth --datadir "." init genesisPoA5s.json
 ```
 
 </ol>
@@ -38,7 +38,7 @@ Run Ethereum Network is posible thro comande Geth.
 #### a) Device RUN Ethereum Network as MINER
 
 ```shell
-        geth --datadir "." --syncmode 'full' --networkid 1994 --http --http.addr 'localhost' --http.corsdomain "https://remix.ethereum.org" --http.port 8545 --nat "any" --http.api 'web3,eth,net,personal,miner,debug,txpool,admin' --bootnodes "enode://19c8fd97b5edc99f97170462400a38c2e7c9347c1a96e15b7f623562b9d0a637e2a70b749077c38d1a07b34f802985521403eb6b69bf30806993a1623c53be10@192.168.1.107:31313" --keystore /home/pi/EthStevec/UserHash/ --password /home/pi/EthStevec/UserHash/password.sec --mine --port 50507 --ethstats node7:test@192.168.1.107:3000
+        geth --datadir "." --syncmode 'full' --networkid 1994 --http --http.addr 'localhost' --http.corsdomain "https://remix.ethereum.org" --http.port 8545 --nat "any" --http.api 'web3,eth,net,personal,miner,debug,txpool,admin' --bootnodes "enode://19c8fd97b5edc99f97170462400a38c2e7c9347c1a96e15b7f623562b9d0a637e2a70b749077c38d1a07b34f802985521403eb6b69bf30806993a1623c53be10@192.168.1.107:31313" --keystore /home/pi/EthStevec/UserHash/ --password /home/pi/EthStevec/UserHash/password.sec --mine --miner.etherbase 1 --port 50507 --ethstats node7:test@192.168.1.107:3000
 ```
 
 #### b) Device RUN Ethereum Network as FULL NODE
