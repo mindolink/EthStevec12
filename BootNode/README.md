@@ -1,10 +1,8 @@
-# BootNode 
+# BootNode
 
 ## What is BootNode
 
-The first time a node connects to the network it uses one of the predefined bootnodes. Through these bootnodes a node can join the network and find other nodes. In the case of a private cluster these predefined bootnodes are not of much use. Therefore go-ethereum offers a bootnode implementation that can be configured and run in your private network [1].
-
-[1] https://geth.ethereum.org/docs/getting-started/private-net
+The first time a node connects to the network it uses one of the predefined bootnodes. Through these bootnodes a node can join the network and find other nodes. In the case of a private cluster these predefined bootnodes are not of much use. Therefore go-ethereum offers a bootnode implementation that can be configured and run in your private network [[1]](https://geth.ethereum.org/docs/getting-started/private-net).
 
 ## Set and Run BootNode device
 
@@ -21,7 +19,7 @@ When we generate BootNode key on device check number genereted key.
         bootnode -nodekey boot.key -writeaddress
 ```
 
-Start and run BootNode device we use below command.
+Start and run BootNode device use below command.
 
 ```shell
         bootnode -nodekey boot.key -verbosity 9 -addr :31313
