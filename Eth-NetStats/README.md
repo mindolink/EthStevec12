@@ -13,9 +13,17 @@ This is a visual interface for tracking ethereum network status. It uses WebSock
 Install Eth-NetStats thro bellow comands.
 
 ```shell
-        cd /Eth-NetStats
-	    git clone https://github.com/cubedro/eth-netstats
-	    cp -r /Eth-NetStats/eth-netstats /EthStevec/Eth-NetStats
+        cd Eth-NetStats/
+	git clone https://github.com/cubedro/eth-netstats
+        cd eth-netstats/
+        rm README.md
+        
+
+
+
+
+        cd eth-netstat 
+	cp -r /Eth-NetStats/eth-netstats /Eth-NetStats
         rm -rf eth-netstats
         cd /EthStevec/NetStats
 	    npm install 
