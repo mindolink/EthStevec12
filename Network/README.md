@@ -27,6 +27,7 @@ All information how creat genesis block thro plugings pupeth is in [[1]](https:/
 
 Important it is that all devices in system initialize a same genesis block!
 
+<br>
 
 ## 2. RUN Ethereum Network
 
