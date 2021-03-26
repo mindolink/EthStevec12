@@ -4,6 +4,8 @@
 
 The first time a node connects to the network it uses one of the predefined bootnodes. Through these bootnodes a node can join the network and find other nodes. In the case of a private cluster these predefined bootnodes are not of much use. Therefore go-ethereum offers a bootnode implementation that can be configured and run in your private network [[1]](https://geth.ethereum.org/docs/getting-started/private-net).
 
+</br>
+
 ## Set and Run BootNode device
 
 First we must genereted BootNode key for device that will be working as BootNode in private Ethereum Network. BootNode Hash key is only posible genereted thro comande bootnode, previously installed on this device.
