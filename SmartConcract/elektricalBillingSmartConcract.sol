@@ -7,49 +7,51 @@ pragma solidity >=0.7.0 <0.9.0;
 
 contract systemRegulationSmartConcract 
 {
-   
+    uint  public blockNumber=0;
+    uint N=10000;
+    
+    //Information abaout owner of system/grid
+    address ownAddress;
+    
+    //Informtion about system/grid
+    int systemTariffNumber;
+    bool systemWork;
+    bool systemOwerLoad;
+    bool systemNeedsExtraEnergy;
+    uint systemPmax=100;
+
+    
+    //Information abaut users and requast for power
     mapping (uint=>address) usrAddress;
     mapping (address=>uint) usrIndex;
     mapping (address=>bool) usrRegistration;
-    mapping (address=>int)  usrWalletCashBalanceEuro;
-    mapping (address=>int)  usrWalletCashBalanceCent;
-    
-    address ownAddress;
-    int ownWalletCashBalanceEuro;
-    int ownWalletCashBalanceCent;
-    int ownEnergyDistributedOnLine;
-    int ownEnergyDistributedOffLine;
-    
-    
-    uint blockNumber;
     uint numberOfUser;
-    uint currentBlockNumber;
-    
-    uint [] usrWnp;
-    uint [] usrWnc;
-    uint [] usrWap;
-    uint [] usrWac;
-    uint [] usrWrc; 
-    
-    uint sysWnp;    //Array Users Not Regulated production energy
-    uint sysWnc;    //Array Users Not Regulated consuption energy
-    uint sysWap;    //Array Users Avalible production energy from EV and Home Battery
-    uint sysWac;    //Array Users Avalible consuption energy from EV and Home Battery
-    uint sysWrc;    //Array Users Requasted consuption energy from EV and Home Battery
 
-    uint T3B=4;
-    uint T3S=24;
-    uint T2B=6;
-    uint T2S=22;
-    uint T1B=14;
-    uint T1S=14;
-    
+    uint [] usrPnp; //Array Users Not Regulated production power
+    uint [] usrPnc; //Array Users Not Regulated consuption power
+    uint [] usrPap; //Array Users Avalible production power from EV and Home Battery
+    uint [] usrPac; //Array Users Avalible consuption power from EV and Home Battery
+    uint [] usrPrc; //Array Users Requasted consuption power from EV and Home Battery
+    uint sysPnp;
+    uint sysPnc;
+    uint sysPap;
+    uint sysPac;
+    uint sysPrc; 
+
 
     modifier ifNewBlockGenerated
-    {
+   {
       require(block.number>blockNumber);
       _;
     }
+
+
+    function changeSystemSettings (bool _systemWork, int _systemTariffNumber) private
+    {
+        systemWork=_systemWork;
+        systemTariffNumber=_systemTariffNumber;
+    }
+
 
     function automaticRegistrationNewUser(address _address) private 
     {   
@@ -58,118 +60,141 @@ contract systemRegulationSmartConcract
         usrAddress[usrIndex[_address]]=_address;
         numberOfUser+=1;
     }
-    
+
     function deletionPreviousSentDataOfUsers() private ifNewBlockGenerated
     {
-        usrWnp= new uint[](numberOfUser);
-        usrWnc= new uint[](numberOfUser);
-        usrWap= new uint[](numberOfUser);
-        usrWac= new uint[](numberOfUser);
-        usrWrc= new uint[](numberOfUser);
-        sysWnp=0;
-        sysWnc=0;
-        sysWap=0;
-        sysWac=0;
-        sysWrc=0;
+        usrPnp= new uint[](numberOfUser);
+        usrPnc= new uint[](numberOfUser);
+        usrPap= new uint[](numberOfUser);
+        usrPac= new uint[](numberOfUser);
+        usrPrc= new uint[](numberOfUser);
         blockNumber=block.number;
+        sysPnp=0;
+        sysPnc=0;
+        sysPap=0;
+        sysPac=0;
+        sysPrc=0;  
     }
     
-    function setConsumedEnergy(uint[] memory Wusr) public
+    function setUserValue(uint [5] memory usrP) public
     {   
         if (usrRegistration[msg.sender]==true)
         {   
-            moneyProccesingForEnergy();
             deletionPreviousSentDataOfUsers();
             
-            usrWnp[usrIndex[msg.sender]]=Wusr[0];   //User unRegulated production power
-            usrWnc[usrIndex[msg.sender]]=Wusr[1];   //User unRegulated consuption power
-            usrWap[usrIndex[msg.sender]]=Wusr[2];   //Avalible production power
-            usrWac[usrIndex[msg.sender]]=Wusr[3];   //Avalible consuption power
-            usrWrc[usrIndex[msg.sender]]=Wusr[4];   //Reguasted consuption power 
-
-            sysWnp=Wusr[0];
-            sysWnc=Wusr[1];
-            sysWap=Wusr[2];
-            sysWac=Wusr[3];
-            sysWrc=Wusr[4];
-            
-
+            usrPnp[usrIndex[msg.sender]]=usrP[0];   //User unRegulated production power
+            usrPnc[usrIndex[msg.sender]]=usrP[1];   //User unRegulated consuption power
+            usrPap[usrIndex[msg.sender]]=usrP[2];   //Avalible production power
+            usrPac[usrIndex[msg.sender]]=usrP[3];   //Avalible consuption power
+            usrPrc[usrIndex[msg.sender]]=usrP[4];   //Reguasted consuption power 
+        
+            //Sum system owerall power thro specifich segment
+            sysPnp+=usrP[0];
+            sysPnc+=usrP[1];
+            sysPap+=usrP[2];
+            sysPac+=usrP[3];
+            sysPrc+=usrP[4];                
         }
+        
         else
         {   
             automaticRegistrationNewUser(msg.sender);
         }
     }
-    function returnData()public  view returns(int)
+    
+    function checkMaxPowerSystem() public view returns(uint [3] memory)
     {
-        return (usrWalletCashBalanceCent[msg.sender]);
+        uint puPap=0;
+        uint puPac=0;
+        uint puPrc=0;
+        
+        if (systemPmax>(sysPnc+sysPac+sysPrc))
+        {
+            puPac=N;
+            puPrc=N;
+        }
+        else if (systemPmax>(sysPnc+sysPrc))
+        {
+            puPac=(N*(systemPmax-(sysPnc+sysPrc))/sysPac);
+            puPrc=N;
+        }
+        else if (systemPmax>sysPnc)
+        {
+            puPac=0;
+            puPrc=(N*(systemPmax-(sysPnc))/sysPrc);
+        }
+        else
+        {
+            puPac=0;
+            puPrc=0;
+        }       
+        
+        
+        if (systemPmax>(sysPnp+sysPap))
+        {
+            puPap=N;
+        }  
+        
+        else if (systemPmax>sysPnp)
+        {
+            puPap=(N*(systemPmax-sysPnp))/sysPap;
+        }
+        else
+        {
+            puPap=0;
+        }
+        
+        return ([puPap,puPac,puPrc]);
+
     }
     
-    
-    
-    function moneyProccesingForEnergy() private ifNewBlockGenerated
+    function getUsrValue() public view returns(uint [3] memory)
     {
-        int[] memory usrFinalCost=new int[](numberOfUser+1);
-        uint sysPro=sysWac+sysWrc+sysWnc;
-        uint sysCon=sysWap+sysWap;
-        uint sysProFinalCost;
-        uint sysConFinalCost;
-        uint sysProBaseCost;
-        uint sysConBaseCost;
-        uint sysDif;
-        uint N=10000;
-        uint puX;
-        uint puY;
-
-        sysProBaseCost=sysWnp*T1S+sysWac*T2S;
-        sysProBaseCost=(sysWnc+sysWrc)*T1B+sysWac*T2B;
-        
-        if  (sysCon<sysPro)
-        {   
-            sysDif=sysPro-sysCon;
-            sysProFinalCost=sysConBaseCost+T3S*sysDif;
-            sysConFinalCost=sysConBaseCost;
-            
-            ownWalletCashBalanceCent-=int(T3S*sysDif);
-            ownWalletCashBalanceEuro=ownWalletCashBalanceCent/100;
-            ownEnergyDistributedOnLine=int(sysDif);
-        }
-        else
-        {   
-            sysDif=sysCon-sysPro;
-            sysProFinalCost=sysProBaseCost;
-            sysConFinalCost=sysConBaseCost+T3B*sysDif;
-            
-            ownWalletCashBalanceCent+=int(T3S*sysDif);
-            ownWalletCashBalanceEuro=ownWalletCashBalanceCent/100;
-            ownEnergyDistributedOnLine=-int(sysDif);
-        }
+        uint [3] memory puPmax= checkMaxPowerSystem();
+        uint sysMaxPap=(sysPap*puPmax[0])/N;
+        uint sysMaxPac=(sysPac*puPmax[1])/N;
+        uint sysMaxPrc=(sysPrc*puPmax[2])/N;
     
-        if (sysProBaseCost>0)
+        uint C2=sysPnc+sysMaxPac;
+        uint C3=sysPnc+sysMaxPac+sysMaxPrc;
+        uint S1=sysPnp;      
+        uint S2=sysPnp+sysMaxPap;
+        
+        uint puX;
+        uint Pap;
+        uint Pac;
+        uint Prc;
+        
+        if (S1>C3)
         {
-            puX=(sysProFinalCost/sysProBaseCost)* N;
+            Pap=0;
+            Pac=(usrPac[usrIndex[msg.sender]]*puPmax[1])/N;
+            Prc=(usrPrc[usrIndex[msg.sender]]*puPmax[2])/N;
+        }
+        
+        else if (S1>C2)
+        {   
+            puX=((S1-C2)/sysMaxPac)*N;
+            Pap=0;
+            Pac=(usrPac[usrIndex[msg.sender]]*puPmax[1]*puX)/(N^2);
+            Prc=(usrPrc[usrIndex[msg.sender]]*puPmax[2])/N;
+        }
+        
+        else if (S2>C2)
+        {   
+            puX=((S2-C2)/sysMaxPap)*N;
+            Pap=(usrPap[usrIndex[msg.sender]]*puPmax[0]*puX)/(N^2);
+            Pac=0;
+            Prc=(usrPrc[usrIndex[msg.sender]]*puPmax[2])/N;
         }
         else
         {
-            puX=0;
-        }
-            
-        if (sysConFinalCost>0)
-        {
-            puY=(sysConFinalCost/sysConBaseCost)*N;
-        }
-        else
-        {
-            puY=0;
-        }
-            
-        for(uint i=0;i<numberOfUser;i++)
-        {  
-            usrFinalCost[i]=((-int (puX*(T1S*usrWnp[i]*T2S*usrWap[i]))+int(puY*(T1B*usrWnc[i]+T2B*usrWac[i]+T1B*usrWrc[i]))))/ int(N);
-            usrWalletCashBalanceCent[usrAddress[i]]+=usrFinalCost[i];
-            usrWalletCashBalanceEuro[usrAddress[i]]+=usrFinalCost[i]/100;
+            Pap=(usrPap[usrIndex[msg.sender]]*puPmax[0])/N;
+            Pac=0;
+            Prc=(usrPrc[usrIndex[msg.sender]]*puPmax[2])/N;
         }
 
 
+        return ([Pap,Pac,Prc]);
     }
 }
