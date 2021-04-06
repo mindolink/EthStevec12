@@ -39,51 +39,48 @@ contract systemRegulationSmartConcract
 
     uint T3B=4;
     uint T3S=24;
-    uint T2B=T3B;
-    uint T2S=23;
-    uint T1B=16;
-    uint T1S=16;
+    uint T2B=6;
+    uint T2S=22;
+    uint T1B=14;
+    uint T1S=14;
     
-    function userRegistration(address _address) public 
+
+    modifier ifNewBlockGenerated
+    {
+      require(block.number>blockNumber);
+      _;
+    }
+
+    function automaticRegistrationNewUser(address _address) private 
     {   
         usrRegistration[_address]= true;
         usrIndex[_address]=numberOfUser;
         usrAddress[usrIndex[_address]]=_address;
         numberOfUser+=1;
-       
-    }
-
-    function changeBlockNumber(uint _blockNumber) public
-    {
-        currentBlockNumber=_blockNumber;
-    }
-
-
-    function deletePreviousValues() private
-    {
-        if (currentBlockNumber==blockNumber)
-        {
-            usrWnp= new uint[](numberOfUser);
-            usrWnc= new uint[](numberOfUser);
-            usrWap= new uint[](numberOfUser);
-            usrWac= new uint[](numberOfUser);
-            usrWrc= new uint[](numberOfUser);
-            
-            sysWnp=0;
-            sysWnc=0;
-            sysWap=0;
-            sysWac=0;
-            sysWrc=0;
-            
-            blockNumber=block.number;
-        }
-     
     }
     
-    function setConsumedEnergy(uint[] memory Wusr, int setPrice) public
+    function deletionPreviousSentDataOfUsers() private ifNewBlockGenerated
+    {
+        usrWnp= new uint[](numberOfUser);
+        usrWnc= new uint[](numberOfUser);
+        usrWap= new uint[](numberOfUser);
+        usrWac= new uint[](numberOfUser);
+        usrWrc= new uint[](numberOfUser);
+        sysWnp=0;
+        sysWnc=0;
+        sysWap=0;
+        sysWac=0;
+        sysWrc=0;
+        blockNumber=block.number;
+    }
+    
+    function setConsumedEnergy(uint[] memory Wusr) public
     {   
         if (usrRegistration[msg.sender]==true)
         {   
+            moneyProccesingForEnergy();
+            deletionPreviousSentDataOfUsers();
+            
             usrWnp[usrIndex[msg.sender]]=Wusr[0];   //User unRegulated production power
             usrWnc[usrIndex[msg.sender]]=Wusr[1];   //User unRegulated consuption power
             usrWap[usrIndex[msg.sender]]=Wusr[2];   //Avalible production power
@@ -95,11 +92,22 @@ contract systemRegulationSmartConcract
             sysWap=Wusr[2];
             sysWac=Wusr[3];
             sysWrc=Wusr[4];
+            
+
         }
+        else
+        {   
+            automaticRegistrationNewUser(msg.sender);
+        }
+    }
+    function returnData()public  view returns(int)
+    {
+        return (usrWalletCashBalanceCent[msg.sender]);
     }
     
     
-    function moneyProccesingForEnergy() private returns(int [] memory )
+    
+    function moneyProccesingForEnergy() private ifNewBlockGenerated
     {
         int[] memory usrFinalCost=new int[](numberOfUser+1);
         uint sysPro=sysWac+sysWrc+sysWnc;
@@ -161,7 +169,7 @@ contract systemRegulationSmartConcract
             usrWalletCashBalanceCent[usrAddress[i]]+=usrFinalCost[i];
             usrWalletCashBalanceEuro[usrAddress[i]]+=usrFinalCost[i]/100;
         }
-            
-        return (usrFinalCost); 
+
+
     }
 }
