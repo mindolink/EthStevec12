@@ -39,6 +39,13 @@ contract systemRegulationSmartConcract
     uint sysPrc; 
 
 
+    modifier newBlockGenerated
+   {
+      require(block.number>blockNumber);
+      _;
+    }
+
+
     function changeSystemSettings (bool _systemWork, int _systemTariffNumber) private
     {
         systemWork=_systemWork;
@@ -54,7 +61,7 @@ contract systemRegulationSmartConcract
         numberOfUser+=1;
     }
 
-    function deletionPreviousSentDataOfUsers() private
+    function deletionPreviousSentDataOfUsers() private newBlockGenerated
     {
         if (block.number>blockNumber)
         {
@@ -64,6 +71,13 @@ contract systemRegulationSmartConcract
             usrPac= new uint[](numberOfUser);
             usrPrc= new uint[](numberOfUser);
             blockNumber=block.number;
+            sysPnp=0;
+            sysPnc=0;
+            sysPap=0;
+            sysPac=0;
+            sysPrc=0;  
+            
+            
         }
      
     }
@@ -161,38 +175,33 @@ contract systemRegulationSmartConcract
         if (S1>C3)
         {
             Pap=0;
-            Pac=usrPac[usrIndex[msg.sender]]*(puPmax[1]/N);
-            Prc=usrPrc[usrIndex[msg.sender]]*(puPmax[2]/N);
+            Pac=(usrPac[usrIndex[msg.sender]]*puPmax[1])/N;
+            Prc=(usrPrc[usrIndex[msg.sender]]*puPmax[2])/N;
         }
         
         else if (S1>C2)
         {   
             puX=((S1-C2)/sysMaxPac)*N;
             Pap=0;
-            Pac=usrPac[usrIndex[msg.sender]]*(puPmax[1]*puX)/(N^2);
-            Prc=usrPrc[usrIndex[msg.sender]]*(puPmax[2]/N);
+            Pac=(usrPac[usrIndex[msg.sender]]*puPmax[1]*puX)/(N^2);
+            Prc=(usrPrc[usrIndex[msg.sender]]*puPmax[2])/N;
         }
         
         else if (S2>C2)
         {   
             puX=((S2-C2)/sysMaxPap)*N;
-            Pap=usrPap[usrIndex[msg.sender]]*((puPmax[0]*puX)/(N^2));
+            Pap=(usrPap[usrIndex[msg.sender]]*puPmax[0]*puX)/(N^2);
             Pac=0;
-            Prc=usrPrc[usrIndex[msg.sender]]*(puPmax[2]/N);
+            Prc=(usrPrc[usrIndex[msg.sender]]*puPmax[2])/N;
         }
-        else if (S2>C1)
+        else
         {
-            puX=((S2-C1)/sysMaxPrc)*N;
-            Pap=usrPap[usrIndex[msg.sender]]*(puPmax[1]/N);
+            Pap=(usrPap[usrIndex[msg.sender]]*puPmax[0])/N;
             Pac=0;
-            Prc=usrPrc[usrIndex[msg.sender]]*((puPmax[2]*puX)/(N^2));
+            Prc=(usrPrc[usrIndex[msg.sender]]*puPmax[2])/N;
         }
-          else
-        {
-            Pap=usrPap[usrIndex[msg.sender]]*(puPmax[1]/N);
-            Pac=0;
-            Prc=0;
-        }      
+
+
     
         return ([Pap,Pac,Prc]);
     }
