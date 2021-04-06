@@ -3,21 +3,33 @@ import homeStorageBattery as homeBat
 import batteryManegmentSystem
 import numpy as np
 import time
+import linkEthNetwork as linkEthNet
+
+
 user=1
-numberOfCars=2
+
+NumberOfCars=2
 Hour=1
 Day=1
-Tariff=1
-TariffTime=1
+TariffNumber=0
+TariffTime=0
+
+sysConEth=linkEthNet.systemControling()
+sysBilEth=linkEthNet.electricityBilling()
+
+SystemIsRunning=sysConEth.getSystemIsRnning()
+TariffNumber=sysConEth.getTariffNumber()
 
 
 #Init all parameters
 bms=batteryManegmentSystem.batteryManegmentSystem()
 hsPbat=homeBat.homeStorageBattery(user)
-crPbat=[0]*numberOfCars
+crPbat=[0]*NumberOfCars
 
-for q in range (numberOfCars):
-    crPbat[q]=carBat.carBattery(user,numberOfCars)
+linkEthNet.interactionWithRegulator()
+
+for q in range (NumberOfCars):
+    crPbat[q]=carBat.carBattery(user,NumberOfCars)
 
 
 Psc=[10,0,0,0,0]
@@ -28,7 +40,7 @@ i=0
 while i<2222:
     i=i+1
     #Proces all requast devices
-    hsPbat.processBatterySetting(100,Day,Hour,Tariff,TariffTime,True)
+    hsPbat.processBatterySetting(100,Day,Hour,TariffNumber,TariffTime,True)
     Phs=hsPbat.getBatterySetting()
 
     P=np.add(Phs,Psc)
