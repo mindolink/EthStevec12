@@ -7,7 +7,7 @@ pragma solidity >=0.7.0 <0.9.0;
 
 contract systemRegulationSmartConcract 
 {
-    uint blockNumber=0;
+    uint  public blockNumber=0;
     uint N=10000;
     
     //Information abaout owner of system/grid
@@ -46,7 +46,7 @@ contract systemRegulationSmartConcract
     }
 
 
-    function automaticRegistrationNewUser(address _address) public 
+    function automaticRegistrationNewUser(address _address) private 
     {   
         usrRegistration[_address]= true;
         usrIndex[_address]=numberOfUser;
@@ -56,7 +56,7 @@ contract systemRegulationSmartConcract
 
     function deletionPreviousSentDataOfUsers() private
     {
-        if (block.number==blockNumber)
+        if (block.number>blockNumber)
         {
             usrPnp= new uint[](numberOfUser);
             usrPnc= new uint[](numberOfUser);
