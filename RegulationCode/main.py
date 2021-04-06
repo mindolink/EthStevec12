@@ -1,4 +1,3 @@
-        
 import carBattery as carBat
 import homeStorageBattery as homeBat
 import batteryManegmentSystem
@@ -43,10 +42,7 @@ while i<2222:
     bms.processAllParametersAndRestrictions(P,[55,5,2])
 
     #Send and get values from Smart Concract
-    if block>=12:
 
-    else:
-    
     #Set smart concract value:
 
     time.sleep(1)
