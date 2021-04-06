@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: GPL-3.0
 
 pragma solidity >=0.7.0 <0.9.0;
@@ -18,11 +17,11 @@ contract systemRegulationSmartConcract
     address ownAddress;
     int ownWalletCashBalanceEuro;
     int ownWalletCashBalanceCent;
-    int ownEnergyDistributedOnLine;
+    int public ownEnergyDistributedOnLine;
     int ownEnergyDistributedOffLine;
     int [] usrFinalCost;
     
-    uint blockNumber;
+    uint public blockNumber;
     uint public numberOfUser;
     uint currentBlockNumber;
     
@@ -62,8 +61,6 @@ contract systemRegulationSmartConcract
     
     function deletionPreviousSentDataOfUsers() private
     {
-        if (block.number>blockNumber)
-        {  
             usrWnp= new uint[](numberOfUser);
             usrWnc= new uint[](numberOfUser);
             usrWap= new uint[](numberOfUser);
@@ -75,15 +72,18 @@ contract systemRegulationSmartConcract
             sysWac=0;
             sysWrc=0;
             blockNumber=block.number;
-        }
     }
     
     function setConsumedEnergy(uint[] memory Wusr) public
     {   
         if (usrRegistration[msg.sender]==true)
-        {   
-            deletionPreviousSentDataOfUsers();
-            moneyProccesingForEnergy();
+        {  
+            if (block.number>blockNumber)
+            {  
+                moneyProccesingForEnergy();
+                deletionPreviousSentDataOfUsers();
+            }
+            
             usrWnp[usrIndex[msg.sender]]=Wusr[0];   //User unRegulated production power
             usrWnc[usrIndex[msg.sender]]=Wusr[1];   //User unRegulated consuption power
             usrWap[usrIndex[msg.sender]]=Wusr[2];   //Avalible production power
@@ -115,8 +115,8 @@ contract systemRegulationSmartConcract
     {
         usrFinalCost=new int[](numberOfUser);
         
-        uint sysPro=sysWac+sysWrc+sysWnc;
-        uint sysCon=sysWap+sysWap;
+        uint sysCon=sysWac+sysWrc+sysWnc;
+        uint sysPro=sysWap+sysWap;
         uint sysProFinalCost;
         uint sysConFinalCost;
         uint sysProBaseCost;
@@ -126,8 +126,8 @@ contract systemRegulationSmartConcract
         uint puX;
         uint puY;
 
-        sysProBaseCost=sysWnp*T1S+sysWac*T2S;
-        sysProBaseCost=(sysWnc+sysWrc)*T1B+sysWac*T2B;
+        sysProBaseCost=sysWnp*T1S+sysWap*T2S;
+        sysConBaseCost=(sysWnc+sysWrc)*T1B+sysWac*T2B;
         
         if  (sysCon<sysPro)
         {   
@@ -177,4 +177,5 @@ contract systemRegulationSmartConcract
 
 
     }
+}
 }
