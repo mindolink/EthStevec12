@@ -1,3 +1,4 @@
+
 // SPDX-License-Identifier: GPL-3.0
 
 pragma solidity >=0.7.0 <0.9.0;
@@ -19,10 +20,10 @@ contract systemRegulationSmartConcract
     int ownWalletCashBalanceCent;
     int ownEnergyDistributedOnLine;
     int ownEnergyDistributedOffLine;
-    
+    int [] usrFinalCost;
     
     uint blockNumber;
-    uint numberOfUser;
+    uint public numberOfUser;
     uint currentBlockNumber;
     
     uint [] usrWnp;
@@ -62,7 +63,7 @@ contract systemRegulationSmartConcract
     function deletionPreviousSentDataOfUsers() private
     {
         if (block.number>blockNumber)
-        {
+        {  
             usrWnp= new uint[](numberOfUser);
             usrWnc= new uint[](numberOfUser);
             usrWap= new uint[](numberOfUser);
@@ -75,17 +76,14 @@ contract systemRegulationSmartConcract
             sysWrc=0;
             blockNumber=block.number;
         }
-        
-        
     }
     
     function setConsumedEnergy(uint[] memory Wusr) public
     {   
         if (usrRegistration[msg.sender]==true)
         {   
-            //moneyProccesingForEnergy();
             deletionPreviousSentDataOfUsers();
-            
+            moneyProccesingForEnergy();
             usrWnp[usrIndex[msg.sender]]=Wusr[0];   //User unRegulated production power
             usrWnc[usrIndex[msg.sender]]=Wusr[1];   //User unRegulated consuption power
             usrWap[usrIndex[msg.sender]]=Wusr[2];   //Avalible production power
@@ -103,18 +101,20 @@ contract systemRegulationSmartConcract
         else
         {   
             automaticRegistrationNewUser(msg.sender);
+            deletionPreviousSentDataOfUsers();
         }
     }
-    function returnData()public  view returns(int)
+    function usrFinalCosts()public  view returns(int [] memory)
     {
-        return (usrWalletCashBalanceCent[msg.sender]);
+        return (usrFinalCost);
     }
     
     
     
     function moneyProccesingForEnergy() public
     {
-        int[] memory usrFinalCost=new int[](numberOfUser+1);
+        usrFinalCost=new int[](numberOfUser);
+        
         uint sysPro=sysWac+sysWrc+sysWnc;
         uint sysCon=sysWap+sysWap;
         uint sysProFinalCost;
