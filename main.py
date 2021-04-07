@@ -1,7 +1,6 @@
 import xlrd, time
-import carBattery,homeStorageBattery,batteryManegmentSystem
+import carBattery,homeStorageBattery,batteryManegmentSystem,linkEthNetwork
 import numpy as np
-import linkEthNetwork
 import addresses
 
 
