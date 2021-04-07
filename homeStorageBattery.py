@@ -44,8 +44,8 @@ class homeStorageBattery(object):
 
     def processBatterySetting(self,Day,Hour,Tariff,TimeTariff,GridNeedsEnergy):
 
-        if self.BatUse==True:
-
+        if self.BatOn==True:
+            
             self.Day=Day
             self.Haur=Haur
             self.SOCsmart=SOCsmart
@@ -58,13 +58,14 @@ class homeStorageBattery(object):
             elif (self.Tariff==3):
                 self.settingsTariff3()
             else:
-                    self.PbNrgCon=0
                     self.PbAvaPro=0
                     self.PbAvaCon=0
                     self.PbReqCon=0
+ 
 
-    def getBatterySetting(self):
-        self.setPb=[0,self.PbNrgCon,self.PbAvaPro,self.PbAvaCon,self.PbReqCon]
+
+    def getRequiredPower(self):
+        self.setPb=[0,0,self.PbAvaPro,self.PbAvaCon,self.PbReqCon]
         return(self.setPb)
 
     def settingsTariff1(self):
@@ -72,57 +73,47 @@ class homeStorageBattery(object):
             if (self.SOC<self.SOCsmart and (self.Hour<6 or 21<self.Hour)):
                 dtWb=(self.SOCsmart-self.SOC)*self.Wb
                 P=dtWb/self.TariffTime
-                self.PbNrgCon=0
                 self.PbAvaPro=0
                 self.PbAvaCon=self.PbCh-P
                 self.PbReqCon=P
             elif (self.SOC<self.SOCmax):
-                self.PbNrgCon=0
                 self.PbAvaPro=0
                 self.PbAvaCon=self.PbCh
                 self.PbReqCon=0
             else:
-                self.PbNrgCon=0
                 self.PbAvaPro=0
                 self.PbAvaCon=0
                 self.PbReqCon=0
         else:
             if (self.Haour>15 and self.sysNeedsEnergy==True and SOC>SOCmin):
-                self.PbNrgCon=0
                 self.PbAvaPro=self.PbDh
                 self.PbAvaCon=0
                 self.PbReqCon=0
             elif (self.SOC<self.SOCmax):
-                self.PbNrgCon=0
                 self.PbAvaPro=0
                 self.PbAvaCon=self.PbCh
                 self.PbReqCon=0
             else:
-                self.PbNrgCon=0
                 self.PbAvaPro=0
                 self.PbAvaCon=0
                 self.PbReqCon=0
 
     def settingsTariff2(self):
         if (self.SOC<self.SOCmax):
-            self.PbNrgCon=0
             self.PbAvaPro=0
             self.PbAvaCon=self.PbCh
             self.PbReqCon=0
         else:
-            self.PbNrgCon=0
             self.PbAvaPro=0
             self.PbAvaCon=0
             self.PbReqCon=0
 
     def settingsTariff3(self):
         if (self.SOC>self.SOCmin):
-            self.PbNrgCon=0
             self.PbAvaPro=self.PbDh
             self.PbAvaCon=0
             self.PbReqCon=0
         else:
-            self.PbNrgCon=0
             self.PbAvaPro=0
             self.PbAvaCon=0
             self.PbReqCon=0

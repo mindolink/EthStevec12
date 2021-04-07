@@ -8,7 +8,6 @@ class carBattery(object):
         wb = xlrd.open_workbook(FileDirectory)
         userProperties = wb.sheet_by_index(0)
         row=UserNumber+2
-        print(CarNumber)
         #Init user stationary electric battery
 
         self.Wb=userProperties.cell_value(row,10+5*(CarNumber))
@@ -27,25 +26,30 @@ class carBattery(object):
         self.PbReqCon=0
 
         self.SOC=0
-        self.BatOn=0
+        self.SOCstart=0
+        self.BatOn="OFF"
         self.BatSet=0
         self.Day=0
         self.Hour=0
-        self.Tariff=0
-        self.StandBy=False
-        self.dP=0
+        self.TarNum=0
+        self.SysNedEne=False
+        self.OffOn=False
 
-    def processBatterySetting(self,BatOn,BatSet,SOCstart,Day,Hour,Tariff,TimeTariff,sysNeedsEnergy,sysOwerLoad):
+
+    def processingBatterySetting(self,BatOn,BatSet,SOCstart,Day,Hour,TarNum,SysNedEne):
     
-        self.sysOwerLoad=sysOwerLoad
         self.BatOn=BatOn
         self.BatSet=BatSet
+        self.TarNum=TarNum
+        self.SysNedEne=SysNedEne
+        self.Hour=Hour
 
-        if (self.BatOn==True):
+        if (self.BatOn=="ON"):
 
-            if (self.StandBy==True):
+            if (self.OffOn==True):
                 self.SOC=SOCstart
-                self.standBy=False
+                self.BatOn=False
+                self.OffOn=False
 
             if (self.BatSet==1):
                 self.batteryFunctionSettings1()
@@ -54,60 +58,48 @@ class carBattery(object):
             elif (self.BatSet==3):
                 self.batteryFunctionSettings3()
             else:
-                self.PbCurCon=0
                 self.PbAvaCon=0
                 self.PbAvaPro=0
                 self.PbReqCon=0
-                self.dP=0           
+
         else:
-            self.PbCurCon=0
             self.PbAvaCon=0
             self.PbAvaPro=0
             self.PbReqCon=0
-            self.dP=0
             self.SOC=0
-            self.StandBy=True
+            self.OffOn=True
 
-        self.Pb=[0,self.PbCurCon,self.PbAvaPro,self.PbAvaCon,self.PbReqCon]
-
-    def batterySetting(self):
-        return(self.Pb)
+    def getRequiredPower(self):
+        return ([0,0,self.PbAvaPro,self.PbAvaCon,self.PbReqCon])
 
     def batteryFunctionSettings1(self):
-        if (self.Tariff==3 and self.SOCmin<self.SOC and self.sysNeedsEnergy>0):
-            self.PbCurCon=0
+        if (self.TarNum==3 and self.SOCmin<self.SOC and self.sysNeedsEnergy>0):
             self.PbAvaPro=-self.PbDh
             self.PbAvaCon=0
             self.PbReqCon=0
         elif (self.SOC<self.SOCmax):
-            self.PbCurCon=0
             self.PbAvaPro=0
             self.PbAvaCon=self.PbCh
             self.PbReqCon=0  
         else:
-            self.PbCurCon=0
             self.PbAvaPro=0
             self.PbAvaCon=0
             self.PbReqCon=0  
 
     def batteryFunctionSettings2(self):
-        if (self.Tariff==3 and self.SOCmin<self.SOC and self.sysNeedsEnergy>0):
-            self.PbCurCon=0
+        if (self.TarNum==3 and self.SOCmin<self.SOC and self.SysNedEne>0):
             self.PbAvaPro=-self.PbDh
             self.PbAvaCon=0
             self.PbReqCon=0
-        elif (self.nTariff==1 and self.SOCmax>self.SOC and (self.nHour<6 or self.nHour>21)):
-            self.PbCurCon=0
+        elif (self.TarNum==1 and self.SOCmax>self.SOC and (self.Hour<6 or self.Hour>21)):
             self.PbAvaPro=0
             self.PbAvaCon=0
             self.PbReqCon=self.PbCh
         elif (self.SOC<self.SOCmax):
-            self.PbCurCon=0
             self.PbAvaPro=0
             self.PbAvaCon=self.PbCh
             self.PbReqCon=0  
         else:
-            self.PbCurCon=0
             self.PbAvaPro=0
             self.PbAvaCon=0
             self.PbReqCon=0  
@@ -115,40 +107,16 @@ class carBattery(object):
     def batteryFunctionSettings3(self):
 
         if (self.SOC<self.SOCmax):
-            if (self.sysOwerLoad==False):
-                if (self.dP<100):
-                    self.dP+=5
-                    self.PbCurCon=self.PbCh*(self.dP/100)
-                    self.PbAvaPro=0
-                    self.PbAvaCon=0
-                    self.PbReqCon=0
-                else:
-                    self.dP=100
-                    self.PbCurCon=self.PbCh
-                    self.PbAvaPro=0
-                    self.PbAvaCon=0
-                    self.PbReqCon=0 
-            else:
-                if (self.dP>0):
-                    self.dP-=5
-                    self.PbCurCon=self.PbCh*(self.dP/100)
-                    self.PbAvaPro=0
-                    self.PbAvaCon=0
-                    self.PbReqCon=0
-                else:
-                    self.dP=0
-                    self.PbCurCon=0
-                    self.PbAvaPro=0
-                    self.PbAvaCon=0
-                    self.PbReqCon=0              
+            self.PbAvaPro=0
+            self.PbAvaCon=0
+            self.PbReqCon=self.PbCh       
         else:
-            self.dP=0
-            self.PbCurCon=0
             self.PbAvaPro=0
             self.PbAvaCon=0
             self.PbReqCon=0
 
     def setBatterySettings(self,puP,t):
+
         for q in range (5):
             if q==3:
                 self.P-=puP[q]*Pb[q]

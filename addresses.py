@@ -1,4 +1,4 @@
 
 
-addressForRegulation="0x681a2C9f6C3AFe828A04edDf03709bafb9164d77"
-addressForlBiling="0x681a2C9f6C3AFe828A04edDf03709bafb9164d77"
+addressConcractSystemRegulation="0x681a2C9f6C3AFe828A04edDf03709bafb9164d77"
+addressConcractElectricityBilling="0x681a2C9f6C3AFe828A04edDf03709bafb9164d77"

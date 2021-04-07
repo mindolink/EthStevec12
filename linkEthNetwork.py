@@ -5,12 +5,12 @@ from web3.contract import Contract
 
 class systemControling(object):
 
-    def __init__(self, address, host, account):
+    def __init__(self, address,abiPath,host, account):
         self.contractAddress = address
         self.web3 = Web3(HTTPProvider(host))
         self.account = account
         
-        abiFile = open('./abiRegulatorSmartConcract.json')
+        abiFile = open(abiPath)
         abi = json.load(abiFile)
         abiFile.close()
         self.contract_inst = self.web3.eth.contract(abi=abi,address=self.contractAddress)
@@ -49,16 +49,16 @@ class systemControling(object):
 
 class electricityBilling(object):
     
-    def __init__(self, addressRegulatorContract, host, account):
-        self.contractAddress = addressRegulatorContract
+    def __init__(self, address,abiPath,host, account):
+        self.contractAddress = address
         self.web3 = Web3(HTTPProvider(host))
         self.account = account
         
-        abiFile = open('sola.json')
+        abiFile = open(abiPath)
         abi = json.load(abiFile)
         abiFile.close()
         self.contract_inst = self.web3.eth.contract(abi=abi,address=self.contractAddress)
-        self.blockNumber = self.web3.eth.blockNumbe
+        self.blockNumber = self.web3.eth.blockNumber
         self.gas=4000000
 
     def sendEnergyStatus(self,Preq):
