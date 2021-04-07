@@ -47,7 +47,7 @@ contract systemRegulationSmartConcract
         NumberOfUser+=1;
     }
 
-    function deletionPreviousSentDataOfUsers() private
+    function deletePreviousData() private
     {
         usrPnp= new uint[](NumberOfUser);
         usrPnc= new uint[](NumberOfUser);
@@ -62,14 +62,14 @@ contract systemRegulationSmartConcract
         sysPrc=0;  
     }
     
-    function setUserValuePower(uint [5] memory usrP) public
+    function userDataPower(uint [5] memory usrP) public
     {   
         if (usrRegistration[msg.sender]==true)
         {   
             if (block.number>BlockNumber)
             {
                 BlockNumber=block.number;
-                deletionPreviousSentDataOfUsers();
+                deletePreviousData();
             }
             if (usrSendData[usrIndex[msg.sender]]==false)
             {   //User  safe requast and demand for POwer
@@ -205,5 +205,5 @@ contract systemRegulationSmartConcract
     {
         SystemRuning=_SystemRuning;
     }
- sdds 
+sender
 }

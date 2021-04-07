@@ -22,10 +22,11 @@ contract electricityBillingConcract
     int ownEnergyDistributedOffLine;
     int [] usrFinalCost;
     
-    uint public blockNumber;
+    uint public BlockNumber;
     uint public numberOfUser;
     uint currentBlockNumber;
     
+    uint disc=5;
     uint [] usrWnp;
     uint [] usrWnc;
     uint [] usrWap;
@@ -37,7 +38,8 @@ contract electricityBillingConcract
     uint sysWap;    //Array Users Avalible production energy from EV and Home Battery
     uint sysWac;    //Array Users Avalible consuption energy from EV and Home Battery
     uint sysWrc;    //Array Users Requasted consuption energy from EV and Home Battery
-
+    
+    uint SystemPriceTariffNumber;
     uint T3B=4;
     uint T3S=24;
     uint T2B=6;
@@ -46,13 +48,13 @@ contract electricityBillingConcract
     uint T1S=14;
     
 
-    modifier ifNewBlockGenerated
+    modifier checkRegistrationOfUser
     {
-      require(block.number>blockNumber);
+      require(usrRegistration[msg.sender]=false);
       _;
     }
 
-    function automaticRegistrationNewUser(address _address) private 
+    function registrationNewUser(address _address) public checkRegistrationOfUser
     {   
         usrRegistration[_address]= true;
         usrIndex[_address]=numberOfUser;
@@ -60,7 +62,7 @@ contract electricityBillingConcract
         numberOfUser+=1;
     }
     
-    function deletionPreviousSentDataOfUsers() private
+    function deletePreviousData() private
     {
             usrWnp= new uint[](numberOfUser);
             usrWnc= new uint[](numberOfUser);
@@ -72,17 +74,17 @@ contract electricityBillingConcract
             sysWap=0;
             sysWac=0;
             sysWrc=0;
-            blockNumber=block.number;
+            BlockNumber=block.number;
     }
     
-    function setConsumedEnergy(uint[] memory Wusr) public
+    function userDataEnergy(uint[] memory Wusr) public
     {   
         if (usrRegistration[msg.sender]==true)
         {  
-            if (block.number>blockNumber)
+            if (block.number>BlockNumber)
             {  
-                moneyProccesingForEnergy();
-                deletionPreviousSentDataOfUsers();
+                energyBillingProcesing();
+                deletePreviousData();
             }
             
             usrWnp[usrIndex[msg.sender]]=Wusr[0];   //User unRegulated production power
@@ -96,22 +98,14 @@ contract electricityBillingConcract
             sysWap=Wusr[2];
             sysWac=Wusr[3];
             sysWrc=Wusr[4];
-            
-
         }
         else
         {   
-            automaticRegistrationNewUser(msg.sender);
-            deletionPreviousSentDataOfUsers();
+            registrationNewUser(msg.sender);
         }
     }
-    function usrFinalCosts()public  view returns(int [] memory)
-    {
-        return (usrFinalCost);
-    }
-    
-    
-    function getUserWalletCashBalance() public view returns (int,int)
+
+    function userWallet() public view returns (int,int)
     {
         int EURO=usrWalletMiliCent[msg.sender]/100000;
         int CENT=usrWalletMiliCent[msg.sender]/1000;
@@ -120,10 +114,10 @@ contract electricityBillingConcract
     }
     
     
-    function moneyProccesingForEnergy() public
+    function energyBillingProcesing() public
     {
         usrFinalCost=new int[](numberOfUser);
-        
+
         uint sysCon=sysWac+sysWrc+sysWnc;
         uint sysPro=sysWnp+sysWap;
         uint sysProFinalCost;
@@ -180,8 +174,18 @@ contract electricityBillingConcract
             usrFinalCost[i]=((-int (puX*(T1S*usrWnp[i]*T2S*usrWap[i]))+int(puY*(T1B*usrWnc[i]+T2B*usrWac[i]+T1B*usrWrc[i]))))/ int(N); //[miliCent]
             usrWalletMiliCent[usrAddress[i]]+=usrFinalCost[i];
         }
-2
+    }
 
+    function modifaySystemPrice(uint _SystemPriceTariffNumber,uint _SystemPriceSell,uint _SystemPriceBuy) public
+    {
+        SystemPriceTariffNumber=_SystemPriceTariffNumber;
+        T3S=_SystemPriceSell;
+        T3B=_SystemPriceBuy;
+        T2S=(T3S*(100-disc));
+        T2B=(T3B*(100+disc));
+        T1S=T3B-((T3S-T3B)/2);
+        T1B=T1S;
+        
     }
 
 }
