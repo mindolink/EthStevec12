@@ -5,19 +5,19 @@ pragma solidity >=0.7.0 <0.9.0;
 //import "../contracts/3_Ballot.sol";
 
 
-contract systemRegulationSmartConcract 
+contract electricityBillingConcract 
 {
    
     mapping (uint=>address) usrAddress;
     mapping (address=>uint) usrIndex;
     mapping (address=>bool) usrRegistration;
-    mapping (address=>int)  usrWalletCashBalanceEuro;
-    mapping (address=>int)  usrWalletCashBalanceCent;
+    mapping (address=>int)  usrWalletMiliCent;
+
     
     address ownAddress;
-    int ownWalletCashBalanceEuro;
-    int ownWalletCashBalanceCent;
-    int public ownEnergyDistributedOnLine;
+    int ownWalletMiliCent;
+
+    int public ownEnergyDistributed;
     int ownEnergyDistributedOffLine;
     int [] usrFinalCost;
     
@@ -96,7 +96,6 @@ contract systemRegulationSmartConcract
             sysWac=Wusr[3];
             sysWrc=Wusr[4];
             
-
         }
         else
         {   
@@ -110,13 +109,21 @@ contract systemRegulationSmartConcract
     }
     
     
+    function getUserWalletCashBalance() public view returns (int,int)
+    {
+        int EURO=usrWalletMiliCent[msg.sender]/100000;
+        int CENT=usrWalletMiliCent[msg.sender]/1000;
+        
+        return(EURO,CENT);
+    }
+    
     
     function moneyProccesingForEnergy() public
     {
         usrFinalCost=new int[](numberOfUser);
         
         uint sysCon=sysWac+sysWrc+sysWnc;
-        uint sysPro=sysWap+sysWap;
+        uint sysPro=sysWnp+sysWap;
         uint sysProFinalCost;
         uint sysConFinalCost;
         uint sysProBaseCost;
@@ -126,7 +133,7 @@ contract systemRegulationSmartConcract
         uint puX;
         uint puY;
 
-        sysProBaseCost=sysWnp*T1S+sysWap*T2S;
+        sysProBaseCost=sysWnp*T1S+sysWap*T2S;   
         sysConBaseCost=(sysWnc+sysWrc)*T1B+sysWac*T2B;
         
         if  (sysCon<sysPro)
@@ -135,8 +142,7 @@ contract systemRegulationSmartConcract
             sysProFinalCost=sysConBaseCost+T3S*sysDif;
             sysConFinalCost=sysConBaseCost;
             
-            ownWalletCashBalanceCent-=int(T3S*sysDif);
-            ownWalletCashBalanceEuro=ownWalletCashBalanceCent/100;
+            ownWalletMiliCent-=int(T3S*sysDif);
             ownEnergyDistributedOnLine=int(sysDif);
         }
         else
@@ -145,8 +151,7 @@ contract systemRegulationSmartConcract
             sysProFinalCost=sysProBaseCost;
             sysConFinalCost=sysConBaseCost+T3B*sysDif;
             
-            ownWalletCashBalanceCent+=int(T3S*sysDif);
-            ownWalletCashBalanceEuro=ownWalletCashBalanceCent/100;
+            ownWalletMiliCent+=int(T3S*sysDif);
             ownEnergyDistributedOnLine=-int(sysDif);
         }
     
@@ -169,13 +174,12 @@ contract systemRegulationSmartConcract
         }
             
         for(uint i=0;i<numberOfUser;i++)
-        {  
-            usrFinalCost[i]=((-int (puX*(T1S*usrWnp[i]*T2S*usrWap[i]))+int(puY*(T1B*usrWnc[i]+T2B*usrWac[i]+T1B*usrWrc[i]))))/ int(N);
-            usrWalletCashBalanceCent[usrAddress[i]]+=usrFinalCost[i];
-            usrWalletCashBalanceEuro[usrAddress[i]]+=usrFinalCost[i]/100;
+        {   
+            usrFinalCost[i]=((-int (puX*(T1S*usrWnp[i]*T2S*usrWap[i]))+int(puY*(T1B*usrWnc[i]+T2B*usrWac[i]+T1B*usrWrc[i]))))/ int(N); //[miliCent]
+            usrWalletMiliCent[usrAddress[i]]+=usrFinalCost[i];
         }
 
 
     }
-}
+
 }
