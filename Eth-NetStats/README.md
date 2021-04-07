@@ -38,7 +38,7 @@ Install Eth-NetStats thro bellow comands.
 Run Eth-NetStats thro bellow comand.
 
 ```shell
-        WS_SECRET=stevec && npm start
+        WS_SECRET=stevec npm start
 ```
 
 See the interface at <http://localhost:3000>
