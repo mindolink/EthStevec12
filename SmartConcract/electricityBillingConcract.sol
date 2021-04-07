@@ -15,9 +15,10 @@ contract electricityBillingConcract
 
     
     address ownAddress;
+    
     int ownWalletMiliCent;
-
-    int public ownEnergyDistributed;
+    
+    int public ownEnergyDistributedOnLine;
     int ownEnergyDistributedOffLine;
     int [] usrFinalCost;
     
@@ -95,6 +96,7 @@ contract electricityBillingConcract
             sysWap=Wusr[2];
             sysWac=Wusr[3];
             sysWrc=Wusr[4];
+            
 
         }
         else
@@ -143,7 +145,7 @@ contract electricityBillingConcract
             sysConFinalCost=sysConBaseCost;
             
             ownWalletMiliCent-=int(T3S*sysDif);
-            ownEnergyDistributed=int(sysDif);
+            ownEnergyDistributedOnLine=int(sysDif);
         }
         else
         {   
@@ -152,7 +154,7 @@ contract electricityBillingConcract
             sysConFinalCost=sysConBaseCost+T3B*sysDif;
             
             ownWalletMiliCent+=int(T3S*sysDif);
-            ownEnergyDistributed=-int(sysDif);
+            ownEnergyDistributedOnLine=-int(sysDif);
         }
     
         if (sysProBaseCost>0)
@@ -178,7 +180,8 @@ contract electricityBillingConcract
             usrFinalCost[i]=((-int (puX*(T1S*usrWnp[i]*T2S*usrWap[i]))+int(puY*(T1B*usrWnc[i]+T2B*usrWac[i]+T1B*usrWrc[i]))))/ int(N); //[miliCent]
             usrWalletMiliCent[usrAddress[i]]+=usrFinalCost[i];
         }
-        
+2
+
     }
 
 }
