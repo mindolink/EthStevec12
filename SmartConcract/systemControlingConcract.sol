@@ -38,8 +38,13 @@ contract systemRegulationSmartConcract
     uint sysPac;
     uint sysPrc; 
 
+    modifier checkRegistrationOfUser
+    {
+      require(usrRegistration[msg.sender]=false);
+      _;
+    }
 
-    function automaticRegistrationNewUser(address _address) private 
+    function registrationNewUser(address _address) public checkRegistrationOfUser
     {   
         usrRegistration[_address]= true;
         usrIndex[_address]=NumberOfUser;
@@ -62,7 +67,7 @@ contract systemRegulationSmartConcract
         sysPrc=0;  
     }
     
-    function userDataPower(uint [5] memory usrP) public
+    function setUserDataPower(uint [5] memory usrP) public
     {   
         if (usrRegistration[msg.sender]==true)
         {   
@@ -147,7 +152,7 @@ contract systemRegulationSmartConcract
 
     }
     
-    function getUserValuePower() public view returns(uint [3] memory)
+    function getUserDataPower() public view returns(uint [3] memory)
     {
         uint [3] memory puPmax= checkMaxPowerOfSystem();
         uint sysMaxPap=(sysPap*puPmax[0])/N;
@@ -205,5 +210,5 @@ contract systemRegulationSmartConcract
     {
         SystemRuning=_SystemRuning;
     }
-sender
+
 }

@@ -17,13 +17,12 @@ contract electricityBillingConcract
     address ownAddress;
     
     int ownWalletMiliCent;
-    
     int public ownEnergyDistributedOnLine;
     int ownEnergyDistributedOffLine;
     int [] usrFinalCost;
     
     uint public BlockNumber;
-    uint public numberOfUser;
+    uint public NumberOfUser;
     uint currentBlockNumber;
     
     uint disc=5;
@@ -57,18 +56,18 @@ contract electricityBillingConcract
     function registrationNewUser(address _address) public checkRegistrationOfUser
     {   
         usrRegistration[_address]= true;
-        usrIndex[_address]=numberOfUser;
+        usrIndex[_address]=NumberOfUser;
         usrAddress[usrIndex[_address]]=_address;
-        numberOfUser+=1;
+        NumberOfUser+=1;
     }
     
     function deletePreviousData() private
     {
-            usrWnp= new uint[](numberOfUser);
-            usrWnc= new uint[](numberOfUser);
-            usrWap= new uint[](numberOfUser);
-            usrWac= new uint[](numberOfUser);
-            usrWrc= new uint[](numberOfUser);
+            usrWnp= new uint[](NumberOfUser);
+            usrWnc= new uint[](NumberOfUser);
+            usrWap= new uint[](NumberOfUser);
+            usrWac= new uint[](NumberOfUser);
+            usrWrc= new uint[](NumberOfUser);
             sysWnp=0;
             sysWnc=0;
             sysWap=0;
@@ -113,10 +112,10 @@ contract electricityBillingConcract
         return(EURO,CENT);
     }
     
-    
+
     function energyBillingProcesing() public
     {
-        usrFinalCost=new int[](numberOfUser);
+        usrFinalCost=new int[](NumberOfUser);
 
         uint sysCon=sysWac+sysWrc+sysWnc;
         uint sysPro=sysWnp+sysWap;
@@ -169,7 +168,7 @@ contract electricityBillingConcract
             puY=0;
         }
             
-        for(uint i=0;i<numberOfUser;i++)
+        for(uint i=0;i<NumberOfUser;i++)
         {   
             usrFinalCost[i]=((-int (puX*(T1S*usrWnp[i]*T2S*usrWap[i]))+int(puY*(T1B*usrWnc[i]+T2B*usrWac[i]+T1B*usrWrc[i]))))/ int(N); //[miliCent]
             usrWalletMiliCent[usrAddress[i]]+=usrFinalCost[i];
@@ -185,7 +184,7 @@ contract electricityBillingConcract
         T2B=(T3B*(100+disc));
         T1S=T3B-((T3S-T3B)/2);
         T1B=T1S;
-        
+
     }
 
 }
