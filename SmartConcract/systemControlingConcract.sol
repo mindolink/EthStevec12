@@ -102,7 +102,7 @@ contract systemRegulationSmartConcract
         }
         else
         {   
-            automaticRegistrationNewUser(msg.sender);
+            registrationNewUser(msg.sender);
         }
     }
     
