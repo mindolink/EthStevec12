@@ -23,7 +23,7 @@ class systemControling(object):
     def getSystemNeedsEnergy(self):
         return self.contract_inst.functions.SystemNeedsEnergy().call({'from': self.web3.eth.accounts[self.account],'gas': self.gas})
 
-    def getSystemIsRnning(self):
+    def getSystemRuning(self):
         return self.contract_inst.functions.SystemNeedsEnergy().call({'from': self.web3.eth.accounts[self.account],'gas': self.gas})
 
     def getAssignedPower(self):
@@ -31,6 +31,10 @@ class systemControling(object):
 
     def sendRequiredPower(self,Preq):
         self.contract_inst.functions.RequiredPower(Preq).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
+
+    def getUserNumber(self):
+        self.contract_inst.functions.RequiredPower(Preq).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
+
 
     def checkBlock(self):
         if self.web3.eth.blockNumber<=self.blockNumber:

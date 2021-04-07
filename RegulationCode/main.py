@@ -1,68 +1,37 @@
-import carBattery as carBat
-import homeStorageBattery as homeBat
-import batteryManegmentSystem
+import xlrd, time
+import carBattery,homeStorageBattery,batteryManegmentSystem
 import numpy as np
-import time
-import linkEthNetwork as linkEthNet
+import linkEthNetwork
+import addresses
 
-
-user=1
 
 NumberOfCars=2
-Hour=1
-Day=1
+Hour=0
+Day=0
 TariffNumber=0
 TariffTime=0
+TariffInterval=0
+SystemRuning=False
+UserNumber=1
+http='http://localhost:8545'
+FileUserInfo='./ImportData/userInfo.xls'
+FileUserSchedule='./ImportData/userSchedule.xls'
+GridNeedsEnergy=0
 
-sysConEth=linkEthNet.systemControling()
-sysBilEth=linkEthNet.electricityBilling()
+#Init all parameters 
 
-SystemIsRunning=sysConEth.getSystemIsRnning()
-TariffNumber=sysConEth.getTariffNumber()
+ethReg=linkEthNetwork.systemControling(addresses.addressForRegulation,http,UserNumber)
+ethBil=linkEthNetwork.electricityBilling(addresses.addressForlBiling,http,UserNumber)
+bmsReg=batteryManegmentSystem.batteryManegmentSystem()
+hom=homeStorageBattery.homeStorageBattery(UserNumber,FileUserInfo)
 
+TariffNumber=ethReg.getTariffNumber()
+SystemNeedsEnergy=ethReg.getSystemNeedsEnergy()
+TariffIntervall=ethReg.getSystemNeedsEnergy()
+SystemRuning=ethReg.getSystemRuning()
 
-#Init all parameters
-bms=batteryManegmentSystem.batteryManegmentSystem()
-hsPbat=homeBat.homeStorageBattery(user)
-crPbat=[0]*NumberOfCars
-
-linkEthNet.interactionWithRegulator()
+car=[0]*NumberOfCars
 
 for q in range (NumberOfCars):
-    crPbat[q]=carBat.carBattery(user,NumberOfCars)
-
-
-Psc=[10,0,0,0,0]
-
-
-y=0
-i=0
-while i<2222:
-    i=i+1
-    #Proces all requast devices
-    hsPbat.processBatterySetting(100,Day,Hour,TariffNumber,TariffTime,True)
-    Phs=hsPbat.getBatterySetting()
-
-    P=np.add(Phs,Psc)
-
-    for q in range (numberOfCars):
-        crPbat[q].processBatterySetting(True,1,32,Day,Hour,Tariff,TariffTime,True,False)
-        Pcr=crPbat[q].getBatterySetting()
-        P=np.add(Pcr,P)
-
-    #Proces values from devices and smart concract
-    bms.processAllParametersAndRestrictions(P,[55,5,2])
-
-    #Send and get values from Smart Concract
-
-    #Set smart concract value:
-
-    time.sleep(1)
-    # Measurments
-
-    #Read all data
-
-    
-
-
+    car[q]=carBattery.carBattery(UserNumber,q,FileUserInfo)
 

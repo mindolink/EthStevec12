@@ -3,33 +3,24 @@ import xlrd
 
 class carBattery(object):
 
-    def __init__(self,userNumber,carNumber):
+    def __init__(self,UserNumber,CarNumber,FileDirectory):
 
-        fileName = "./userProperties.xls"
-        wb = xlrd.open_workbook(fileName)
+        wb = xlrd.open_workbook(FileDirectory)
         userProperties = wb.sheet_by_index(0)
-        row=userNumber+2
-
+        row=UserNumber+2
+        print(CarNumber)
         #Init user stationary electric battery
-        self.Wb=userProperties.cell_value(row,10)
 
-        if (self.Wb>0):
-            self.PbCh=userProperties.cell_value(row,11+5*(carNumber-1))
-            self.PbDh=userProperties.cell_value(row,12)
-            self.SOCmax=userProperties.cell_value(row,13)
-            self.SOCmin=userProperties.cell_value(row,14)
-            print ("Propertise of Elektric car "+str(carNumber)+":")
-            print ('Capacity:'+str(self.Wb)+' kWh   '+'PowerCh:'+str(self.PbCh)+' kW   '+'PowerDh:'+str(self.PbDh)+' kW   '+'SOCmin:'+str(self.SOCmin)+' %   '+'SOCmax:'+str(self.SOCmax)+' %   ')
-        
-        else:
-            self.Wb=0
-            self.PbCh=0
-            self.PbDh=0
-            self.SOCmax=0
-            self.SOCmin=0
-            print ("User don't have elektric car!")
-            print ('Capacity:'+str(self.Wb)+' kWh   '+'PowerCh:'+str(self.PbCh)+' kW   '+'PowerDh:'+str(self.PbDh)+' kW   '+'SOCmin:'+str(self.SOCmin)+' %   '+'SOCmax:'+str(self.SOCmax)+' %   ')
-        
+        self.Wb=userProperties.cell_value(row,10+5*(CarNumber))
+        self.PbCh=userProperties.cell_value(row,11+5*(CarNumber))
+        self.PbDh=userProperties.cell_value(row,12+5*(CarNumber))
+        self.SOCmax=userProperties.cell_value(row,13+5*(CarNumber))
+        self.SOCmin=userProperties.cell_value(row,14+5*(CarNumber))
+
+        print ("Propertise of Elektric car "+str(CarNumber+1)+":")
+        print ('Capacity:'+str(self.Wb)+' kWh   '+'PowerCh:'+str(self.PbCh)+' kW   '+'PowerDh:'+str(self.PbDh)+' kW   '+'SOCmin:'+str(self.SOCmin)+' %   '+'SOCmax:'+str(self.SOCmax)+' %   ')
+
+
         self.PbCurCon=0
         self.PbAvaPro=0
         self.PbAvaCon=0
