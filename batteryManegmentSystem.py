@@ -3,7 +3,7 @@ import numpy as np
 class batteryManegmentSystem():
 
     def __init__(self):
-        self.Pmax=2000000
+        self.Pmax=20000000000
         self.Pn=[0]*5  #User Wanted Power 
         self.Pr=[0]*5   #User Allowable power
         self.Px=[0]*5   #User Local use power
@@ -19,17 +19,15 @@ class batteryManegmentSystem():
         self.puPy=[0]*5    # Per unit Py/Pr
         self.puP=[0]*5    # Per unit (Pr+Py)/Pn
 
-    def processAllParametersAndRestrictions(self,Ps,PsmartConcract):
-        self.Pn=Ps
-        self.Pusr=PsmartConcract
-        self.checkUserSystemMaxPower(Ps)
-        self.localMenegmentPower()
-        self.inputDataPowerForConcract()
-        self.outputPowerDataFromConcract(PsmartConcract)
+    def processAllParametersAndRestrictions(self,ReqPower,GetPower):
+        self.checkUserMaxPower(ReqPower)
+        self.localPower()
+        self.inputPowerDataInfoForConcract()
+        self.outputPowerDataInfoForConcract(GetPower)
         self.actualPowerFromOrToGrid()
-        self.actualPower()
+        self.actualTotalPower()
 
-    def checkUserSystemMaxPower(self,Pn):
+    def checkUserMaxPower(self,Pn):
         self.Pn=Pn
         PsysCurPro=Pn[0]
         PsysCurCon=Pn[1]
@@ -44,7 +42,6 @@ class batteryManegmentSystem():
         C3=PsysCurCon+PsysReqCon+PsysAvaCon
 
         if(C3<self.Pmax):
-       
             CC=1
             AC=1
             RC=1
@@ -74,8 +71,7 @@ class batteryManegmentSystem():
         self.puPr=[CP,CC,AP,AC,RC]
         self.Pr=np.multiply(self.puPr,Pn)
        
-
-    def localMenegmentPower(self):
+    def localPower(self):
 
         xPsCurPro=self.Pr[0]
         xPsCurCon=self.Pr[1]
@@ -128,18 +124,18 @@ class batteryManegmentSystem():
         self.puPx=[xCP,xCC,xAP,xAC,xRC]
         self.Px=(np.multiply(self.Pr,self.puPx))
       
-    def inputDataPowerForConcract(self):
+        return (self.Px)
+
+    def inputPowerDataInfoForConcract(self):
         self.puPic=np.subtract(1,self.puPx)
         self.Pic=np.multiply(self.Pr,self.puPic)
-        self.Pic=np.uint64(self.Pic)
-        print([self.Pic[0],self.Pic[0],self.Pic[0],self.Pic[0],self.Pic[0]])
-        return  self.Pic
-        
+        return  [int(self.Pic[0]),int(self.Pic[1]),int(self.Pic[2]),int(self.Pic[3]),int(self.Pic[4])]
 
-    def outputPowerDataFromConcract(self,Pw):
+    def outputPowerDataInfoForConcract(self,Pgc):
+
         for q in range(5):
             if q>2:
-                self.Poc[q]=Pw[q-2]
+                self.Poc[q]=Pgc[q-2]
                 if (self.Pr[q]>0):
                     self.puPoc[q]=np.divide(self.Poc[q],self.Pr[q])
                 else:
@@ -161,8 +157,15 @@ class batteryManegmentSystem():
                 self.Py[q]=self.Pic[q]
                 self.puPy[q]=self.puPic[q]
 
-    def  actualPower(self):
+        return (self.Py)
+        
+    def actualTotalPower(self):
         self.puP=np.add(self.puPy,self.puPx)
         self.P=np.multiply(self.Pn,self.puP)
+        return (self.P)
+
+    def peerUnitValuesFromTheDesiredValues(self):
+        return (self.puP)
+
 
     

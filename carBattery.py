@@ -3,27 +3,29 @@ import xlrd
 
 class carBattery(object):
 
-    def __init__(self,UserNumber,CarNumber,FileDirectory):
+    def __init__(self,UserNumber,NumberOfCars,FileDirectory):
 
         wb = xlrd.open_workbook(FileDirectory)
-        userProperties = wb.sheet_by_index(0)
+        xlsBatteryProperties = wb.sheet_by_index(1)
         row=UserNumber+2
         #Init user stationary electric battery
         k=1000
-        self.Wb=userProperties.cell_value(row,10+5*(CarNumber))*k
-        self.PbCh=userProperties.cell_value(row,11+5*(CarNumber))*k
-        self.PbDh=userProperties.cell_value(row,12+5*(CarNumber))*k
-        self.SOCmax=userProperties.cell_value(row,13+5*(CarNumber))
-        self.SOCmin=userProperties.cell_value(row,14+5*(CarNumber))
+        self.CarNum=NumberOfCars+1
+        self.Wb=xlsBatteryProperties.cell_value(row,3+7*NumberOfCars)*k
+        self.PbCh=xlsBatteryProperties.cell_value(row,4+7*NumberOfCars)*k
+        self.PbDh=xlsBatteryProperties.cell_value(row,5+7*NumberOfCars)*k
+        self.EffCh=xlsBatteryProperties.cell_value(row,6+7*NumberOfCars)
+        self.EffDh=xlsBatteryProperties.cell_value(row,7+7*NumberOfCars)
+        self.SOCmin=xlsBatteryProperties.cell_value(row,8+7*NumberOfCars)
+        self.SOCmax=xlsBatteryProperties.cell_value(row,9+7*NumberOfCars)
 
-        print ("Propertise of Elektric car "+str(CarNumber+1)+":")
-        print ('Capacity:'+str(self.Wb/k)+' kWh   '+'PowerCh:'+str(self.PbCh/k)+' kW   '+'PowerDh:'+str(self.PbDh/k)+' kW   '+'SOCmin:'+str(self.SOCmin)+' %   '+'SOCmax:'+str(self.SOCmax)+' %   ')
+        print ("Propertise of Elektric car "+str(NumberOfCars+1)+":")
+        print ('Wb:'+str(self.Wb/k)+'kWh  '+' PbCh:'+str(self.PbCh/k)+'kW  '+' PbDh:'+str(self.PbDh/k)+'kW  '+' ηCh:'+str(self.EffCh)+'%  '+
+        ' ηDh:'+str(self.EffDh)+'%  '+' SOCmin:'+str(self.SOCmin)+' %  '+' SOCmax:'+str(self.SOCmax)+' %  ')
 
-
-        self.PbCurCon=0
-        self.PbAvaPro=0
-        self.PbAvaCon=0
-        self.PbReqCon=0
+        self.PbAvSr=0
+        self.PbAvLd=0
+        self.PbRqLd=0
 
         self.SOC=0
         self.SOCstart=0
@@ -58,75 +60,83 @@ class carBattery(object):
             elif (self.BatSet==3):
                 self.batteryFunctionSettings3()
             else:
-                self.PbAvaCon=0
-                self.PbAvaPro=0
-                self.PbReqCon=0
+                self.PbAvSr=0
+                self.PbAvLd=0
+                self.PbRqLd=0
 
         else:
-            self.PbAvaCon=0
-            self.PbAvaPro=0
-            self.PbReqCon=0
+            self.PbAvSr=0
+            self.PbAvLd=0
+            self.PbRqLd=0
             self.SOC=0
             self.OffOn=True
 
+        #Display battery settings
+
+        k=1000 #conversion factor from W to kW
+        pavsr=("%.2f" % (self.PbAvSr/k))
+        pavld=("%.2f" % (self.PbAvLd/k))
+        prqld=("%.2f" % (self.PbRqLd/k))
+               
+        print ("Car"+str(self.CarNum)+" battery settings: PbAvSr:"+str(pavsr)+"kW   PbAvLd:"+str(pavld)+"kW  PbRqLd:"+str(prqld)+"kW")
+
     def getRequiredPower(self):
-        return ([self.PbAvaPro,self.PbAvaCon,self.PbReqCon])
+        return ([self.PbAvSr,self.PbAvLd,self.PbRqLd])
 
     def batteryFunctionSettings1(self):
         if (self.TarNum==3 and self.SOCmin<self.SOC and self.sysNeedsEnergy>0):
-            self.PbAvaPro=-self.PbDh
-            self.PbAvaCon=0
-            self.PbReqCon=0
+            self.PbAvSr=-self.PbDh
+            self.PbAvLd=0
+            self.PbRqLd=0
         elif (self.SOC<self.SOCmax):
-            self.PbAvaPro=0
-            self.PbAvaCon=self.PbCh
-            self.PbReqCon=0  
+            self.PbAvSr=0
+            self.PbAvLd=self.PbCh
+            self.PbRqLd=0  
         else:
-            self.PbAvaPro=0
-            self.PbAvaCon=0
-            self.PbReqCon=0  
+            self.PbAvSr=0
+            self.PbAvLd=0
+            self.PbRqLd=0  
 
     def batteryFunctionSettings2(self):
         if (self.TarNum==3 and self.SOCmin<self.SOC and self.SysNedEne>0):
-            self.PbAvaPro=-self.PbDh
-            self.PbAvaCon=0
-            self.PbReqCon=0
+            self.PbAvSr=-self.PbDh
+            self.PbAvLd=0
+            self.PbRqLd=0
         elif (self.TarNum==1 and self.SOCmax>self.SOC and (self.Hour<6 or self.Hour>21)):
-            self.PbAvaPro=0
-            self.PbAvaCon=0
-            self.PbReqCon=self.PbCh
+            self.PbAvSr=0
+            self.PbAvLd=0
+            self.PbRqLd=self.PbCh
         elif (self.SOC<self.SOCmax):
-            self.PbAvaPro=0
-            self.PbAvaCon=self.PbCh
-            self.PbReqCon=0  
+            self.PbAvSr=0
+            self.PbAvLd=self.PbCh
+            self.PbRqLd=0  
         else:
-            self.PbAvaPro=0
-            self.PbAvaCon=0
-            self.PbReqCon=0  
+            self.PbAvSr=0
+            self.PbAvLd=0
+            self.PbRqLd=0  
 
     def batteryFunctionSettings3(self):
 
         if (self.SOC<self.SOCmax):
-            self.PbAvaPro=0
-            self.PbAvaCon=0
-            self.PbReqCon=self.PbCh       
+            self.PbAvSr=0
+            self.PbAvLd=0
+            self.PbRqLd=self.PbCh       
         else:
-            self.PbAvaPro=0
-            self.PbAvaCon=0
-            self.PbReqCon=0
+            self.PbAvSr=0
+            self.PbAvLd=0
+            self.PbRqLd=0
 
-    def setBatterySettings(self,puP,t):
+    def setBatteryPower(self,puP):
 
-        for q in range (5):
-            if q==3:
-                self.P-=puP[q]*Pb[q]
-            else:
-                self.P+=puP[q]*Pb[q]
-        self.t1=t
+        self.P=-puP[2]*self.PbAvSr+puP[3]*self.PbAvLd+puP[4]*self.PbRqLd
 
-    def measurment(self,t):
-        self.t2=self.t1
-        self.t1=t
-        dt=abs(self.t2-self.t1)
-        self.SOC=((self.SOC*self.Wb)+(self.P)*dt)/self.Wb
+    def takeMeasurments(self,dt):
 
+        if (self.P>0):
+            self.W=(self.P)*self.EffCh*dt
+            self.SOC=(((self.SOC/100*self.Wb)+self.W)/self.Wb)*100
+        else:
+            self.W=(self.P)*self.EffDh*dt
+            self.SOC=(((self.SOC/100*self.Wb)+self.W)/self.Wb)*100
+            
+        return  (self.P,self.W,self.SOC)

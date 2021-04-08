@@ -27,10 +27,10 @@ class systemControling(object):
         return self.contract_inst.functions.SystemRuning().call()
 
     def getAssignedPower(self):
-        return self.contract_inst.functions.AssignedPower().call()
+        return self.contract_inst.functions.getUserDataPower().call()
 
     def getUserNumber(self):
-        self.contract_inst.functions.RequiredPower(Preq).transact()
+        self.contract_inst.functions.RequiredPower(Preq).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
 
 
     def sendRequiredPower(self,Preq):
@@ -38,6 +38,7 @@ class systemControling(object):
 
     def registrationNewUser(self):
         self.contract_inst.functions.registrationNewUser().transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
+
 
     def checkBlock(self):
         if self.web3.eth.blockNumber<=self.blockNumber:
