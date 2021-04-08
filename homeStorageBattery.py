@@ -65,7 +65,7 @@ class homeStorageBattery(object):
 
 
     def getRequiredPower(self):
-        self.setPb=[0,0,self.PbAvaPro,self.PbAvaCon,self.PbReqCon]
+        self.setPb=[self.PbAvaPro,self.PbAvaCon,self.PbReqCon]
         return(self.setPb)
 
     def settingsTariff1(self):

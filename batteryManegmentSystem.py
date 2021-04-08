@@ -3,7 +3,7 @@ import numpy as np
 class batteryManegmentSystem():
 
     def __init__(self):
-        self.Pmax=22222222222222
+        self.Pmax=2000000
         self.Pn=[0]*5  #User Wanted Power 
         self.Pr=[0]*5   #User Allowable power
         self.Px=[0]*5   #User Local use power
@@ -24,8 +24,8 @@ class batteryManegmentSystem():
         self.Pusr=PsmartConcract
         self.checkUserSystemMaxPower(Ps)
         self.localMenegmentPower()
-        self.inputDataPowerForSmartConcract()
-        self.outputPowerDataFromSmartConcract(PsmartConcract)
+        self.inputDataPowerForConcract()
+        self.outputPowerDataFromConcract(PsmartConcract)
         self.actualPowerFromOrToGrid()
         self.actualPower()
 
@@ -44,6 +44,7 @@ class batteryManegmentSystem():
         C3=PsysCurCon+PsysReqCon+PsysAvaCon
 
         if(C3<self.Pmax):
+       
             CC=1
             AC=1
             RC=1
@@ -72,6 +73,7 @@ class batteryManegmentSystem():
 
         self.puPr=[CP,CC,AP,AC,RC]
         self.Pr=np.multiply(self.puPr,Pn)
+       
 
     def localMenegmentPower(self):
 
@@ -124,13 +126,17 @@ class batteryManegmentSystem():
             xRC=0
         
         self.puPx=[xCP,xCC,xAP,xAC,xRC]
-        self.Px=np.multiply(self.Pr,self.puPx)
-
-    def inputDataPowerForSmartConcract(self):
+        self.Px=(np.multiply(self.Pr,self.puPx))
+      
+    def inputDataPowerForConcract(self):
         self.puPic=np.subtract(1,self.puPx)
         self.Pic=np.multiply(self.Pr,self.puPic)
+        self.Pic=np.uint64(self.Pic)
+        print([self.Pic[0],self.Pic[0],self.Pic[0],self.Pic[0],self.Pic[0]])
+        return  self.Pic
+        
 
-    def outputPowerDataFromSmartConcract(self,Pw):
+    def outputPowerDataFromConcract(self,Pw):
         for q in range(5):
             if q>2:
                 self.Poc[q]=Pw[q-2]

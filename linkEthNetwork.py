@@ -15,26 +15,29 @@ class systemControling(object):
         abiFile.close()
         self.contract_inst = self.web3.eth.contract(abi=abi,address=self.contractAddress)
         self.blockNumber = self.web3.eth.blockNumber
-        self.gas=40000000
+        self.gas=4000000
 
     def getTariffNumber(self):
-        return self.contract_inst.functions.TariffNumber().call({'from': self.web3.eth.accounts[self.account],'gas': self.gas})
+        return self.contract_inst.functions.TariffNumber().call()
 
     def getSystemNeedsEnergy(self):
-        return self.contract_inst.functions.SystemNeedsEnergy().call({'from': self.web3.eth.accounts[self.account],'gas': self.gas})
+        return self.contract_inst.functions.SystemNeedsEnergy().call()
 
     def getSystemRuning(self):
-        return self.contract_inst.functions.SystemNeedsEnergy().call({'from': self.web3.eth.accounts[self.account],'gas': self.gas})
+        return self.contract_inst.functions.SystemRuning().call()
 
     def getAssignedPower(self):
-        return self.contract_inst.functions.AssignedPower().call({'from': self.web3.eth.accounts[self.account],'gas': self.gas})
-
-    def sendRequiredPower(self,Preq):
-        self.contract_inst.functions.RequiredPower(Preq).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
+        return self.contract_inst.functions.AssignedPower().call()
 
     def getUserNumber(self):
-        self.contract_inst.functions.RequiredPower(Preq).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
+        self.contract_inst.functions.RequiredPower(Preq).transact()
 
+
+    def sendRequiredPower(self,Preq):
+        self.contract_inst.functions.setUserDataPower(Preq).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
+
+    def registrationNewUser(self):
+        self.contract_inst.functions.registrationNewUser().transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
 
     def checkBlock(self):
         if self.web3.eth.blockNumber<=self.blockNumber:

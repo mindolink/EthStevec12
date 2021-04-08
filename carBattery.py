@@ -9,15 +9,15 @@ class carBattery(object):
         userProperties = wb.sheet_by_index(0)
         row=UserNumber+2
         #Init user stationary electric battery
-
-        self.Wb=userProperties.cell_value(row,10+5*(CarNumber))
-        self.PbCh=userProperties.cell_value(row,11+5*(CarNumber))
-        self.PbDh=userProperties.cell_value(row,12+5*(CarNumber))
+        k=1000
+        self.Wb=userProperties.cell_value(row,10+5*(CarNumber))*k
+        self.PbCh=userProperties.cell_value(row,11+5*(CarNumber))*k
+        self.PbDh=userProperties.cell_value(row,12+5*(CarNumber))*k
         self.SOCmax=userProperties.cell_value(row,13+5*(CarNumber))
         self.SOCmin=userProperties.cell_value(row,14+5*(CarNumber))
 
         print ("Propertise of Elektric car "+str(CarNumber+1)+":")
-        print ('Capacity:'+str(self.Wb)+' kWh   '+'PowerCh:'+str(self.PbCh)+' kW   '+'PowerDh:'+str(self.PbDh)+' kW   '+'SOCmin:'+str(self.SOCmin)+' %   '+'SOCmax:'+str(self.SOCmax)+' %   ')
+        print ('Capacity:'+str(self.Wb/k)+' kWh   '+'PowerCh:'+str(self.PbCh/k)+' kW   '+'PowerDh:'+str(self.PbDh/k)+' kW   '+'SOCmin:'+str(self.SOCmin)+' %   '+'SOCmax:'+str(self.SOCmax)+' %   ')
 
 
         self.PbCurCon=0
@@ -70,7 +70,7 @@ class carBattery(object):
             self.OffOn=True
 
     def getRequiredPower(self):
-        return ([0,0,self.PbAvaPro,self.PbAvaCon,self.PbReqCon])
+        return ([self.PbAvaPro,self.PbAvaCon,self.PbReqCon])
 
     def batteryFunctionSettings1(self):
         if (self.TarNum==3 and self.SOCmin<self.SOC and self.sysNeedsEnergy>0):
