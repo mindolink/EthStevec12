@@ -1,8 +1,14 @@
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
 
-from openpyxl import load_workbook
+wb = Workbook()
 
+dest_filename = 'empty_book.xlsx'
 
-wb = load_workbook('names.xlsx')
-ws = wb['Sheet1']
-ws['A1'] = 'A1'
-wb.save('names.xlsx')
+ws3 = wb.active
+
+ws3.cell(column=1, row=2, value=2)
+
+print(ws3['AA10'].value)
+
+wb.save(filename = dest_filename)

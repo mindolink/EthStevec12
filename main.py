@@ -219,13 +219,14 @@ while r<123:
     ActTotalEnergy+=ActTotalPower
     ActLocalEnergy+=ActLocalPower
     ActGridEnergy+=ActGridPower
-
+    Sample=+1
     #---------------------SEND MEASURMENT TO ETH NETWORK---------------
 
 
 
 
     #--------------------------INSIDER CLOCK----------------------------
+
     if Sec>=60:
         Min+=1
         Sec=0
