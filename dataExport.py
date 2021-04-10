@@ -2,9 +2,7 @@ import xlsxwriter
 from xlrd import open_workbook
 from xlutils.copy import copy
 
-from xlrd import open_workbook
-from xlwt import Workbook
-from xlutils.copy import copy
+
 
 class dataExport(object):
 
@@ -20,26 +18,24 @@ class dataExport(object):
         worksheet.write(2,5,'Psum [kW]')
         worksheet.write(2,6,'Pl[kW]')
         worksheet.write(2,7,'Pg [kW]')
-        worksheet.write(2,8,'Wsum [kW/h]')
-        worksheet.write(2,9,'Wl [kW/h]')
-        worksheet.write(2,10,'Wg [kW/h]')
+        worksheet.write(2,8,'Esum [kW/h]')
+        worksheet.write(2,9,'El [kW/h]')
+        worksheet.write(2,10,'Eg [kW/h]')
 
         worksheet.write(2,11,'Psb [kW]')
-        worksheet.write(2,12,'Wsb [kW/h]')
+        worksheet.write(2,12,'Esb [kW/h]')
         worksheet.write(2,13,'SOCsb[%]')
 
 
         for q in range (numberOfCars):
-            worksheet.write(2,14+3*(q),'Pcr'+str(q+1)+'[kW]')
-            worksheet.write(2,15+3*(q),'Wcr'+str(q+1)+'[kW/h]')
+            worksheet.write(2,14+3*(q),'Ecr'+str(q+1)+'[kW]')
+            worksheet.write(2,15+3*(q),'Ecr'+str(q+1)+'[kW/h]')
             worksheet.write(2,16+3*(q),'SOCcr'+str(q+1)+'[%]')
 
         workbook.close()
 
     def readDataMeasurment(self,Day,Haur,Min,MonayWallet,Psum,Pl,Pg,Wsum,Wl,Wg,Psb,Wsb,SOCsb,Pcr,Wcr,SOCcr):
         
- 
-
         worksheet.write(2+self.x,1,MonayWallet)
         worksheet.write(2+self.x,2,Psum)
         worksheet.write(2+self.x,3,Pl)
@@ -58,8 +54,5 @@ class dataExport(object):
         wb.save(self.filePathName)    
 
 
-j=dataExport(1, 1, 2)
 
-for x in range (7):
-    print(x)
-    j.readDataMeasurment(x, x, x, x, x, x, x, x, x, x, x, x, x, [x]*5, [x]*5, [x]*5)
+

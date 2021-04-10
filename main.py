@@ -1,52 +1,70 @@
 import xlrd, time
-import carBattery,homeStorageBattery,batteryManegmentSystem,linkEthNetwork
+import carBattery,homeStorageBattery,batteryManegmentSystem,linkEthNetwork,dataExport
 import numpy as np
 import addresses
 
 
-NumberOfCars=2
-Hour=0
+UserNumber=1
+UserGethUnlockAccount=3
+Http='http://localhost:8545'
+AddrEB='0x0c7675cE771e6EAee8B78476577B4eB42C881012'
+AddrSC='0x128493eB7E904A3b1e9F2B426441F2A1D18B4207'
+PathUserInfo='./ImportData/userInfo.xls'
+PathUserSchedule='./ImportData/userSchedule.xls'
+PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
+PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
+t=1
+dt=60
 Day=1
-TarNum=0
+Hour=0
+Min=0
+Sec=0
+Flg=0
+
+
 TarInt=0
 SysRun=False
 SysNedEne=False
 
-GetPower=[0]*5
-ReqPower=[0]*5
-ActPower=[0]*5
-SysPower=[0]*5
+EscArrGrdEnergy=[0]*5
 
-dt=60
+SumArrTotEnergy=[0]*5
+SumArrLocEnergy=[0]*5
+SumArrGrdEnergy=[0]*5
+SumTotEnergy=0
+SumLocEnergy=0
+SumGrdEnergy=0
 
-Sec=0
-Min=0
-Haur=0
-Day=1
+SumArrTotPower=[0]*5
+SumArrLocPower=[0]*5
+SumArrGrdPower=[0]*5
+SumTotPower=0
+SumLocPower=0
+SumGrdPower=0
 
-ArrayActTotalEnergy=0
-ArrayActLocalEnergy=0
-ArrayActGridEnergy=0
-ActTotalEnergy=0
-ActLocalEnergy=0
-ActGridEnergy=0
+AvgArrTotPower=[0]*5
+AvgArrLocPower=[0]*5
+AvgArrGrdPower=[0]*5
+AvgTotPower=0
+AvgLocPower=0
+AvgGrdPower=0
 
+ActArrTotPower=[0]*5
+ActArrLocPower=[0]*5
+ActArrGrdPower=[0]*5
+ActTotPower=0
+ActLocPower=0
+ActGrdPower=0
 
-PathUserInfo='./ImportData/userInfo.xls'
-PathUserSchedule='./ImportData/userSchedule.xls'
+ReqArrPower=[0]*5
+SndArrPower=[0]*5
+GetArrPower=[0]*5
+ActArrPower=[0]*5
 
-#Paramters for comunication with ETHEREUM NETWORK
-UsrUnl=3
-AddrEB='0x0c7675cE771e6EAee8B78476577B4eB42C881012'
-AddrSC='0x128493eB7E904A3b1e9F2B426441F2A1D18B4207'
-Http='http://localhost:8545'
-PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
-PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
-UserNumber=1
 
 #Init moduls parameters
-ethReg=linkEthNetwork.systemControling(AddrSC,PathAbiSC,Http,UsrUnl)
-ethBil=linkEthNetwork.electricityBilling(AddrEB,PathAbiEB,Http,UsrUnl)
+ethReg=linkEthNetwork.systemControling(AddrSC,PathAbiSC,Http,UserGethUnlockAccount)
+ethBil=linkEthNetwork.electricityBilling(AddrEB,PathAbiEB,Http,UserGethUnlockAccount)
 
 ethReg.registrationNewUser()
 
@@ -54,15 +72,14 @@ ethReg.registrationNewUser()
 bms=batteryManegmentSystem.batteryManegmentSystem()
 
 #Init all parameters Home storage Batery
-hsb=homeStorageBattery.homeStorageBattery(UserNumber,PathUserInfo)
+Hsb=homeStorageBattery.homeStorageBattery(UserNumber,PathUserInfo)
 
 #----------------------INIT PROPERTISE USER CARS------------------------------------------
 
 wb = xlrd.open_workbook(PathUserInfo)
 xlsUserInfo = wb.sheet_by_index(1)
 NumberOfCars=int(xlsUserInfo.cell_value(2+(UserNumber),2))
-ActWcar=[]*NumberOfCars
-ActWhsb=0
+
 
 print(NumberOfCars)
 Car=[0]*NumberOfCars
@@ -75,13 +92,16 @@ SysRun=ethReg.getSystemRuning()
 SysNedEne=ethReg.getSystemNeedsEnergy()
 
 r=1
-#----------------------OPEN FOLDER SCHEDULE USER------------------------------------------
+
+#----------------------OPEN FOLDER SCHEDULE USER---------------------------------
 while r<123:
+
     wb = xlrd.open_workbook(PathUserSchedule)
     xlsUserSchedule = wb.sheet_by_index(UserNumber-1)
     row=((Day-1)*24)+Hour+3
 
-#-------------------LOOKING TIME INTERVAL PRICE ENERGY TARIFF-----------------------------
+#-------------------LOOKING DURATION PRICE ENERGY TARIFF-------------------------
+
     for q in range (24):
         rowLop=((Day-1)*24)+Hour+3+q
         TarNum=xlsUserSchedule.cell_value(row,3)
@@ -92,23 +112,23 @@ while r<123:
         else:
             break
 
-    #------------LOOKING PRODUCION CONSUPTION NOT REGULATION LOAD AND PRODUCTION PV------------
+#-----------------------POWER PROM DEVICE AND PV--------------------------------
 
-    ReqPpv=xlsUserSchedule.cell_value(row,4)
-    ReqPhd=xlsUserSchedule.cell_value(row,5)
+    ReqPdSr=xlsUserSchedule.cell_value(row,4)
+    ReqPdLd=xlsUserSchedule.cell_value(row,5)
 
-    if ReqPpv>ReqPhd:
+    if ReqPdSr>ReqPdLd:
         HomNedEne=False
     else:
         HomNedEne=True
 
+#-------------------LOOKING HOME AND CARS SETTINGS ------------------------------
 
-    #----------------------LOOKING HOME AND CARS SETTINGS ------------------------------
     print("BATTERY SETINGS:")
 
     SOCsmart=xlsUserSchedule.cell_value(row,6)
-    hsb.processBatterySetting(SOCsmart,Day,Hour,TarNum,TarInt,HomNedEne,SysNedEne)
-    ReqPhsb=hsb.getRequiredPower()
+    Hsb.processBatterySetting(SOCsmart,Day,Hour,TarNum,TarInt,HomNedEne,SysNedEne)
+    ReqPhsb=Hsb.getRequiredPower()
 
     ReqPcar=[0]*3
     for q in range (NumberOfCars):
@@ -132,113 +152,114 @@ while r<123:
         ReqPcar=np.add(ReqPcar,ReqOnePcar)
 
 
-    #---------------------TOTAL CONSUPTION ----------------------
-    print("TOTAL REQUAST AND DEMAND:")
-
+#---------------------TOTAL CONSUPTION ----------------------
+    
     ReqPbat=np.add(ReqPcar,ReqPhsb)
 
-    ReqPower=[0]*5
-    ReqPower[0]=ReqPpv
-    ReqPower[1]=ReqPhd
-    ReqPower[2]=ReqPbat[0]
-    ReqPower[3]=ReqPbat[1]
-    ReqPower[4]=ReqPbat[2]
+    ReqArrPower[0]=ReqPdSr
+    ReqArrPower[1]=ReqPdLd
+    ReqArrPower[2]=ReqPbat[0]
+    ReqArrPower[3]=ReqPbat[1]
+    ReqArrPower[4]=ReqPbat[2]
+    
+    
+#----------CHECK LIMITATIONS HAUSE MAX POWER WITH BMS---------------
 
-    #Display battery settings
-    print(ReqPower)
-    kReqPower=[0]*5
-    k=1000 #Conversion factor from W to kW
-    kReqPower[0]=("%.2f" % (ReqPower[0]/k))
-    kReqPower[1]=("%.2f" % (ReqPower[1]/k))
-    kReqPower[2]=("%.2f" % (ReqPower[2]/k))
-    kReqPower[3]=("%.2f" % (ReqPower[3]/k))
-    kReqPower[4]=("%.2f" % (ReqPower[4]/k))
-    print ("Ppv:"+(str(kReqPower[0])+"kW   Phd:"+str(kReqPower[1])+"kW   PbAvSr:"+str(kReqPower[2])+"kW   PbAvLd:"+str(kReqPower[3])+"kW  PbRqLd:"+str(kReqPower[4])+"kW"))
+    bms.processAllParametersAndRestrictions(ReqArrPower,GetArrPower)
+    SndReqPower=bms.inputPowerDataInfoForConcract()
 
-
-    #-------------------CHECK LIMITATIONS HAUSE MAX POWER WITH BMS-----------------------------
-
-    bms.processAllParametersAndRestrictions(ReqPower,GetPower)
-    SndPower=bms.inputPowerDataInfoForConcract()
-
-    #-------------------SEND AND GET INFO FROM ETHEREUM NETWORK------------------------------
+#------------SEND AND GET INFO POWER FROM ETH NETWORK----------------
 
     if ethReg.checkBlock():
         #Send demanded and requasted data:
-        ethReg.sendRequiredPower(SndPower)
+        ethReg.sendRequiredPower(SndReqPower)
         #Get assagned data 
-        GetPower=ethReg.getAssignedPower()
-        print(GetPower)
-        bms.processAllParametersAndRestrictions(ReqPower, GetPower)
+        GetArrPower=ethReg.getAssignedPower()
+        bms.processAllParametersAndRestrictions(ReqArrPower, GetArrPower)
 
+#------------------GET ACTUAL POWERS-----------------------------------
 
-    #----------------------------GET ACTUAL POWER-------------------------------
-
-    ArrayActTotalPower=bms.actualTotalPower()
-    ArrayActLocalPower=bms.localPower()
-    ArrayActGridPower=bms.actualPowerFromOrToGrid()
-
-    ActTotalPower=0
-    ActLocalPower=0
-    ActGridPower=0
+    ActArrTotPower=bms.actualTotalPower()
+    ArrArrLocPower=bms.localPower()
+    ArrArrGrdPower=bms.actualPowerFromOrToGrid()
 
     for q in range(5):
         if (q==0 or q==2):
-            ActTotalPower-=ArrayActTotalPower[q]
-            ActLocalPower-=ArrayActLocalPower[q]
-            ActGridPower-=ArrayActGridPower[q]
+            ActTotPower-=ActArrTotPower[q]
+            ActLocPower-=ArrArrLocPower[q]
+            ActGrdPower-=ArrArrGrdPower[q]
         else:
-            ActTotalPower+=ArrayActTotalPower[q]
-            ActLocalPower+=ArrayActLocalPower[q]
-            ActGridPower+=ArrayActGridPower[q]
+            ActTotPower+=ActArrTotPower[q]
+            ActLocPower+=ActArrLocPower[q]
+            ActGrdPower+=ActArrGrdPower[q]
 
-    puActPower=bms.peerUnitValuesFromTheDesiredValues()
+    SumTotPower+=ActTotPower
+    SumLocPower+=ActLocPower
+    SumGrdPower+=ActGrdPower
 
- #--------------------------SET POWER BATERY-------------------
-    hsb.setBatteryPower(puActPower)
+    puActArrPower=bms.peerUnitRequestedPower()
+
+#---------------- SET POWER INFO ON BATERY -----------------
+
+    Hsb.setBatteryPower(puActArrPower)
 
     for q in range (NumberOfCars):
-        Car[q].setBatteryPower(puActPower)
+        Car[q].setBatteryPower(puActArrPower)
 
- #-----------------------SLEEP------------------------
+#-----------------------SLEEP-------------------------------
 
-    time.sleep((5))
+    time.sleep(t)
+
+#----------------------UPDATE VALUES -----------------------
+
+    SumArrTotEnergy+=np.multiply(ActArrTotPower,dt)
+    SumArrLocEnergy+=np.multiply(ActArrLocPower,dt)
+    SumArrGrdEnergy+=np.multiply(ActArrGrdPower,dt)
+    SumTotEnergy+=ActTotPower*dt
+    SumLocEnergy+=ActLocPower*dt
+    SumGrdEnergy+=ActGrdPower*dt
+
+    EscArrGrdEnergy+=np.multiply(ActArrGrdPower,dt)
+
+    Hsb.updateBatteryValues(dt)
+
+    for q in range (NumberOfCars):
+        Car[q].updateBatteryValues(dt)
+
+    Flg+=1
     Sec+=dt
 
-    #----------------------TAKE MEASURMENTS-----------------------
+#-------- SEND  ENERGY INFO IN ETEHREUM NETWORK ---------
 
-    ActWhsb=hsb.takeMeasurments(dt)
-
-    for q in range (NumberOfCars):
-        ActWcar+=Car[q].takeMeasurments(dt)
-
-    ArrayActTotalEnergy+=np.multiply(ArrayActTotalPower,dt)
-    ArrayActLocalEnergy+=np.multiply(ArrayActLocalPower,dt)
-    ArrayActGridEnergy+=np.multiply(ArrayActGridPower,dt)
     
-    ActTotalEnergy+=ActTotalPower
-    ActLocalEnergy+=ActLocalPower
-    ActGridEnergy+=ActGridPower
-    Sample=+1
-    #---------------------SEND MEASURMENT TO ETH NETWORK---------------
 
 
 
-
-    #--------------------------INSIDER CLOCK----------------------------
+#---------------INTERNAL CLOCK----------------------------
 
     if Sec>=60:
         Min+=1
         Sec=0
     if Min>=60:
-        Haur+=1
+        Hour+=1
         Min=0
-    if Haur>=23:
+    if Hour>=23:
         Day+=1
-        Haur+=0
+        Hour+=0
 
-    #-------------------SAVE MEASURMENT ALSO IN EXE FILE---------------
+#-------------------SAVE MEASURMENT ALSO IN EXE FILE---------------
 
-    print(str(Sec)+" "+str(Min)+" "+str(Haur)+" "+str(Day))
+    print(str(Sec)+" "+str(Min)+" "+str(Hour)+" "+str(Day))
 
     print("---------------------------------------------------------")
+
+    def printPowerInkW(P):
+        P=[0]*5
+        k=1000 #Conversion factor from W to kW
+        P[0]=("%.2f" % (P[0]/k))
+        P[1]=("%.2f" % (P[1]/k))
+        P[2]=("%.2f" % (P[2]/k))
+        P[3]=("%.2f" % (P[3]/k))
+        P[4]=("%.2f" % (P[4]/k))
+        print("Total demand power : Ppv:"+(str(P[0])+"kW   Phd:"+str(P[1])+"kW   PbAvSr:"+str(P[2])+"kW   PbAvLd:"+str(P[3])+"kW  PbRqLd:"+str(kReqPower[4])+"kW"))
+

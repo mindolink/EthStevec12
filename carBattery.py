@@ -14,8 +14,8 @@ class carBattery(object):
         self.Wb=xlsBatteryProperties.cell_value(row,3+7*NumberOfCars)*k
         self.PbCh=xlsBatteryProperties.cell_value(row,4+7*NumberOfCars)*k
         self.PbDh=xlsBatteryProperties.cell_value(row,5+7*NumberOfCars)*k
-        self.EffCh=xlsBatteryProperties.cell_value(row,6+7*NumberOfCars)
-        self.EffDh=xlsBatteryProperties.cell_value(row,7+7*NumberOfCars)
+        self.EffCh=xlsBatteryProperties.cell_value(row,6+7*NumberOfCars)/100
+        self.EffDh=xlsBatteryProperties.cell_value(row,7+7*NumberOfCars)/100
         self.SOCmin=xlsBatteryProperties.cell_value(row,8+7*NumberOfCars)
         self.SOCmax=xlsBatteryProperties.cell_value(row,9+7*NumberOfCars)
 
@@ -130,7 +130,7 @@ class carBattery(object):
 
         self.P=-puP[2]*self.PbAvSr+puP[3]*self.PbAvLd+puP[4]*self.PbRqLd
 
-    def takeMeasurments(self,dt):
+    def updateBatteryValues(self,dt):
 
         if (self.P>0):
             self.W=(self.P)*self.EffCh*dt
@@ -138,5 +138,3 @@ class carBattery(object):
         else:
             self.W=(self.P)*self.EffDh*dt
             self.SOC=(((self.SOC/100*self.Wb)+self.W)/self.Wb)*100
-            
-        return  (self.P,self.W,self.SOC)

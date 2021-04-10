@@ -163,7 +163,7 @@ class homeStorageBattery(object):
 
         self.P=-puP[2]*self.PbAvSr+puP[3]*self.PbAvLd+puP[4]*self.PbRqLd
 
-    def takeMeasurments(self,dt):
+    def updateBatteryValues(self,dt):
 
         if (self.P>0):
             self.W=(self.P)*self.EffCh*dt
@@ -171,5 +171,3 @@ class homeStorageBattery(object):
         else:
             self.W=(self.P)*self.EffDh*dt
             self.SOC=(((self.SOC/100*self.Wb)+self.W)/self.Wb)*100
-
-        return  (self.P,self.W,self.SOC)

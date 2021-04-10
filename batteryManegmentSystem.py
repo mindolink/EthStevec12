@@ -158,13 +158,13 @@ class batteryManegmentSystem():
                 self.puPy[q]=self.puPic[q]
 
         return (self.Py)
-        
+
     def actualTotalPower(self):
         self.puP=np.add(self.puPy,self.puPx)
         self.P=np.multiply(self.Pn,self.puP)
         return (self.P)
 
-    def peerUnitValuesFromTheDesiredValues(self):
+    def peerUnitRequestedPower(self):
         return (self.puP)
 
 
