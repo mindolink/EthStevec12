@@ -13,9 +13,9 @@ class homeStorageBattery(object):
         k=1000
 
         #Init user stationary electric battery
-        self.BatOn=xlsBatteryProperties.cell_value(row,3)
-        if (self.BatOn=="ON"):
-
+        status=xlsBatteryProperties.cell_value(row,3)
+        if (status=="ON"):
+            self.BatOn=True
             self.Wb=xlsBatteryProperties.cell_value(row,4)*k
             self.PbCh=xlsBatteryProperties.cell_value(row,5)*k
             self.PbDh=xlsBatteryProperties.cell_value(row,6)*k
@@ -29,6 +29,7 @@ class homeStorageBattery(object):
             ' ηDh:'+str(self.EffDh)+'%  '+' SOCmin:'+str(self.SOCmin)+' %  '+' SOCmax:'+str(self.SOCmax)+' %  ')
 
         else:
+            self.BatOn=False
             self.Wb=0
             self.PbCh=0
             self.PbDh=0
@@ -52,7 +53,7 @@ class homeStorageBattery(object):
 
     def processBatterySetting(self,SOCsmart,Day,Hour,TarNum,TarInt,HomNedEne,SysNedEne):
 
-        if self.BatOn=="ON":
+        if self.BatOn==True:
             
             self.Day=Day
             self.Hour=Hour
@@ -171,3 +172,7 @@ class homeStorageBattery(object):
         else:
             self.W=(self.P)*self.EffDh*dt
             self.SOC=(((self.SOC/100*self.Wb)+self.W)/self.Wb)*100
+        
+    
+    def getBatteryInfo(self):
+        return ([self.Pavg,self.W,self.SOC])

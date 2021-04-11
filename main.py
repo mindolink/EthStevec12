@@ -1,5 +1,5 @@
 import xlrd, time
-import carBattery,homeStorageBattery,batteryManegmentSystem,linkEthNetwork,dataExport
+import carBattery,homeStorageBattery,batteryManegmentSystem,linkEthNetwork,savingMeasurements
 import numpy as np
 import addresses
 
@@ -13,13 +13,13 @@ PathUserInfo='./ImportData/userInfo.xls'
 PathUserSchedule='./ImportData/userSchedule.xls'
 PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
 PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
-t=1
-dt=60
-Day=1
+t=0.2
+dt=30
+Day=1   
 Hour=0
 Min=0
 Sec=0
-Flg=0
+Flg=1
 
 
 TarInt=0
@@ -35,19 +35,16 @@ SumTotEnergy=0
 SumLocEnergy=0
 SumGrdEnergy=0
 
+AvgTotEnergy=0
+AvgLocEnergy=0
+AvgGrdEnergy=0
+
 SumArrTotPower=[0]*5
 SumArrLocPower=[0]*5
 SumArrGrdPower=[0]*5
 SumTotPower=0
 SumLocPower=0
 SumGrdPower=0
-
-AvgArrTotPower=[0]*5
-AvgArrLocPower=[0]*5
-AvgArrGrdPower=[0]*5
-AvgTotPower=0
-AvgLocPower=0
-AvgGrdPower=0
 
 ActArrTotPower=[0]*5
 ActArrLocPower=[0]*5
@@ -74,25 +71,28 @@ bms=batteryManegmentSystem.batteryManegmentSystem()
 #Init all parameters Home storage Batery
 Hsb=homeStorageBattery.homeStorageBattery(UserNumber,PathUserInfo)
 
+
 #----------------------INIT PROPERTISE USER CARS------------------------------------------
 
 wb = xlrd.open_workbook(PathUserInfo)
 xlsUserInfo = wb.sheet_by_index(1)
 NumberOfCars=int(xlsUserInfo.cell_value(2+(UserNumber),2))
 
-
-print(NumberOfCars)
 Car=[0]*NumberOfCars
 for q in range (NumberOfCars):
     Car[q]=carBattery.carBattery(UserNumber,q,PathUserInfo)
+
+
+#Init parameters for saving values
+TimeOfTest = time.strftime("%H-%d-%m-%Y")
+sm=savingMeasurements.savingMeasurements(UserNumber,TimeOfTest,NumberOfCars)
 
 #---------------------------READ PARAMETERS FROM ETH NETWORK-----------------------------
 
 SysRun=ethReg.getSystemRuning()
 SysNedEne=ethReg.getSystemNeedsEnergy()
 
-r=1
-
+r=0
 #----------------------OPEN FOLDER SCHEDULE USER---------------------------------
 while r<123:
 
@@ -114,8 +114,8 @@ while r<123:
 
 #-----------------------POWER PROM DEVICE AND PV--------------------------------
 
-    ReqPdSr=xlsUserSchedule.cell_value(row,4)
-    ReqPdLd=xlsUserSchedule.cell_value(row,5)
+    ReqPdSr=(xlsUserSchedule.cell_value(row,4))*1000
+    ReqPdLd=(xlsUserSchedule.cell_value(row,5))*1000
 
     if ReqPdSr>ReqPdLd:
         HomNedEne=False
@@ -183,21 +183,31 @@ while r<123:
     ArrArrLocPower=bms.localPower()
     ArrArrGrdPower=bms.actualPowerFromOrToGrid()
 
+    print(ArrArrGrdPower)
+    ActTotPower=0
+    ActLocPower=0
+    ActGrdPower=0
+
     for q in range(5):
+        
         if (q==0 or q==2):
             ActTotPower-=ActArrTotPower[q]
-            ActLocPower-=ArrArrLocPower[q]
             ActGrdPower-=ArrArrGrdPower[q]
+          
         else:
-            ActTotPower+=ActArrTotPower[q]
-            ActLocPower+=ActArrLocPower[q]
             ActGrdPower+=ActArrGrdPower[q]
+            ActTotPower+=ActArrTotPower[q]
+            ActLocPower+=ArrArrLocPower[q]
+            
 
+    print(ActGrdPower)
     SumTotPower+=ActTotPower
     SumLocPower+=ActLocPower
     SumGrdPower+=ActGrdPower
 
     puActArrPower=bms.peerUnitRequestedPower()
+
+
 
 #---------------- SET POWER INFO ON BATERY -----------------
 
@@ -215,6 +225,7 @@ while r<123:
     SumArrTotEnergy+=np.multiply(ActArrTotPower,dt)
     SumArrLocEnergy+=np.multiply(ActArrLocPower,dt)
     SumArrGrdEnergy+=np.multiply(ActArrGrdPower,dt)
+
     SumTotEnergy+=ActTotPower*dt
     SumLocEnergy+=ActLocPower*dt
     SumGrdEnergy+=ActGrdPower*dt
@@ -229,10 +240,35 @@ while r<123:
     Flg+=1
     Sec+=dt
 
+#----------SEND DATA INFORMATION ABAUT ENERGY FOR BILLING--------
+
+
+    MonayWallet=0
+
+
 #-------- SEND  ENERGY INFO IN ETEHREUM NETWORK ---------
 
-    
+    if ((Min==0 or Min==15 or Min==30 or Min==45) and Sec==dt):
 
+        AvgTotPower=SumTotPower/Flg
+        AvgLocPower=SumLocPower/Flg
+        AvgGrdPower=SumGrdPower/Flg
+
+        SumTotPower=0
+        SumLocPower=0
+        SumGrdPower=0
+        Flg=0
+        
+        sm.safeBasicMeasurements(Day, Hour, Min, MonayWallet, AvgTotPower, AvgLocPower, AvgGrdPower, 0, 0, 0)
+
+        if (Hsb.BatOn==True):
+            InfoBat=Hsb.getBatteryInfo()
+            sm.safeHomeBatteryMeasurements(InfoBat)
+
+        if (NumberOfCars>0):
+            for q in range (NumberOfCars):
+                InfoBat=Car[q].getBatteryInfo()
+                sm.safeCarMeasurements(q, InfoBat)
 
 
 #---------------INTERNAL CLOCK----------------------------
@@ -243,7 +279,7 @@ while r<123:
     if Min>=60:
         Hour+=1
         Min=0
-    if Hour>=23:
+    if Hour>=24:
         Day+=1
         Hour+=0
 

@@ -16,8 +16,8 @@ class carBattery(object):
         self.PbDh=xlsBatteryProperties.cell_value(row,5+7*NumberOfCars)*k
         self.EffCh=xlsBatteryProperties.cell_value(row,6+7*NumberOfCars)/100
         self.EffDh=xlsBatteryProperties.cell_value(row,7+7*NumberOfCars)/100
-        self.SOCmin=xlsBatteryProperties.cell_value(row,8+7*NumberOfCars)
-        self.SOCmax=xlsBatteryProperties.cell_value(row,9+7*NumberOfCars)
+        self.SOCmax=xlsBatteryProperties.cell_value(row,8+7*NumberOfCars)
+        self.SOCmin=xlsBatteryProperties.cell_value(row,9+7*NumberOfCars)
 
         print ("Propertise of Elektric car "+str(NumberOfCars+1)+":")
         print ('Wb:'+str(self.Wb/k)+'kWh  '+' PbCh:'+str(self.PbCh/k)+'kW  '+' PbDh:'+str(self.PbDh/k)+'kW  '+' ηCh:'+str(self.EffCh)+'%  '+
@@ -25,17 +25,22 @@ class carBattery(object):
 
         self.PbAvSr=0
         self.PbAvLd=0
-        self.PbRqLd=0
+        self.PbRqLd=0       
 
-        self.SOC=0
-        self.SOCstart=0
-        self.BatOn="OFF"
-        self.BatSet=0
+        self.SOCcur=0
+        self.SOCstart=0     
+        self.BatOn="OFF"    #Start is power off
+        self.BatSet=0       #Battery settings
+        self.Pavg=0         #Avarage power 
+        self.Pcur=0         #Current power
+        self.Flg=0          #Flag for reset loop meausment average power
+
         self.Day=0
         self.Hour=0
-        self.TarNum=0
-        self.SysNedEne=False
-        self.OffOn=False
+        self.TarNum=0       #Price tarif number
+
+        self.SysNedEne=False    #Info if naigbors eed Energy
+        self.OffOn=True        #Flag for init when car is connect to grid
 
 
     def processingBatterySetting(self,BatOn,BatSet,SOCstart,Day,Hour,TarNum,SysNedEne):
@@ -49,7 +54,8 @@ class carBattery(object):
         if (self.BatOn=="ON"):
 
             if (self.OffOn==True):
-                self.SOC=SOCstart
+                self.SOCcur=SOCstart
+                print(self.SOCcur)
                 self.BatOn=False
                 self.OffOn=False
 
@@ -68,7 +74,7 @@ class carBattery(object):
             self.PbAvSr=0
             self.PbAvLd=0
             self.PbRqLd=0
-            self.SOC=0
+            self.SOCcur=0
             self.OffOn=True
 
         #Display battery settings
@@ -84,11 +90,12 @@ class carBattery(object):
         return ([self.PbAvSr,self.PbAvLd,self.PbRqLd])
 
     def batteryFunctionSettings1(self):
-        if (self.TarNum==3 and self.SOCmin<self.SOC and self.sysNeedsEnergy>0):
+
+        if (self.TarNum==3 and self.SOCmin<self.SOCcur and self.SysNedEne>0):
             self.PbAvSr=-self.PbDh
             self.PbAvLd=0
             self.PbRqLd=0
-        elif (self.SOC<self.SOCmax):
+        elif (self.SOCcur<self.SOCmax):
             self.PbAvSr=0
             self.PbAvLd=self.PbCh
             self.PbRqLd=0  
@@ -98,15 +105,15 @@ class carBattery(object):
             self.PbRqLd=0  
 
     def batteryFunctionSettings2(self):
-        if (self.TarNum==3 and self.SOCmin<self.SOC and self.SysNedEne>0):
+        if (self.TarNum==3 and self.SOCmin<self.SOCcur and self.SysNedEne>0):
             self.PbAvSr=-self.PbDh
             self.PbAvLd=0
             self.PbRqLd=0
-        elif (self.TarNum==1 and self.SOCmax>self.SOC and (self.Hour<6 or self.Hour>21)):
+        elif (self.TarNum==1 and self.SOCmax>self.SOCcur and (self.Hour<6 or self.Hour>21)):
             self.PbAvSr=0
             self.PbAvLd=0
             self.PbRqLd=self.PbCh
-        elif (self.SOC<self.SOCmax):
+        elif (self.SOCcur<self.SOCmax):
             self.PbAvSr=0
             self.PbAvLd=self.PbCh
             self.PbRqLd=0  
@@ -117,7 +124,7 @@ class carBattery(object):
 
     def batteryFunctionSettings3(self):
 
-        if (self.SOC<self.SOCmax):
+        if (self.SOCcur<self.SOCmax):
             self.PbAvSr=0
             self.PbAvLd=0
             self.PbRqLd=self.PbCh       
@@ -128,13 +135,26 @@ class carBattery(object):
 
     def setBatteryPower(self,puP):
 
-        self.P=-puP[2]*self.PbAvSr+puP[3]*self.PbAvLd+puP[4]*self.PbRqLd
+        self.Pcur=-puP[2]*self.PbAvSr+puP[3]*self.PbAvLd+puP[4]*self.PbRqLd
 
     def updateBatteryValues(self,dt):
 
-        if (self.P>0):
-            self.W=(self.P)*self.EffCh*dt
-            self.SOC=(((self.SOC/100*self.Wb)+self.W)/self.Wb)*100
+        if (self.Pcur>0):
+            self.Wcur=(self.Pcur)*self.EffCh*(dt/3600)
+            self.SOCcur=((((self.SOCcur/100)*self.Wb)+self.Wcur)/self.Wb)*100
+            
         else:
-            self.W=(self.P)*self.EffDh*dt
-            self.SOC=(((self.SOC/100*self.Wb)+self.W)/self.Wb)*100
+            self.Wcur=(self.Pcur)*self.EffDh*(dt/3600)
+            self.SOCcur=((((self.SOCcur/100)*self.Wb)+self.Wcur)/self.Wb)*100
+        
+        self.Flg+=dt
+
+        if self.Flg>=(900/dt):
+                self.Pavg=self.Pcur
+                self.Flg=dt
+        else:
+                self.Pavg=self.Pcur/(self.Flg/dt)
+                
+    def getBatteryInfo(self):
+
+        return ([self.Pavg,self.Wcur,self.SOCcur])
