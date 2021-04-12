@@ -1,6 +1,10 @@
-import xlrd, time
+import time
 import carBattery,homeStorageBattery,batteryManegmentSystem,linkEthNetwork,savingMeasurements
 import numpy as np
+
+from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
+
 import addresses
 
 
@@ -9,11 +13,12 @@ UserGethUnlockAccount=3
 Http='http://localhost:8545'
 AddrEB='0x0c7675cE771e6EAee8B78476577B4eB42C881012'
 AddrSC='0x128493eB7E904A3b1e9F2B426441F2A1D18B4207'
-PathUserInfo='./ImportData/userInfo.xls'
-PathUserSchedule='./ImportData/userSchedule.xls'
+PathUserInfo='./ImportData/userInfo.xlsx'
+PathUserSchedule='./ImportData/userSchedule.xlsx'
 PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
 PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
-t=0.2
+t=0.1
+
 dt=30
 Day=1   
 Hour=0
@@ -26,37 +31,22 @@ TarInt=0
 SysRun=False
 SysNedEne=False
 
-EscArrGrdEnergy=[0]*5
-
-SumArrTotEnergy=[0]*5
-SumArrLocEnergy=[0]*5
-SumArrGrdEnergy=[0]*5
-SumTotEnergy=0
-SumLocEnergy=0
-SumGrdEnergy=0
-
-AvgTotEnergy=0
-AvgLocEnergy=0
-AvgGrdEnergy=0
-
-SumArrTotPower=[0]*5
-SumArrLocPower=[0]*5
-SumArrGrdPower=[0]*5
-SumTotPower=0
-SumLocPower=0
-SumGrdPower=0
-
-ActArrTotPower=[0]*5
-ActArrLocPower=[0]*5
-ActArrGrdPower=[0]*5
-ActTotPower=0
-ActLocPower=0
-ActGrdPower=0
+EnergyMeter=0
 
 ReqArrPower=[0]*5
 SndArrPower=[0]*5
 GetArrPower=[0]*5
 ActArrPower=[0]*5
+
+ActArrGrdPower=[0]*5
+SumGrdPower=0
+SumProPower=0
+SumConPower=0
+
+SumArrGrdEnergy=[0]*5
+SumGrdEnergy=0
+SumProEnergy=0
+SumConEnergy=0
 
 
 #Init moduls parameters
@@ -73,10 +63,9 @@ Hsb=homeStorageBattery.homeStorageBattery(UserNumber,PathUserInfo)
 
 
 #----------------------INIT PROPERTISE USER CARS------------------------------------------
-
-wb = xlrd.open_workbook(PathUserInfo)
-xlsUserInfo = wb.sheet_by_index(1)
-NumberOfCars=int(xlsUserInfo.cell_value(2+(UserNumber),2))
+wb = load_workbook(filename = PathUserInfo)
+xlsUserInfo = wb['userCarProperties']
+NumberOfCars=int(xlsUserInfo["C"+str(UserNumber+3)].value)
 
 Car=[0]*NumberOfCars
 for q in range (NumberOfCars):
@@ -96,41 +85,43 @@ r=0
 #----------------------OPEN FOLDER SCHEDULE USER---------------------------------
 while r<123:
 
-    wb = xlrd.open_workbook(PathUserSchedule)
-    xlsUserSchedule = wb.sheet_by_index(UserNumber-1)
-    row=((Day-1)*24)+Hour+3
+    wb = load_workbook(filename = PathUserSchedule)
+    xlsxUserSchedule = wb["User "+str(UserNumber)]
+    row=UserNumber+3
+
+    row=((Day-1)*24)+Hour+4
 
 #-------------------LOOKING DURATION PRICE ENERGY TARIFF-------------------------
+    TarNum=xlsxUserSchedule["D"+str(row)].value
 
     for q in range (24):
-        rowLop=((Day-1)*24)+Hour+3+q
-        TarNum=xlsUserSchedule.cell_value(row,3)
-        TarLop=xlsUserSchedule.cell_value(rowLop,3)
+        rowLop=row+q
+        TarLop=xlsxUserSchedule["D"+str(rowLop)].value
 
         if (TarLop==TarNum):
             TarInt+=1
         else:
             break
-
 #-----------------------POWER PROM DEVICE AND PV--------------------------------
 
-    ReqPdSr=(xlsUserSchedule.cell_value(row,4))*1000
-    ReqPdLd=(xlsUserSchedule.cell_value(row,5))*1000
+    ReqPdSr=(xlsxUserSchedule["E"+str(row)].value)*1000
+    ReqPdLd=(xlsxUserSchedule["F"+str(row)].value)*1000
 
     if ReqPdSr>ReqPdLd:
         HomNedEne=False
     else:
         HomNedEne=True
 
+    
 #-------------------LOOKING HOME AND CARS SETTINGS ------------------------------
 
     print("BATTERY SETINGS:")
-
-    SOCsmart=xlsUserSchedule.cell_value(row,6)
+    SOCsmart=xlsxUserSchedule["G"+str(row)].value
     Hsb.processBatterySetting(SOCsmart,Day,Hour,TarNum,TarInt,HomNedEne,SysNedEne)
     ReqPhsb=Hsb.getRequiredPower()
 
     ReqPcar=[0]*3
+
     for q in range (NumberOfCars):
 
         BatOn=0
@@ -138,19 +129,24 @@ while r<123:
         SOCstart=0
         k=1000
         try:
-            row=((Day-1)*24)+Hour+3
-            BatOn=xlsUserSchedule.cell_value(row,7+(q*3))
-            BatSet=xlsUserSchedule.cell_value(row,8+(q*3))
-            SOCstart=xlsUserSchedule.cell_value(row,9+(q*3))
+            colume= get_column_letter(8+3*q)
+            BatOn=xlsxUserSchedule[str(colume)+str(row)].value
+
+            colume= get_column_letter(9+3*q)
+            BatSet=xlsxUserSchedule[str(colume)+str(row)].value
+
+            colume= get_column_letter(10+3*q)
+            SOCstart=xlsxUserSchedule[str(colume)+str(row)].value
 
         except:
             BatSet=0
             SOCstart=0
-        
+
         Car[q].processingBatterySetting(BatOn,BatSet,SOCstart,Day,Hour,TarNum,SysNedEne)
         ReqOnePcar=Car[q].getRequiredPower()
         ReqPcar=np.add(ReqPcar,ReqOnePcar)
 
+    wb.close()
 
 #---------------------TOTAL CONSUPTION ----------------------
     
@@ -162,6 +158,7 @@ while r<123:
     ReqArrPower[3]=ReqPbat[1]
     ReqArrPower[4]=ReqPbat[2]
     
+    print(ReqArrPower)
     
 #----------CHECK LIMITATIONS HAUSE MAX POWER WITH BMS---------------
 
@@ -180,33 +177,31 @@ while r<123:
 #------------------GET ACTUAL POWERS-----------------------------------
 
     ActArrTotPower=bms.actualTotalPower()
-    ArrArrLocPower=bms.localPower()
-    ArrArrGrdPower=bms.actualPowerFromOrToGrid()
+    ActArrGrdPower=bms.actualPowerFromOrToGrid()
 
-    print(ArrArrGrdPower)
-    ActTotPower=0
-    ActLocPower=0
+    print(ActArrTotPower)
+    print("..s.d.asdasd")
+
     ActGrdPower=0
+    ActProPower=0
+    ActConPower=0
 
     for q in range(5):
-        
+
         if (q==0 or q==2):
-            ActTotPower-=ActArrTotPower[q]
-            ActGrdPower-=ArrArrGrdPower[q]
-          
+            ActProPower+=ActArrTotPower[q]
         else:
-            ActGrdPower+=ActArrGrdPower[q]
-            ActTotPower+=ActArrTotPower[q]
-            ActLocPower+=ArrArrLocPower[q]
-            
+            ActConPower+=ActArrTotPower[q]
 
-    print(ActGrdPower)
-    SumTotPower+=ActTotPower
-    SumLocPower+=ActLocPower
-    SumGrdPower+=ActGrdPower
 
+    SumGrdPower+=ActConPower-ActProPower
+    SumProPower+=ActProPower
+    SumConPower+=ActConPower
+    print (SumGrdPower)
+    print (SumProPower)
+    print (SumConPower)
+    print (ActArrTotPower)
     puActArrPower=bms.peerUnitRequestedPower()
-
 
 
 #---------------- SET POWER INFO ON BATERY -----------------
@@ -220,25 +215,28 @@ while r<123:
 
     time.sleep(t)
 
+    Flg+=1
+    Sec+=dt
+
 #----------------------UPDATE VALUES -----------------------
 
-    SumArrTotEnergy+=np.multiply(ActArrTotPower,dt)
-    SumArrLocEnergy+=np.multiply(ActArrLocPower,dt)
     SumArrGrdEnergy+=np.multiply(ActArrGrdPower,dt)
+    
+    EnergyMeter+=(ActConPower-ActProPower)*dt
 
-    SumTotEnergy+=ActTotPower*dt
-    SumLocEnergy+=ActLocPower*dt
-    SumGrdEnergy+=ActGrdPower*dt
-
-    EscArrGrdEnergy+=np.multiply(ActArrGrdPower,dt)
+    SumGrdEnergy+=((ActConPower-ActProPower)*dt)
+    SumProEnergy+=(ActProPower*dt)
+    SumConEnergy+=(ActConPower*dt)
 
     Hsb.updateBatteryValues(dt)
 
     for q in range (NumberOfCars):
         Car[q].updateBatteryValues(dt)
 
-    Flg+=1
-    Sec+=dt
+    ActGrdPower=0
+    ActProPower=0
+    ActConPower=0
+   
 
 #----------SEND DATA INFORMATION ABAUT ENERGY FOR BILLING--------
 
@@ -250,26 +248,34 @@ while r<123:
 
     if ((Min==0 or Min==15 or Min==30 or Min==45) and Sec==dt):
 
-        AvgTotPower=SumTotPower/Flg
-        AvgLocPower=SumLocPower/Flg
-        AvgGrdPower=SumGrdPower/Flg
+        AvgGrdPower=(SumGrdPower/Flg)
+        AvgProPower=(SumProPower/Flg)
+        AvgConPower=(SumConPower/Flg)
+        SumProEnergy=SumProEnergy
+        SumConEnergy=SumConEnergy
+        SumGrdEnergy=SumGrdEnergy
 
-        SumTotPower=0
-        SumLocPower=0
-        SumGrdPower=0
-        Flg=0
-        
-        sm.safeBasicMeasurements(Day, Hour, Min, MonayWallet, AvgTotPower, AvgLocPower, AvgGrdPower, 0, 0, 0)
+        sm.safeBasicMeasurements(Day, Hour, Min, MonayWallet, AvgProPower, AvgConPower, AvgGrdPower, SumProEnergy, SumConEnergy, SumGrdEnergy)
 
         if (Hsb.BatOn==True):
-            InfoBat=Hsb.getBatteryInfo()
+            InfoBat=Hsb.getBatteryInfo(Flg)
             sm.safeHomeBatteryMeasurements(InfoBat)
 
         if (NumberOfCars>0):
             for q in range (NumberOfCars):
-                InfoBat=Car[q].getBatteryInfo()
+                InfoBat=Car[q].getBatteryInfo(Flg)
                 sm.safeCarMeasurements(q, InfoBat)
 
+
+        SumGrdEnergy=0
+        SumConEnergy=0
+        SumProEnergy=0
+
+        SumGrdPower=0
+        SumProPower=0
+        SumConPower=0
+
+        Flg=0
 
 #---------------INTERNAL CLOCK----------------------------
 

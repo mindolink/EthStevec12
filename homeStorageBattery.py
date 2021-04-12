@@ -1,32 +1,35 @@
+from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
 import numpy as np
-import xlrd
 
 class homeStorageBattery(object):
 
     def __init__(self,UserNumber,FileDirectory):
 
-        wb = xlrd.open_workbook(FileDirectory)
-        xlsBatteryProperties= wb.sheet_by_index(0)
-        row=UserNumber+2
+        wb = load_workbook(filename = FileDirectory)
+        xlsxBatteryProperties = wb['userHomeProperties']
+        row=UserNumber+3
 
         #Init user stationary electric battery
         k=1000
 
+
         #Init user stationary electric battery
-        status=xlsBatteryProperties.cell_value(row,3)
+        status=(xlsxBatteryProperties['D'+str(row)].value)
         if (status=="ON"):
             self.BatOn=True
-            self.Wb=xlsBatteryProperties.cell_value(row,4)*k
-            self.PbCh=xlsBatteryProperties.cell_value(row,5)*k
-            self.PbDh=xlsBatteryProperties.cell_value(row,6)*k
-            self.EffCh=xlsBatteryProperties.cell_value(row,7)
-            self.EffDh=xlsBatteryProperties.cell_value(row,8)
-            self.SOCmax=xlsBatteryProperties.cell_value(row,9)
-            self.SOCmin=xlsBatteryProperties.cell_value(row,10)
+            self.Wb=(xlsxBatteryProperties["E"+str(row)].value)*k
+            self.PbCh=(xlsxBatteryProperties["F"+str(row)].value)*k
+            self.PbDh=(xlsxBatteryProperties["G"+str(row)].value)*k
+            self.EffCh=(xlsxBatteryProperties["H"+str(row)].value)/100
+            self.EffDh=(xlsxBatteryProperties["I"+str(row)].value)/100
+            self.SOCmax=(xlsxBatteryProperties["J"+str(row)].value)/100
+            self.SOCmin=(xlsxBatteryProperties["K"+str(row)].value)/100
+
             print ("Propertise of Home Storage Battery:")
         
-            print ('Wb:'+str(self.Wb/k)+'kWh  '+' PbCh:'+str(self.PbCh/k)+'kW  '+' PbDh:'+str(self.PbDh/k)+'kW  '+' ηCh:'+str(self.EffCh)+'%  '+
-            ' ηDh:'+str(self.EffDh)+'%  '+' SOCmin:'+str(self.SOCmin)+' %  '+' SOCmax:'+str(self.SOCmax)+' %  ')
+            print ('Wb:'+str(self.Wb/k)+'kWh  '+' PbCh:'+str(self.PbCh/k)+'kW  '+' PbDh:'+str(self.PbDh/k)+'kW  '+' ηCh:'+str(self.EffCh*100)+'%  '+
+            ' ηDh:'+str(self.EffDh*100)+'%  '+' SOCmin:'+str(self.SOCmin*100)+' %  '+' SOCmax:'+str(self.SOCmax*100)+' %  ')
 
         else:
             self.BatOn=False
@@ -39,17 +42,31 @@ class homeStorageBattery(object):
             self.SOCmin=0
             print ("User don't have Home Storage Battery!")
 
-        self.P=0
-        self.W=0
-        self.SOC=30
+        wb.close()
+ 
+        self.SOC=0.3
+
+        self.Pavg=0
+        self.Wavg=0         #Avarage power 
+        self.Pcur=0         #Current power
+        self.Wcur=0
+        self.Flg=0          #Flag for reset loop meausment average power
+        self.Wsum=0
+        self.Psum=0
+
+
 
         self.Day=0
         self.Hour=0
-        self.TarNum=0
-        self.TarInt=0
-        self.HomNedEne=False
-        self.SysNedEne=False
-        self.SOCsmart=0
+        self.TarNum=0       #Price tarif number
+        self.SysNedEne=False    #Info if naigbors eed Energy
+        self.OffOn=True        #Flag for init when car is connect to grid
+
+        self.PbAvSr=0
+        self.PbAvLd=0
+        self.PbRqLd=0  
+
+
 
     def processBatterySetting(self,SOCsmart,Day,Hour,TarNum,TarInt,HomNedEne,SysNedEne):
 
@@ -57,7 +74,7 @@ class homeStorageBattery(object):
             
             self.Day=Day
             self.Hour=Hour
-            self.SOCsmart=SOCsmart
+            self.SOCsmart=SOCsmart/100
             self.TarNum=TarNum
             self.TarInt=TarInt
             self.HomNedEne=HomNedEne
@@ -162,17 +179,28 @@ class homeStorageBattery(object):
 
     def setBatteryPower(self,puP):
 
-        self.P=-puP[2]*self.PbAvSr+puP[3]*self.PbAvLd+puP[4]*self.PbRqLd
+        self.Pcur=-puP[2]*self.PbAvSr+puP[3]*self.PbAvLd+puP[4]*self.PbRqLd
 
     def updateBatteryValues(self,dt):
 
-        if (self.P>0):
-            self.W=(self.P)*self.EffCh*dt
-            self.SOC=(((self.SOC/100*self.Wb)+self.W)/self.Wb)*100
+        if (self.Pcur>0):
+            self.Wcur=(self.Pcur*self.EffCh*dt)/3600
+            self.SOC=(((self.SOC*self.Wb)+self.Wcur)/self.Wb)
+            self.Wsum+=self.Pcur*(dt/3600)
+            self.Psum+=self.Pcur
+
         else:
-            self.W=(self.P)*self.EffDh*dt
-            self.SOC=(((self.SOC/100*self.Wb)+self.W)/self.Wb)*100
+            self.Wcur=(self.Pcur*self.EffDh*dt)/3600
+            self.SOC=(((self.SOC*self.Wb)+self.Wcur)/self.Wb)
+            self.Wsum+=self.Pcur*(dt/3600)
+            self.Psum+=self.Pcur
         
-    
-    def getBatteryInfo(self):
-        return ([self.Pavg,self.W,self.SOC])
+    def getBatteryInfo(self,Flg):
+
+        self.Pavg=self.Psum/Flg
+        self.Wavg=self.Wsum
+
+        self.Wsum=0
+        self.Psum=0
+
+        return ([self.Pavg/1000,self.Wavg/1000,self.SOC*100])
