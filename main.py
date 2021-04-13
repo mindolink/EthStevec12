@@ -286,6 +286,9 @@ while r<123:
 
         PriceBuy=xlsxSystemTarifPrices["C"+str(TarNumPre+2)].value
         PriceSell=xlsxSystemTarifPrices["D"+str(TarNumPre+2)].value
+        print(PriceBuy)
+        print(PriceSell)
+
 
         wb.close()
 
@@ -335,7 +338,7 @@ while r<123:
 
         MonayWalletCent=ethBil.getUserWalletInCent()
         PriceForEnergyCent=ethBil.getUserFinalEnergyPriceInCent()
-        
+
         sm.safeCashBalance(MonayWalletCent, PriceForEnergyCent)
 
 #-------------------SAVE MEASURMENT ALSO IN EXE FILE---------------
