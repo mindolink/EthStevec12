@@ -1,12 +1,19 @@
 [
 	{
 		"inputs": [],
-		"name": "SystemNeedsEnergy",
+		"name": "autoRegistrationNewUser",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getUserFinalEnergyPriceInCent",
 		"outputs": [
 			{
-				"internalType": "bool",
+				"internalType": "int256",
 				"name": "",
-				"type": "bool"
+				"type": "int256"
 			}
 		],
 		"stateMutability": "view",
@@ -14,7 +21,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "SystemPriceTariffNumber",
+		"name": "getUserIndex",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -27,12 +34,48 @@
 	},
 	{
 		"inputs": [],
-		"name": "SystemRuning",
+		"name": "getUserWalletInCent",
 		"outputs": [
 			{
-				"internalType": "bool",
+				"internalType": "int256",
 				"name": "",
-				"type": "bool"
+				"type": "int256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "int256",
+				"name": "_TarNum",
+				"type": "int256"
+			},
+			{
+				"internalType": "int256",
+				"name": "_B3Wh",
+				"type": "int256"
+			},
+			{
+				"internalType": "int256",
+				"name": "_S3Wh",
+				"type": "int256"
+			}
+		],
+		"name": "modifaySystemTarifPrice",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "numberOfUser",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -40,26 +83,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "getUserValuePower",
-		"outputs": [
-			{
-				"internalType": "uint256[3]",
-				"name": "",
-				"type": "uint256[3]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_SystemPriceTariffNumber",
-				"type": "uint256"
-			}
-		],
-		"name": "modifaySystemPriceTariffNumber",
+		"name": "processingBillingForEnergy",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -67,25 +91,12 @@
 	{
 		"inputs": [
 			{
-				"internalType": "bool",
-				"name": "_SystemRuning",
-				"type": "bool"
+				"internalType": "int256[]",
+				"name": "E",
+				"type": "int256[]"
 			}
 		],
-		"name": "modifaySystemRunning",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256[5]",
-				"name": "usrP",
-				"type": "uint256[5]"
-			}
-		],
-		"name": "userDataPower",
+		"name": "setUserDataEnergy",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"

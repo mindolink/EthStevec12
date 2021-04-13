@@ -1,13 +1,20 @@
 [
 	{
+		"inputs": [],
+		"name": "autoRegistrationNewUser",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "_SystemPriceTariffNumber",
+				"name": "_sysMaxPower",
 				"type": "uint256"
 			}
 		],
-		"name": "modifaySystemPriceTariffNumber",
+		"name": "modifaySystemMaxPower",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -16,17 +23,36 @@
 		"inputs": [
 			{
 				"internalType": "bool",
-				"name": "_SystemRuning",
+				"name": "_sysRunSta",
 				"type": "bool"
 			}
 		],
-		"name": "modifaySystemRunning",
+		"name": "modifaySystemRunningStatus",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
-		"inputs": [],
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_sysTarNum",
+				"type": "uint256"
+			}
+		],
+		"name": "modifaySystemTarifeNumber",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_Address",
+				"type": "address"
+			}
+		],
 		"name": "registrationNewUser",
 		"outputs": [],
 		"stateMutability": "nonpayable",
@@ -35,14 +61,27 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256[5]",
-				"name": "usrP",
-				"type": "uint256[5]"
+				"internalType": "uint256[]",
+				"name": "P",
+				"type": "uint256[]"
 			}
 		],
 		"name": "setUserDataPower",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "checkMaxPowerOfSystem",
+		"outputs": [
+			{
+				"internalType": "uint256[3]",
+				"name": "",
+				"type": "uint256[3]"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -60,7 +99,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "NumberOfUser",
+		"name": "getUserIndex",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -73,20 +112,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "SystemNeedsEnergy",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "SystemPriceTariffNumber",
+		"name": "numberOfUser",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -99,12 +125,38 @@
 	},
 	{
 		"inputs": [],
-		"name": "SystemRuning",
+		"name": "sysNedEne",
 		"outputs": [
 			{
 				"internalType": "bool",
 				"name": "",
 				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "sysRunSta",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "sysTarNum",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",

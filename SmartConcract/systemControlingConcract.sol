@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
 
 pragma solidity >=0.7.0 <0.9.0;
+//import "remix_tests.sol"; // this import is automatically injected by Remix.
+//import "../contracts/3_Ballot.sol";
+
 
 contract systemRegulationSmartConcract 
 {   
@@ -26,48 +29,47 @@ contract systemRegulationSmartConcract
     uint [] usrPdSr;    //Array of User info abaut Not regulated power from diferent sources (Source power from Photo Voltaic, Winde Turbine,etc)
     uint [] usrPdLd;    //Array of User info abaut Not regulated power from diferent loads (Any load power devide except Battery)
     uint [] usrPbAvSr;  //rray of User info abaut Avalible power source from Battery or any other regulated source
-    uint [] usrPbAcLd;  //Aray of User info abaut Avalible power load from Battery or any other regulated load
+    uint [] usrPbAvLd;  //Aray of User info abaut Avalible power load from Battery or any other regulated load
     uint [] usrPbRqLd;  //aray of User info abaut Requasted power load from Batterys or any other regulated load
     
     //System required and desired power
-    uint sysPdSr;       //System total Not regulated power from diferent sources
-    uint sysPdLd;       //System total Not regulated power from diferent loads
-    uint sysPbAvSr;     //System total Avalible power source from Battery or any other regulated source
-    uint sysPbAvLd;     //System total Avalible power load from Battery or any other regulated load
-    uint sysPbRqLd;     //System total Requasted power load from Batterys or any other regulated load
+    uint sysPdSr;       //Total Not regulated power from diferent sources
+    uint sysPdLd;       //Total Not regulated power from diferent loads
+    uint sysPbAvSr;     //Total Avalible power source from Battery or any other regulated source
+    uint sysPbAvLd;     //Total Avalible power load from Battery or any other regulated load
+    uint sysPbRqLd;     //Total Requasted power load from Batterys or any other regulated load
 
-    bool [] usrSendData;
+    bool [] usrAlredySendData;
 
-    modifier checkRegistrationOfUser
+    modifier checkNonRegistrationOfUser
     {
       require(usrRegistration[msg.sender]==false);
       _;
     }
-
-    function registrationNewUser(address _Address) public checkRegistrationOfUser
-    {   
-        numberOfUser++;
-        usrRegistration[_Address]= true;
-        usrIndex[_Address]=numberOfUser++;
-        usrAddress[usrIndex[_Address]]=_Address;
+    
+    modifier checkRegistrationOfUser
+    {
+      require(usrRegistration[msg.sender]==true);
+      _;
     }
     
-    function autoRegistrationNewUser() public checkRegistrationOfUser
+    
+    function autoRegistrationNewUser() public checkNonRegistrationOfUser
     {   
         numberOfUser+=1;
         usrRegistration[msg.sender]= true;
         usrIndex[msg.sender]=numberOfUser;
         usrAddress[usrIndex[msg.sender]]=msg.sender;
     }
-
+    
     function deletePreviousData() private
     {
         usrPdSr= new uint[](numberOfUser+1);
         usrPdLd= new uint[](numberOfUser+1);
         usrPbAvSr= new uint[](numberOfUser+1);
-        usrPbAcLd= new uint[](numberOfUser+1);
+        usrPbAvLd= new uint[](numberOfUser+1);
         usrPbRqLd= new uint[](numberOfUser+1);
-        usrSendData= new bool [](numberOfUser+1);
+        usrAlredySendData= new bool [](numberOfUser+1);
         
         sysPdSr=0;
         sysPdLd=0;
@@ -76,48 +78,41 @@ contract systemRegulationSmartConcract
         sysPbRqLd=0;  
     }
     
-    function setUserDataPower(uint [5] memory SndReqPower) public
-    {   
-        if (usrRegistration[msg.sender]==true)
-        {   
-            if (blockTest>blockNumber)
-            {
-                blockNumber=blockTest;
-                deletePreviousData();
-            }
-            if (usrSendData[usrIndex[msg.sender]]==false)
-            {   
-                //User safe required and desired power
-                
-                usrPdSr[usrIndex[msg.sender]]=SndReqPower[0];   
-                usrPdLd[usrIndex[msg.sender]]=SndReqPower[1];   
-                usrPbAvSr[usrIndex[msg.sender]]=SndReqPower[2];   
-                usrPbAcLd[usrIndex[msg.sender]]=SndReqPower[3];   
-                usrPbRqLd[usrIndex[msg.sender]]=SndReqPower[4]; 
-                
-                //User add required and desired power in system System variables
-                
-                sysPdSr+=SndReqPower[0];
-                sysPdLd+=SndReqPower[1];
-                sysPbAvSr+=SndReqPower[2];
-                sysPbAvLd+=SndReqPower[3];
-                sysPbRqLd+=SndReqPower[4];
-                usrSendData[usrIndex[msg.sender]]=true;
-                
-                
-                if (sysPdSr<(sysPdLd+sysPbRqLd))
-                {
-                    sysNedEne=true;
-                }
-                else
-                {
-                    sysNedEne=false;
-                }
-             } 
+    function setUserDataPower(uint [] memory P) public checkRegistrationOfUser
+    { 
+        
+        if (blockTest>blockNumber)
+        {
+            blockNumber=blockTest;
+            deletePreviousData();
         }
-        else
+        if (usrAlredySendData[usrIndex[msg.sender]]==false)
         {   
-            autoRegistrationNewUser();
+            //User safe required and desired power
+                
+            usrPdSr[usrIndex[msg.sender]]=P[0];   
+            usrPdLd[usrIndex[msg.sender]]=P[1];   
+            usrPbAvSr[usrIndex[msg.sender]]=P[2];   
+            usrPbAvLd[usrIndex[msg.sender]]=P[3];   
+            usrPbRqLd[usrIndex[msg.sender]]=P[4]; 
+                
+            //User add required and desired power in system System variables
+                
+            sysPdSr+=P[0];
+            sysPdLd+=P[1];
+            sysPbAvSr+=P[2];
+            sysPbAvLd+=P[3];
+            sysPbRqLd+=P[4];
+            usrAlredySendData[usrIndex[msg.sender]]=true;
+                
+            if (sysPdSr<(sysPdLd+sysPbRqLd))
+            {
+            sysNedEne=true;
+            }
+            else
+            {
+            sysNedEne=false;
+            }
         }
     }
 
@@ -141,7 +136,7 @@ contract systemRegulationSmartConcract
         if (S1>C3)
         {
             getPbAvSr=0;
-            getPbAvLd=(usrPbAcLd[usrIndex[msg.sender]]*puPmax[1])/N;
+            getPbAvLd=(usrPbAvLd[usrIndex[msg.sender]]*puPmax[1])/N;
             getPbRqLd=(usrPbRqLd[usrIndex[msg.sender]]*puPmax[2])/N;
         }
         
@@ -149,7 +144,7 @@ contract systemRegulationSmartConcract
         {   
             puX=(N*(S1-C2))/sysMaxPbAvLd;
             getPbAvSr=0;
-            getPbAvLd=(usrPbAcLd[usrIndex[msg.sender]]*puPmax[1]*puX)/(N^2);
+            getPbAvLd=(usrPbAvLd[usrIndex[msg.sender]]*puPmax[1]*puX)/(N^2);
             getPbRqLd=(usrPbRqLd[usrIndex[msg.sender]]*puPmax[2])/N;
         }
         
@@ -216,20 +211,32 @@ contract systemRegulationSmartConcract
         
     }
 
-    function modifaySysTarifeNumber(uint _sysTarNum) public
+    function modifaySystemTarifeNumber(uint _sysTarNum) public checkRegistrationOfUser
     {
         sysTarNum=_sysTarNum;
     }
 
-    function modifaySysRunningStatus(bool _sysRunSta) public
+    function modifaySystemRunningStatus(bool _sysRunSta) public
     {
         sysRunSta=_sysRunSta;
     }
 
-    function changeBlock() public 
+    function modifaySystemMaxPower(uint _sysMaxPower) public
     {
-        blockTest++;
+        sysMaxPower=_sysMaxPower;
+    }
+
+    function getUserIndex() public view returns(uint) 
+    {
+        return(usrIndex[msg.sender]);
+    }
+    
+    function registrationNewUser(address _Address) public checkRegistrationOfUser
+    {   
+        numberOfUser++;
+        usrRegistration[_Address]= true;
+        usrIndex[_Address]=numberOfUser++;
+        usrAddress[usrIndex[_Address]]=_Address;
     }
     
 }
-

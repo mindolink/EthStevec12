@@ -1,7 +1,7 @@
 import openpyxl
 from openpyxl import Workbook, worksheet, load_workbook
 from openpyxl.utils import get_column_letter
-
+from openpyxl.styles import Font, Fill, Alignment
 
 class savingMeasurements(object):
     def __init__(self, UserNumber,TestNumber,NumberOfCars):
@@ -11,30 +11,40 @@ class savingMeasurements(object):
         wb = Workbook()
         worksheet = wb.active
 
-        worksheet["B"+ str(3)] = "Day-Hour-Min"
-        worksheet["C"+ str(3)] = "MonayWallet[EURO]"
-        worksheet["D"+ str(3)] = "Ppro [kW]" 
-        worksheet["E"+ str(3)] = "Pcon [kW]"
-        worksheet["F"+ str(3)] = "Pgrd [kW]"
-        worksheet["G"+ str(3)] = "Epro [kW]" 
-        worksheet["H"+ str(3)] = "Econ [kW]"
-        worksheet["I"+ str(3)] = "Egrd [kW]"
+        self.fontStyleWord = Font(name="Calibri",size = "9")
+        self.fontStyleNumber=Font(name="Calibri",size = "10")
 
-        worksheet["J"+ str(3)] = "Phsb [kW]"
-        worksheet["K"+ str(3)] = "Ehsb [kW]"      
-        worksheet["L"+ str(3)] = "SOChsb [%]"
+        self.alignmentStyle=Alignment(horizontal='center',vertical='center')
+
+        worksheet.cell(row = self.x, column = 2, value = 'Time[€]').font = self.fontStyleWord
+        worksheet.cell(row = self.x, column = 3, value = 'Wallet[€]').font = self.fontStyleWord
+        worksheet.cell(row = self.x, column = 4, value = 'Price[€]').font = self.fontStyleWord
+        worksheet.cell(row = self.x, column = 5, value = 'Egrd[kW]').font = self.fontStyleWord
+        worksheet.cell(row = self.x, column = 6, value = 'Epro[kWh]').font = self.fontStyleWord
+        worksheet.cell(row = self.x, column = 7, value = 'Econ[kWh]').font = self.fontStyleWord
+        worksheet.cell(row = self.x, column = 8, value = 'AvgPgrd[kW]').font = self.fontStyleWord
+        worksheet.cell(row = self.x, column = 9, value = 'AvgPpro[kW]').font = self.fontStyleWord
+        worksheet.cell(row = self.x, column = 10, value = 'AvgPcon[kW]').font = self.fontStyleWord
+        
+        worksheet.cell(row = self.x, column = 11, value = 'Ehsb[kWh]').font = self.fontStyleWord
+        worksheet.cell(row = self.x, column = 12, value = 'AvgPhsb[kW]').font = self.fontStyleWord
+        worksheet.cell(row = self.x, column = 13, value = 'SOChsb[%]').font = self.fontStyleWord
 
         for q in range (self.NumberOfCars):
-            colume= get_column_letter(13+3*q)
-            worksheet[str(colume)+str(3)] = "Pcar"+str(q+1)+" [kW]"
-            colume= get_column_letter(14+3*q)
-            worksheet[str(colume)+str(3)] = "Ecar"+str(q+1)+" [kWh]"   
-            colume= get_column_letter(15+3*q)
-            worksheet[str(colume)+str(3)] = "SOCcar"+str(q+1)+" [%]"   
+            worksheet.cell(row = self.x, column = 14+3*q, value = 'Ecar'+str(self.NumberOfCars)+'[kWh]').font = self.fontStyleWord
+            worksheet.cell(row = self.x, column = 15+3*q, value = 'AvgPcar'+str(self.NumberOfCars)+'[kW]').font = self.fontStyleWord
+            worksheet.cell(row = self.x, column = 16+3*q, value = 'SOCcar'+str(self.NumberOfCars)+'[%]').font = self.fontStyleWord
+            numberOfCell=16+3*q
+
+        for q in range (1,numberOfCell+1):
+            worksheet.cell(row = self.x, column = q).alignment=self.alignmentStyle
+            colume= get_column_letter(q)
+            worksheet.column_dimensions[colume].width =10
 
         wb.save(filename = self.FilePathName)
+        wb.close()
 
-    def safeBasicMeasurements(self,Day,Hour,Min,MonayWallet,Ptot,Pl,Pg,Etot,El,Eg):
+    def safeBasicMeasurements(self,Day,Hour,Min,Egrd,Epro,Econ,AvgPgrd,AvgPpro,AvgPcon):
 
         self.x+=1
         wb = openpyxl.load_workbook(filename =self.FilePathName)
@@ -42,17 +52,16 @@ class savingMeasurements(object):
         k=1000 #convert W to kW
         h=3600 #convert Ws to Wh
 
-        worksheet["B"+ str(self.x)] ="D"+str(Day)+"-H"+str(Hour)+"-M"+str(Min)
-        worksheet["C"+ str(self.x)] = MonayWallet
-        worksheet["D"+ str(self.x)] =("%.3f" % (Ptot/k))
-        worksheet["E"+ str(self.x)] =("%.3f" % (Pl/k))
-        worksheet["F"+ str(self.x)] =("%.3f" % (Pg/k))
-        worksheet["G"+ str(self.x)] =("%.3f" % (Etot/(k*h)))
-        worksheet["H"+ str(self.x)] =("%.3f" % (El/(k*h)))
-        worksheet["I"+ str(self.x)] =("%.3f" % (Eg/(k*h)))
+        worksheet.cell(row = self.x, column = 2, value = "D"+str(Day)+"-H"+str(Hour)+"-M"+str(Min)).font = self.fontStyleNumber
+        worksheet.cell(row = self.x, column = 5, value = ("%.3f" % (Egrd/(k*h)))).font = self.fontStyleNumber
+        worksheet.cell(row = self.x, column = 6, value = ("%.3f" % (Epro/(k*h)))).font = self.fontStyleNumber
+        worksheet.cell(row = self.x, column = 7, value = ("%.3f" % (Econ/(k*h)))).font = self.fontStyleNumber
+        worksheet.cell(row = self.x, column = 8, value = ("%.3f" % (AvgPgrd/k))).font = self.fontStyleNumber
+        worksheet.cell(row = self.x, column = 9, value = ("%.3f" % (AvgPpro/k))).font = self.fontStyleNumber
+        worksheet.cell(row = self.x, column = 10, value = ("%.3f" % (AvgPcon/k))).font = self.fontStyleNumber
 
         wb.save(self.FilePathName)
-
+        wb.close()
 
     def safeCarMeasurements(self,CarNumber,InfoBat):
 
@@ -63,26 +72,37 @@ class savingMeasurements(object):
         h=3600 #convert Ws to Wh
         p=100
 
-        colume= get_column_letter(13+3*CarNumber)
-        worksheet[str(colume)+str(self.x)] =("%.3f" % (InfoBat[0]/k))
-        colume= get_column_letter(14+3*CarNumber)
-        worksheet[str(colume)+str(self.x)] =("%.3f" % (InfoBat[1]/(k*h)))
-        colume= get_column_letter(15+3*CarNumber)
-        worksheet[str(colume)+str(self.x)] =("%.3f" % (InfoBat[2]/p))
+        worksheet.cell(row = self.x, column = 14+3*CarNumber, value = ("%.3f" % (InfoBat[1]/k))).font = self.fontStyleNumber
+        worksheet.cell(row = self.x, column = 15+3*CarNumber, value = ("%.3f" % (InfoBat[0]/k))).font = self.fontStyleNumber
+        worksheet.cell(row = self.x, column = 16+3*CarNumber, value = ("%.1f" % (InfoBat[2]*p))).font = self.fontStyleNumber                                                                              
 
         wb.save(filename = self.FilePathName)
+        wb.close()
 
 
     def safeHomeBatteryMeasurements(self,InfoBat):
 
         k=1000 #convert W to kW
         h=3600 #convert Ws to Wh
+        p=100
 
         wb = openpyxl.load_workbook(filename =self.FilePathName)
         worksheet= wb.active
 
-        worksheet["J"+ str(self.x)] =("%.3f" % (InfoBat[0]/k))
-        worksheet["K"+ str(self.x)] =("%.3f" % (InfoBat[1]/(k*h))) 
-        worksheet["L"+ str(self.x)] =("%.3f" % (InfoBat[2]/p)))
+        worksheet.cell(row = self.x, column = 11, value = ("%.3f" % (InfoBat[1]/k))).font = self.fontStyleNumber
+        worksheet.cell(row = self.x, column = 12, value = ("%.3f" % (InfoBat[0]/k))).font = self.fontStyleNumber
+        worksheet.cell(row = self.x, column = 13, value = ("%.1f" % (InfoBat[2]*p))).font = self.fontStyleNumber      
 
         wb.save(filename = self.FilePathName)
+        wb.close()
+
+    def safeCashBalance(self,MonayWallet,Price):
+
+        wb = openpyxl.load_workbook(filename =self.FilePathName)
+        worksheet= wb.active
+
+        worksheet.cell(row = self.x, column = 3, value = ("%.2f" % (MonayWallet/100))).font = self.fontStyleNumber
+        worksheet.cell(row = self.x, column = 4, value = ("%.2f" % (Price/100))).font = self.fontStyleNumber
+
+        wb.save(filename = self.FilePathName)
+        wb.close()

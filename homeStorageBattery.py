@@ -203,4 +203,4 @@ class homeStorageBattery(object):
         self.Wsum=0
         self.Psum=0
 
-        return ([self.Pavg/1000,self.Wavg/1000,self.SOC*100])
+        return ([self.Pavg,self.Wavg,self.SOC])

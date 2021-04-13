@@ -15,33 +15,31 @@ class systemControling(object):
         abiFile.close()
         self.contract_inst = self.web3.eth.contract(abi=abi,address=self.contractAddress)
         self.blockNumber = self.web3.eth.blockNumber
-        self.gas=4000000
+        self.gas=2000000
 
-    def getTariffNumber(self):
-        return self.contract_inst.functions.TariffNumber().call()
+    def getUserIndex(self):
+        return self.contract_inst.functions.getUserIndex().call({'from': self.web3.eth.accounts[self.account]})
 
     def getSystemNeedsEnergy(self):
-        return self.contract_inst.functions.SystemNeedsEnergy().call()
+        return self.contract_inst.functions.sysNedEne().call({'from': self.web3.eth.accounts[self.account]})
 
     def getSystemRuning(self):
-        return self.contract_inst.functions.SystemRuning().call()
+        return self.contract_inst.functions.sysRunSta().call({'from': self.web3.eth.accounts[self.account]})
 
-    def getAssignedPower(self):
-        return self.contract_inst.functions.getUserDataPower().call()
+    def getUserDataPower(self):
+        return self.contract_inst.functions.getUserDataPower().call({'from': self.web3.eth.accounts[self.account]})
 
-    def getUserNumber(self):
-        self.contract_inst.functions.RequiredPower(Preq).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
+    def setUserDataPower(self,P):
+        self.contract_inst.functions.setUserDataPower(P).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
 
+    def autoRegistrationNewUser(self):
+        self.contract_inst.functions.autoRegistrationNewUser().transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
 
-    def sendRequiredPower(self,Preq):
-        self.contract_inst.functions.setUserDataPower(Preq).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
-
-    def registrationNewUser(self):
-        self.contract_inst.functions.registrationNewUser().transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
-
+    def modifaySystemTarifeNumber(self,TarNum):
+        self.contract_inst.functions.modifaySystemTarifeNumber(TarNum).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
 
     def checkBlock(self):
-        if self.web3.eth.blockNumber<=self.blockNumber:
+        if self.web3.eth.blockNumber==self.blockNumber:
             return False
         else:
             self.blockNumber=self.web3.eth.blockNumber
@@ -49,6 +47,7 @@ class systemControling(object):
 
     def getBlock(self):
         return self.blockNumber
+
 
 
 class electricityBilling(object):
@@ -63,13 +62,25 @@ class electricityBilling(object):
         abiFile.close()
         self.contract_inst = self.web3.eth.contract(abi=abi,address=self.contractAddress)
         self.blockNumber = self.web3.eth.blockNumber
-        self.gas=4000000
+        self.gas=20000000
 
-    def sendEnergyStatus(self,Preq):
-        self.contract_inst.functions.RequiredPower(Preq).transact({'from': self.web3.eth.accounts[self.account], 'gas': gas})
+    def getUserIndex(self):
+        return self.contract_inst.functions.getUserIndex().call({'from': self.web3.eth.accounts[self.account]})
 
-    def getWalletCashBalanceEuro(self):
-        CENT=self.contract_inst.functions.getWalletCashBalanceCent().call({'from': self.web3.eth.accounts[self.account],'gas': self.gas})
-        EURO=CENT/100
-        abbEURO=("%.2f" % EURO)
-        return(abbEURO)
+    def getUserWalletInCent(self):
+        return self.contract_inst.functions.getUserWalletInCent().call({'from': self.web3.eth.accounts[self.account]})
+
+    def getUserFinalEnergyPriceInCent(self):
+        return self.contract_inst.functions.getUserFinalEnergyPriceInCent().call({'from': self.web3.eth.accounts[self.account]})
+
+    def modifaySystemTarifPrice(self,TarNum,PriceBuy,priceSell):
+        self.contract_inst.functions.modifaySystemTarifPrice(TarNum,PriceBuy,priceSell).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
+
+    def autoRegistrationNewUser(self):
+        self.contract_inst.functions.autoRegistrationNewUser().transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
+
+    def setUserDataEnergy(self,E):
+        self.contract_inst.functions.setUserDataEnergy(E).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
+
+    def processingBillingForEnergy(self):
+        self.contract_inst.functions.processingBillingForEnergy().transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
