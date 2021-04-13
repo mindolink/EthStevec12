@@ -52,7 +52,7 @@ class savingMeasurements(object):
         k=1000 #convert W to kW
         h=3600 #convert Ws to Wh
 
-        worksheet.cell(row = self.x, column = 2, value = "D"+str(Day)+"-H"+str(Hour)+"-M"+str(Min)).font = self.fontStyleNumber
+        worksheet.cell(row = self.x, column = 2, value = str(Day)+":"+str(Hour)+":"+str(Min)).font = self.fontStyleNumber
         worksheet.cell(row = self.x, column = 5, value = ("%.3f" % (Egrd/(k*h)))).font = self.fontStyleNumber
         worksheet.cell(row = self.x, column = 6, value = ("%.3f" % (Epro/(k*h)))).font = self.fontStyleNumber
         worksheet.cell(row = self.x, column = 7, value = ("%.3f" % (Econ/(k*h)))).font = self.fontStyleNumber
