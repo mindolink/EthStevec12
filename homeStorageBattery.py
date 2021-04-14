@@ -54,18 +54,14 @@ class homeStorageBattery(object):
         self.Wsum=0
         self.Psum=0
 
-
-
         self.Day=0
         self.Hour=0
         self.TarNum=0       #Price tarif number
-        self.SysNedEne=False    #Info if naigbors eed Energy
         self.OffOn=True        #Flag for init when car is connect to grid
 
         self.PbAvSr=0
         self.PbAvLd=0
         self.PbRqLd=0  
-
 
 
     def processBatterySetting(self,SOCsmart,Day,Hour,TarNum,TarInt,HomNedEne,SysNedEne):
@@ -75,10 +71,10 @@ class homeStorageBattery(object):
             self.Day=Day
             self.Hour=Hour
             self.SOCsmart=SOCsmart/100
-            self.TarNum=TarNum
-            self.TarInt=TarInt
             self.HomNedEne=HomNedEne
             self.SysNedEne=SysNedEne
+            self.TarNum=TarNum
+            self.TarInt=TarInt
 
             if (self.TarNum==1):
                 self.settingsTariff1()
@@ -114,8 +110,8 @@ class homeStorageBattery(object):
     def settingsTariff1(self):
         if (self.Day<6):
             if (self.SOC<self.SOCsmart and (self.Hour<6 or 21<self.Hour)):
-                dtWb=(self.SOCsmart-self.SOC)*self.Wb/100
-                P=dtWb/self.TarInt
+                dtWb=(self.SOCsmart-self.SOC)*self.Wb
+                P=dtWb/(self.TarInt*0.9)
                 if P<self.PbCh:
                     self.PbAvSr=0
                     self.PbAvLd=self.PbCh-P
@@ -134,7 +130,7 @@ class homeStorageBattery(object):
                 self.PbAvLd=0
                 self.PbRqLd=0
         else:
-            if (self.Haour>15 and self.sysNeedsEnergy==True and SOC>SOCmin):
+            if (self.Haour>15 and SOC>SOCmin and (self.HomNedEne==True or self.SysNedEne==True)):
                 self.PbAvSr=self.PbDh
                 self.PbAvLd=0
                 self.PbRqLd=0
@@ -161,7 +157,7 @@ class homeStorageBattery(object):
 
     def settingsTariff3(self):
 
-        if (self.SOC>self.SOCmin and (self.SysNedEne==True or self.HomNedEne==True)):
+        if (self.SOC>self.SOCmin and (self.HomNedEne==True or self.SysNedEne==True)):
             self.PbAvSr=self.PbDh
             self.PbAvLd=0
             self.PbRqLd=0

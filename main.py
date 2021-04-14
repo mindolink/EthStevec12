@@ -5,7 +5,7 @@ import numpy as np
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 
-UserGethUnlockAccount=3
+UserGethUnlockAccount=0
 Http='http://localhost:8545'
 AddrEB=address.addressConcractElectricityBilling
 AddrSC=address.addressConcractSystemRegulation
@@ -14,13 +14,15 @@ PathUserSchedule='./ImportData/userSchedule.xlsx'
 PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
 PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
 
-t=1
+t=0.75
 dt=30
 Day=1   
 Hour=0
 Min=0
 Sec=0
 Flg=1
+StartFlg=True
+k=1000
 
 TarInt=0
 SysRun=False
@@ -99,7 +101,7 @@ while r<123:
 
 #-------------------LOOKING DURATION PRICE ENERGY TARIFF-------------------------
     TarNum=xlsxUserSchedule["D"+str(row)].value
-
+    TarInt=0
     for q in range (24):
         rowLop=row+q
         TarLop=xlsxUserSchedule["D"+str(rowLop)].value
@@ -120,8 +122,9 @@ while r<123:
 
 
 #-------------------LOOKING HOME AND CARS SETTINGS ------------------------------
-
+    print ("")
     print("BATTERY SETINGS:")
+    
     SOCsmart=xlsxUserSchedule["G"+str(row)].value
     Hsb.processBatterySetting(SOCsmart,Day,Hour,TarNum,TarInt,HomNedEne,SysNedEne)
     ReqPhsb=Hsb.getRequiredPower()
@@ -133,7 +136,7 @@ while r<123:
         BatOn=0
         BatSet=0
         SOCstart=0
-        k=1000
+
         try:
             colume= get_column_letter(8+3*q)
             BatOn=xlsxUserSchedule[str(colume)+str(row)].value
@@ -148,11 +151,11 @@ while r<123:
             BatSet=0
             SOCstart=0
 
-        Car[q].processingBatterySetting(BatOn,BatSet,SOCstart,Day,Hour,TarNum,SysNedEne)
+        Car[q].processingBatterySetting(BatOn,BatSet,SOCstart,Day,Hour,TarNum,HomNedEne,SysNedEne)
         ReqOnePcar=Car[q].getRequiredPower()
         ReqPcar=np.add(ReqPcar,ReqOnePcar)
 
-    wb.close()
+    
 
 #---------------------TOTAL CONSUPTION ----------------------
     
@@ -163,9 +166,14 @@ while r<123:
     ReqArrPower[2]=ReqPbat[0]
     ReqArrPower[3]=ReqPbat[1]
     ReqArrPower[4]=ReqPbat[2]
-    
-    print(ReqArrPower)
-    
+
+    print ("")
+    print ("REQUAST POWERS:")
+    print("PdSr:"+str(round(ReqArrPower[0]/k,2))+"kW  PdLd:"+str(round(ReqArrPower[1]/k,2))+"kW  PbAvSr:"
+    +str(round(ReqArrPower[2]/k,2))+"kW  PbAvLd:"+str(round(ReqArrPower[3]/k,2))+"kW  PbRqLd:"
+    +str(round(ReqArrPower[4]/k,2))+"kW")
+
+
 #----------CHECK LIMITATIONS HAUSE MAX POWER WITH BMS---------------
 
     bms.processAllParametersAndRestrictions(ReqArrPower,GetArrPower)
@@ -178,18 +186,16 @@ while r<123:
         ethReg.setUserDataPower(SndReqPower)
         ethReg.modifaySystemTarifeNumber(TarNum)
 
-        #Get assagned data
+        SysNedEne=ethReg.getSystemNeedsEnergy()
 
+        #Get assagned data
         GetArrPower=ethReg.getUserDataPower()
         bms.processAllParametersAndRestrictions(ReqArrPower, GetArrPower)
-
+        
 #------------------GET ACTUAL POWERS-----------------------------------
-
+    
     ActArrTotPower=bms.actualTotalPower()
     ActArrGrdPower=bms.actualPowerFromOrToGrid()
-
-    print(ActArrTotPower)
-    print("..s.d.asdasd")
 
     ActGrdPower=0
     ActProPower=0
@@ -206,11 +212,17 @@ while r<123:
     SumGrdPower+=ActConPower-ActProPower
     SumProPower+=ActProPower
     SumConPower+=ActConPower
-    print (SumGrdPower)
-    print (SumProPower)
-    print (SumConPower)
-    print (ActArrTotPower)
     puActArrPower=bms.peerUnitRequestedPower()
+
+    print ("")
+    print ("ACTUAL POWERS IN SEGMENT:")
+    print("PdSr:"+str(round(ActArrTotPower[0]/k,2))+"kW  PdLd:"+str(round(ActArrTotPower[1]/k,2))+"kW  PbAvSr:"
+    +str(round(ActArrTotPower[2]/k,2))+"kW  PbAvLd:"+str(round(ActArrTotPower[3]/k,2))+"kW  PbRqLd:"
+    +str(round(ActArrTotPower[4]/k,2))+"kW")
+    print ("")
+    print ("ACTUAL POWERS FLOW:")
+    print("Ppro:"+str(round((ActProPower)/k,2))+"kW  Pcon:"+str(round(ActConPower/k,2))+"kW  Pgrd:"
+    +str(round((ActConPower-ActProPower)/k,2))+"kW ")
 
 
 #---------------- SET POWER INFO ON BATERY -----------------
@@ -225,19 +237,20 @@ while r<123:
     time.sleep(t)
 
 #---------------INTERNAL CLOCK----------------------------
-
-    if Sec==60:
-        Min+=1
-        Sec=0
-    if Min==60:
-        Hour+=1
-        Min=0
-    if Hour==24:
-        Day+=1
-        Hour+=0
-
     Flg+=1
     Sec+=dt
+
+    if Sec>=60:
+        Min+=1
+        Sec=0
+    if Min>=60:
+        Hour+=1
+        Min=0
+    if Hour>=24:
+        Day+=1
+        Hour=0
+    if Day>7:
+        Day=1
 
 #----------------------UPDATE VALUES -----------------------
 
@@ -258,21 +271,11 @@ while r<123:
     ActProPower=0
     ActConPower=0
 
-#----------SEND DATA INFORMATION ABAUT ENERGY FOR BILLING--------
-
-
-    MonayWallet=0
-
-
-
 #-------- SEND  ENERGY INFO IN ETEHREUM NETWORK ---------
 
     if ((Min==0 or Min==15 or Min==30 or Min==45) and Sec==dt):
 
-        wb = load_workbook(filename = PathUserSchedule)
-        xlsxUserSchedule = wb["User "+str(UserNumber)]
-
-        if Min==0 and Sec==0:
+        if Min==0 and StartFlg==False:
             row=((Day-1)*24)+Hour+3
             TarNumPre=xlsxUserSchedule["D"+str(row)].value
         else:
@@ -280,28 +283,25 @@ while r<123:
             TarNumPre=xlsxUserSchedule["D"+str(row)].value
 
         wb.close()
-        
+
+        StartFlg=False
+
         wb = load_workbook(filename = PathUserInfo)
         xlsxSystemTarifPrices = wb["systemTariffPrices"]
-
         PriceBuy=xlsxSystemTarifPrices["C"+str(TarNumPre+2)].value
         PriceSell=xlsxSystemTarifPrices["D"+str(TarNumPre+2)].value
-        print(PriceBuy)
-        print(PriceSell)
-
-
         wb.close()
 
-        ethBil.modifaySystemTarifPrice(int (TarNumPre),int(PriceBuy), int(PriceSell))
+        ethBil.modifaySystemTarifPrice(int(TarNumPre),int(PriceBuy), int(PriceSell))
         ethBil.setUserDataEnergy([int(SumArrGrdEnergy[0]),int(SumArrGrdEnergy[1]),int(SumArrGrdEnergy[2]),int(SumArrGrdEnergy[3]),int(SumArrGrdEnergy[4])])
         
         SumArrGrdEnergy=[0]*5
+
 #------------------Safe measurment of energy and avg power-------------------------
 
         AvgGrdPower=(SumGrdPower/Flg)
         AvgProPower=(SumProPower/Flg)
         AvgConPower=(SumConPower/Flg)
-
 
         sm.safeBasicMeasurements(Day,Hour,Min,SumGrdEnergy,SumProEnergy,SumConEnergy,AvgGrdPower,AvgProPower,AvgConPower)
 
@@ -310,6 +310,7 @@ while r<123:
             sm.safeHomeBatteryMeasurements(InfoBat)
 
         if (NumberOfCars>0):
+
             for q in range (NumberOfCars):
                 InfoBat=Car[q].getBatteryInfo(Flg)
                 sm.safeCarMeasurements(q, InfoBat)
@@ -324,13 +325,12 @@ while r<123:
         SumConPower=0
 
         Flg=0
-    
+        
 #---------------------ETH BILING PREVIOUS SENDED PRICE-------------------------
 
     if ((Min==5 or Min==20 or Min==35 or Min==50) and Sec==dt):
 
         ethBil.processingBillingForEnergy()
-
 
 #----------------------SAVE PRICE AND WALLET WALLEUS----------------------------------
 
@@ -342,8 +342,9 @@ while r<123:
         sm.safeCashBalance(MonayWalletCent, PriceForEnergyCent)
 
 #-------------------SAVE MEASURMENT ALSO IN EXE FILE---------------
-
-    print(str(Sec)+" "+str(Min)+" "+str(Hour)+" "+str(Day))
-
+    print("")
+    print("TIME")
+    print(str(Day)+":"+str(Hour)+":"+str(Min)+":"+str(Sec))
+    print("")
     print("---------------------------------------------------------")
 

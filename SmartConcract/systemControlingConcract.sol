@@ -15,7 +15,7 @@ contract systemRegulationSmartConcract
     address OwnAddress;
     
     //Informtion about system/grid
-    uint sysMaxPower=400;   //[W]
+    uint public sysMaxPower=15000;   //[W]
     uint public sysTarNum;
     bool public sysNedEne;
     bool public sysRunSta;
@@ -26,17 +26,17 @@ contract systemRegulationSmartConcract
     mapping (address=>bool) usrRegistration;
     
     //User required and desired power
-    uint [] usrPdSr;    //Array of User info abaut Not regulated power from diferent sources (Source power from Photo Voltaic, Winde Turbine,etc)
-    uint [] usrPdLd;    //Array of User info abaut Not regulated power from diferent loads (Any load power devide except Battery)
-    uint [] usrPbAvSr;  //rray of User info abaut Avalible power source from Battery or any other regulated source
-    uint [] usrPbAvLd;  //Aray of User info abaut Avalible power load from Battery or any other regulated load
-    uint [] usrPbRqLd;  //aray of User info abaut Requasted power load from Batterys or any other regulated load
+    uint [] usrPdSr=[0];    //Array of User info abaut Not regulated power from diferent sources (Source power from Photo Voltaic, Winde Turbine,etc)
+    uint [] usrPdLd=[0];    //Array of User info abaut Not regulated power from diferent loads (Any load power devide except Battery)
+    uint [] usrPbAvSr=[0];  //rray of User info abaut Avalible power source from Battery or any other regulated source
+    uint [] usrPbAvLd=[0];  //Aray of User info abaut Avalible power load from Battery or any other regulated load
+    uint [] usrPbRqLd=[0];  //aray of User info abaut Requasted power load from Batterys or any other regulated load
     
     //System required and desired power
-    uint sysPdSr;       //Total Not regulated power from diferent sources
-    uint sysPdLd;       //Total Not regulated power from diferent loads
-    uint sysPbAvSr;     //Total Avalible power source from Battery or any other regulated source
-    uint sysPbAvLd;     //Total Avalible power load from Battery or any other regulated load
+    uint public sysPdSr;       //Total Not regulated power from diferent sources
+    uint public sysPdLd;       //Total Not regulated power from diferent loads
+    uint public sysPbAvSr;     //Total Avalible power source from Battery or any other regulated source
+    uint public sysPbAvLd;     //Total Avalible power load from Battery or any other regulated load
     uint sysPbRqLd;     //Total Requasted power load from Batterys or any other regulated load
 
     bool [] usrAlredySendData;
@@ -60,6 +60,12 @@ contract systemRegulationSmartConcract
         usrRegistration[msg.sender]= true;
         usrIndex[msg.sender]=numberOfUser;
         usrAddress[usrIndex[msg.sender]]=msg.sender;
+        usrPdSr.push(0);
+        usrPdLd.push(0);
+        usrPbAvSr.push(0);
+        usrPbAvLd.push(0);
+        usrPbRqLd.push(0);
+    
     }
     
     function deletePreviousData() private
@@ -81,9 +87,9 @@ contract systemRegulationSmartConcract
     function setUserDataPower(uint [] memory P) public checkRegistrationOfUser
     { 
         
-        if (blockTest>blockNumber)
+        if (block.number>blockNumber)
         {
-            blockNumber=blockTest;
+            blockNumber=block.number;
             deletePreviousData();
         }
         if (usrAlredySendData[usrIndex[msg.sender]]==false)
@@ -144,14 +150,14 @@ contract systemRegulationSmartConcract
         {   
             puX=(N*(S1-C2))/sysMaxPbAvLd;
             getPbAvSr=0;
-            getPbAvLd=(usrPbAvLd[usrIndex[msg.sender]]*puPmax[1]*puX)/(N^2);
+            getPbAvLd=(usrPbAvLd[usrIndex[msg.sender]]*puPmax[1]*puX)/(N*N);
             getPbRqLd=(usrPbRqLd[usrIndex[msg.sender]]*puPmax[2])/N;
         }
         
         else if (S2>C2)
         {   
-            puX=(N*(S2-C2))/sysMaxPbAvSr;
-            getPbAvSr=(usrPbAvSr[usrIndex[msg.sender]]*puPmax[0]*puX)/(N^2);
+            puX=(N*(C2-S1))/sysMaxPbAvSr;
+            getPbAvSr=(usrPbAvSr[usrIndex[msg.sender]]*puPmax[0]*puX)/(N*N);
             getPbAvLd=0;
             getPbRqLd=(usrPbRqLd[usrIndex[msg.sender]]*puPmax[2])/N;
         }

@@ -52,7 +52,6 @@ class carBattery(object):
         self.Day=0
         self.Hour=0
         self.TarNum=0       #Price tarif number
-        self.SysNedEne=False    #Info if naigbors eed Energy
         self.OffOn=True        #Flag for init when car is connect to grid
 
         self.PbAvSr=0
@@ -60,11 +59,12 @@ class carBattery(object):
         self.PbRqLd=0  
 
 
-    def processingBatterySetting(self,BatOn,BatSet,SOCstart,Day,Hour,TarNum,SysNedEne):
+    def processingBatterySetting(self,BatOn,BatSet,SOCstart,Day,Hour,TarNum,HomNedEne,SysNedEne):
     
         self.BatOn=BatOn
         self.BatSet=BatSet
         self.TarNum=TarNum
+        self.HomNedEne=HomNedEne
         self.SysNedEne=SysNedEne
         self.Hour=Hour
 
@@ -84,21 +84,21 @@ class carBattery(object):
                 self.PbAvSr=0
                 self.PbAvLd=0
                 self.PbRqLd=0
-
+             
         else:
             self.PbAvSr=0
             self.PbAvLd=0
             self.PbRqLd=0
             self.SOC=0
             self.OffOn=True
-
+            
         #Display battery settings
 
         k=1000 #conversion factor from W to kW
         pavsr=("%.2f" % (self.PbAvSr/k))
         pavld=("%.2f" % (self.PbAvLd/k))
         prqld=("%.2f" % (self.PbRqLd/k))
-               
+
         print ("Car"+str(self.CarNum+1)+" battery settings: PbAvSr:"+str(pavsr)+"kW   PbAvLd:"+str(pavld)+"kW  PbRqLd:"+str(prqld)+"kW")
 
     def getRequiredPower(self):
@@ -106,28 +106,29 @@ class carBattery(object):
 
     def batteryFunctionSettings1(self):
 
-        if (self.TarNum==3 and self.SOCmin<self.SOC and self.SysNedEne==True):
+        if (self.TarNum==3 and self.SOCmin<self.SOC and (self.HomNedEne==True or self.SysNedEne==True)):
             self.PbAvSr=self.PbDh
             self.PbAvLd=0
             self.PbRqLd=0
+
         elif (self.SOC<self.SOCmax):
             self.PbAvSr=0
             self.PbAvLd=self.PbCh
-            self.PbRqLd=0  
+            self.PbRqLd=0
+
         else:
             self.PbAvSr=0
             self.PbAvLd=0
             self.PbRqLd=0  
-
+        
+        
     def batteryFunctionSettings2(self):
-        if (self.TarNum==3 and self.SOCmin<self.SOC and self.SysNedEne==True):
-            self.PbAvSr=self.PbDh
-            self.PbAvLd=0
-            self.PbRqLd=0
-        elif (self.TarNum==1 and self.SOCmax>self.SOC and (self.Hour<6 or self.Hour>21)):
+
+        if (self.TarNum==1 and self.SOCmax>self.SOC and (self.Hour<6 or self.Hour>21)):
             self.PbAvSr=0
             self.PbAvLd=0
             self.PbRqLd=self.PbCh
+            
         elif (self.SOC<self.SOCmax):
             self.PbAvSr=0
             self.PbAvLd=self.PbCh

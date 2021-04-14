@@ -86,28 +86,28 @@ class batteryManegmentSystem():
         xC2=xPsCurCon+xPsReqCon
         xC3=xPsCurCon+xPsReqCon+xPsAvaCon
 
-        if (xS1>=xC3):
+        if (xS1>xC3):
             xCP=xC3/xS1
             xCC=1
             xAP=0
             xAC=1
             xRC=1
 
-        elif(xS1>=xC2):
+        elif(xS1>xC2):
             xCP=1
             xCC=1
             xAP=0
             xAC=(xS1-xC2)/xPsAvaCon
             xRC=1
 
-        elif(xS2>=xC2):
+        elif(xS2>xC2):
             xCP=1
             xCC=1
-            xAP=(xS2-xC2)/xPsAvaPro
+            xAP=(xC2-xS1)/xPsAvaPro
             xAC=0
             xRC=1
 
-        elif (xS2>=xC1):
+        elif (xS2>xC1):
             xCP=1
             xCC=1
             xAP=1
@@ -134,7 +134,7 @@ class batteryManegmentSystem():
     def outputPowerDataInfoForConcract(self,Pgc):
 
         for q in range(5):
-            if q>2:
+            if q>1:
                 self.Poc[q]=Pgc[q-2]
                 if (self.Pr[q]>0):
                     self.puPoc[q]=np.divide(self.Poc[q],self.Pr[q])
@@ -146,7 +146,7 @@ class batteryManegmentSystem():
 
     def actualPowerFromOrToGrid(self):
         for q in range(5):
-            if q>2:
+            if q>1:
                 if (self.Pic[q]<self.Poc[q]):
                     self.Py[q]=self.Pic[q]
                     self.puPy[q]=self.puPic[q]
