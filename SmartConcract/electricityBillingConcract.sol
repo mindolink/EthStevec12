@@ -1,242 +1,251 @@
 // SPDX-License-Identifier: GPL-3.0
 
 pragma solidity >=0.7.0 <0.9.0;
+
 //import "remix_tests.sol"; // this import is automatically injected by Remix.
 //import "../contracts/3_Ballot.sol";
 
+contract electricityBillingConcract {
+    
+    
+    int N=100000;
+    mapping(uint => address) usrAddress;
+    mapping(address => uint) usrIndex;
+    mapping(address => bool) usrRegistration;
+    mapping(address => int)  usrWalletNanoCent;
+    mapping(address => int)  usrEnergyPriceNanoCent;
+    
+    address ownAddress;
+    uint blockTest=0;
+    int  ownWalletNanoCent=0;
+    int  ownEnergyDistributed=0;
+    int  ownEnergyPriceNanoCent=0;
 
-contract systemRegulationSmartConcract 
-{   
+    int [] usrFinalCost;
+    
+    int Q=1;
+    
+    uint blockNumber;
     uint public numberOfUser;
-    uint blockNumber=0;
-    uint N=10000;   //Per-Unit Multiplay
-    uint blockTest=1;
-    //Information abaout owner of system/grid
-    address OwnAddress;
     
-    //Informtion about system/grid
-    uint sysMaxPower=400;   //[W]
-    uint public sysTarNum;
-    bool public sysNedEne;
-    bool public sysRunSta;
+    int [] usrEdSr;
+    int [] usrEdLd;
+    int [] usrEbAvSr;
+    int [] usrEbAvLd;
+    int [] usrEbRqLd;
 
-    //Users information
-    mapping (uint=>address) usrAddress;
-    mapping (address=>uint) usrIndex;
-    mapping (address=>bool) usrRegistration;
-    
-    //User required and desired power
-    uint [] usrPdSr;    //Array of User info abaut Not regulated power from diferent sources (Source power from Photo Voltaic, Winde Turbine,etc)
-    uint [] usrPdLd;    //Array of User info abaut Not regulated power from diferent loads (Any load power devide except Battery)
-    uint [] usrPbAvSr;  //rray of User info abaut Avalible power source from Battery or any other regulated source
-    uint [] usrPbAvLd;  //Aray of User info abaut Avalible power load from Battery or any other regulated load
-    uint [] usrPbRqLd;  //aray of User info abaut Requasted power load from Batterys or any other regulated load
-    
-    //System required and desired power
-    uint sysPdSr;       //Total Not regulated power from diferent sources
-    uint sysPdLd;       //Total Not regulated power from diferent loads
-    uint sysPbAvSr;     //Total Avalible power source from Battery or any other regulated source
-    uint sysPbAvLd;     //Total Avalible power load from Battery or any other regulated load
-    uint sysPbRqLd;     //Total Requasted power load from Batterys or any other regulated load
+    int sysEdSr; //Array of User info abaut Not regulated Energy from diferent sources (Source power from Photo Voltaic, Winde Turbine,etc)
+    int sysEdLd; //Array of User info abaut Not regulated Energy from diferent loads (Any load power devide except Battery)
+    int sysEbAvSr; //Array of User info abaut Avalible Energy source from Battery or any other regulated source
+    int sysEbAvLd; //Array of User info abaut Avalible Energy load from Battery or any other regulated load
+    int sysEbRqLd; //Array of User info abaut Requasted Energy load from Batterys or any other regulated load
 
     bool [] usrAlredySendData;
+    bool stateBillingProcess=false;
+    int TarNum = 3;
+    int B3Wh = 8;
+    int S3Wh = 24;
+    int B2Wh = 8;
+    int S2Wh = 24;
+    int B1Wh = 16;
+    int S1Wh = 16;
+
+    int nano=1000000000;
+    
+    int nB3Ws=(nano*B3Wh)/3600000; //Buy price Tariff 3 in nanoCent for Ws
+    int nS3Ws=(nano*S3Wh)/3600000; //Sell price price Tariff 3 in nanoCent for Ws
+    int nB2Ws=(nano*B2Wh)/3600000; //Buy price Tariff 2 in nanoCent for Ws
+    int nS2Ws=(nano*S2Wh)/3600000; //Sell price Tariff 2 in nanoCent for Ws
+    int nB1Ws=(nano*B1Wh)/3600000; //Buy price Tariff 1 in nanoCent for Ws
+    int nS1Ws=(nano*S1Wh)/3600000; //Sell price Tariff 1 in nanoCent for Ws
 
     modifier checkNonRegistrationOfUser
     {
-      require(usrRegistration[msg.sender]==false);
-      _;
+        require(usrRegistration[msg.sender]==false);
+        _;
     }
     
     modifier checkRegistrationOfUser
     {
-      require(usrRegistration[msg.sender]==true);
-      _;
+        require(usrRegistration[msg.sender]==true);
+        _;
     }
-    
-    
+
+    modifier checkUserAlredySendData
+    {
+        require(usrAlredySendData[usrIndex[msg.sender]]==false);
+        _;   
+    }
+
+    modifier checkBillingProcessingForEnergy
+    {
+        require(stateBillingProcess==false);
+        _;   
+    }
+
+
     function autoRegistrationNewUser() public checkNonRegistrationOfUser
     {   
-        numberOfUser+=1;
+        
         usrRegistration[msg.sender]= true;
         usrIndex[msg.sender]=numberOfUser;
         usrAddress[usrIndex[msg.sender]]=msg.sender;
+        numberOfUser+=1;
+        
+        usrAlredySendData.push(false);
+        usrEdSr.push(0);
+        usrEdLd.push(0);
+        usrEbAvSr.push(0);
+        usrEbAvLd.push(0);
+        usrEbRqLd.push(0);
+        
     }
+    
     
     function deletePreviousData() private
     {
-        usrPdSr= new uint[](numberOfUser+1);
-        usrPdLd= new uint[](numberOfUser+1);
-        usrPbAvSr= new uint[](numberOfUser+1);
-        usrPbAvLd= new uint[](numberOfUser+1);
-        usrPbRqLd= new uint[](numberOfUser+1);
-        usrAlredySendData= new bool [](numberOfUser+1);
+        usrEdSr= new int[](numberOfUser+1);
+        usrEdLd= new int[](numberOfUser+1);
+        usrEbAvSr= new int[](numberOfUser+1);
+        usrEbAvLd= new int[](numberOfUser+1);
+        usrEbRqLd= new int[](numberOfUser+1);
+        sysEdSr=0;
+        sysEdLd=0;
+        sysEbAvSr=0;
+        sysEbAvLd=0;
+        sysEbRqLd=0;
         
-        sysPdSr=0;
-        sysPdLd=0;
-        sysPbAvSr=0;
-        sysPbAvLd=0;
-        sysPbRqLd=0;  
+        usrAlredySendData= new bool [](numberOfUser+1);
     }
     
-    function setUserDataPower(uint [] memory P) public checkRegistrationOfUser
+    function setUserDataEnergy(int[] memory E) public checkRegistrationOfUser checkUserAlredySendData
     { 
+        usrEdSr[usrIndex[msg.sender]]=E[0];   //User unRegulated production power
+        usrEdLd[usrIndex[msg.sender]]=E[1];   //User unRegulated consuption power
+        usrEbAvSr[usrIndex[msg.sender]]=E[2];   //Avalible production power
+        usrEbAvLd[usrIndex[msg.sender]]=E[3];   //Avalible consuption power
+        usrEbRqLd[usrIndex[msg.sender]]=E[4];   //Reguasted consuption power 
+
+        sysEdSr+=E[0];
+        sysEdLd+=E[1];
+        sysEbAvSr+=E[2];
+        sysEbAvLd+=E[3];
+        sysEbRqLd+=E[4];
+    
+        usrAlredySendData[usrIndex[msg.sender]]=true;
+        stateBillingProcess=false;
+    }
+
+    function processingBillingForEnergy() public checkBillingProcessingForEnergy
+    {
+        int sysCon=sysEbAvLd+sysEbRqLd+sysEdLd;
+        int sysPro=sysEdSr+sysEbAvSr;
         
-        if (blockTest>blockNumber)
-        {
-            blockNumber=blockTest;
-            deletePreviousData();
-        }
-        if (usrAlredySendData[usrIndex[msg.sender]]==false)
+        int sysProBaseCost;
+        int sysConBaseCost;
+        int sysProFinalCost;
+        int sysConFinalCost;
+        int sysDif;
+        
+        int puPro;
+        int puCon;
+        
+        sysProBaseCost=(sysEdSr*nS1Ws)+(sysEbAvSr*nS2Ws);   
+        sysConBaseCost=(sysEdLd+sysEbRqLd)*nB1Ws+sysEbAvLd*nB2Ws;
+        
+        
+        if  (sysCon<sysPro)
         {   
-            //User safe required and desired power
-                
-            usrPdSr[usrIndex[msg.sender]]=P[0];   
-            usrPdLd[usrIndex[msg.sender]]=P[1];   
-            usrPbAvSr[usrIndex[msg.sender]]=P[2];   
-            usrPbAvLd[usrIndex[msg.sender]]=P[3];   
-            usrPbRqLd[usrIndex[msg.sender]]=P[4]; 
-                
-            //User add required and desired power in system System variables
-                
-            sysPdSr+=P[0];
-            sysPdLd+=P[1];
-            sysPbAvSr+=P[2];
-            sysPbAvLd+=P[3];
-            sysPbRqLd+=P[4];
-            usrAlredySendData[usrIndex[msg.sender]]=true;
-                
-            if (sysPdSr<(sysPdLd+sysPbRqLd))
-            {
-            sysNedEne=true;
+            sysDif=sysPro-sysCon;
+            sysProFinalCost=sysConBaseCost+nB3Ws*sysDif;
+            sysConFinalCost=sysConBaseCost;
+            
+            if (sysProBaseCost>0)
+            {            
+                puPro=(N*sysProFinalCost)/sysProBaseCost;
             }
             else
             {
-            sysNedEne=false;
+                puPro=0;
             }
+            
+            puCon=N;
+            
+            ownEnergyPriceNanoCent=nB3Ws*sysDif;
+            ownWalletNanoCent-=nB3Ws*sysDif;
+            ownEnergyDistributed=sysDif;
         }
+        else
+        {   
+            sysDif=sysCon-sysPro;
+            sysProFinalCost=sysProBaseCost;
+            sysConFinalCost=sysProBaseCost+nS3Ws*sysDif;
+            
+            puPro=N;
+            
+            if (sysConBaseCost>0)
+            {
+                puCon=(N*sysConFinalCost)/sysConBaseCost;
+            }
+            else
+            {
+                puCon=0;
+            }
+            
+            ownEnergyPriceNanoCent=-nS3Ws*sysDif;
+            ownWalletNanoCent+=nS3Ws*sysDif;
+            ownEnergyDistributed=sysDif;
+        }
+        
+        for(uint i=0;i<numberOfUser;i++)
+        {   
+            int usrProPriceNanoCent=((puPro*nS1Ws*usrEdSr[i])/N)+((puPro*nS2Ws*usrEbAvSr[i])/N);
+            int usrConPriceNanoCent=((puCon*nB1Ws*usrEdLd[i])/N)+((puCon*nB2Ws*usrEbAvLd[i])/N)+((puCon*nB1Ws*usrEbRqLd[i])/N);
+            
+            usrEnergyPriceNanoCent[usrAddress[i]]=usrConPriceNanoCent-usrProPriceNanoCent;
+            usrWalletNanoCent[usrAddress[i]]+=usrConPriceNanoCent-usrProPriceNanoCent;
+        }
+        
+        deletePreviousData();
+        
+        stateBillingProcess=true;
+        
     }
-
-    function getUserDataPower() public view returns(uint [3] memory)
-    {
-        uint [3] memory puPmax= checkMaxPowerOfSystem();
-        uint sysMaxPbAvSr=(sysPbAvSr*puPmax[0])/N;
-        uint sysMaxPbAvLd=(sysPbAvLd*puPmax[1])/N;
-        uint sysMaxPbRqLd=(sysPbRqLd*puPmax[2])/N;
     
-        uint C2=sysPdLd+sysMaxPbAvLd;
-        uint C3=sysPdLd+sysMaxPbAvLd+sysMaxPbRqLd;
-        uint S1=sysPdSr;      
-        uint S2=sysPdSr+sysMaxPbAvSr;
-        
-        uint puX;
-        uint getPbAvSr;
-        uint getPbAvLd;
-        uint getPbRqLd;
-        
-        if (S1>C3)
-        {
-            getPbAvSr=0;
-            getPbAvLd=(usrPbAvLd[usrIndex[msg.sender]]*puPmax[1])/N;
-            getPbRqLd=(usrPbRqLd[usrIndex[msg.sender]]*puPmax[2])/N;
-        }
-        
-        else if (S1>C2)
-        {   
-            puX=(N*(S1-C2))/sysMaxPbAvLd;
-            getPbAvSr=0;
-            getPbAvLd=(usrPbAvLd[usrIndex[msg.sender]]*puPmax[1]*puX)/(N^2);
-            getPbRqLd=(usrPbRqLd[usrIndex[msg.sender]]*puPmax[2])/N;
-        }
-        
-        else if (S2>C2)
-        {   
-            puX=(N*(S2-C2))/sysMaxPbAvSr;
-            getPbAvSr=(usrPbAvSr[usrIndex[msg.sender]]*puPmax[0]*puX)/(N^2);
-            getPbAvLd=0;
-            getPbRqLd=(usrPbRqLd[usrIndex[msg.sender]]*puPmax[2])/N;
-        }
-        else
-        {
-            getPbAvSr=(usrPbAvSr[usrIndex[msg.sender]]*puPmax[0])/N;
-            getPbAvLd=0;
-            getPbRqLd=(usrPbRqLd[usrIndex[msg.sender]]*puPmax[2])/N;
-        }
-
-        return ([getPbAvSr,getPbAvLd,getPbRqLd]);
-    }
-
-
-    function checkMaxPowerOfSystem() public view returns(uint [3] memory)
+    function getUserFinalEnergyPriceInCent() public view returns(int)
     {
-        uint puPbAvSr=0;
-        uint puPbAvLd=0;
-        uint puPbRqLd=0;
-        
-        if (sysMaxPower>(sysPdLd+sysPbAvLd+sysPbRqLd))
-        {
-            puPbAvLd=N;
-            puPbRqLd=N;
-        }
-        else if (sysMaxPower>(sysPdLd+sysPbRqLd))
-        {
-            puPbAvLd=(N*(sysMaxPower-(sysPdLd+sysPbRqLd)))/sysPbAvLd;
-            puPbRqLd=N;
-        }
-        else if (sysMaxPower>sysPdLd)
-        {
-            puPbAvLd=0;
-            puPbRqLd=(N*(sysMaxPower-(sysPdLd)))/sysPbRqLd;
-        }
-        else
-        {
-            puPbAvLd=0;
-            puPbRqLd=0;
-        }       
-        
-        if (sysMaxPower>(sysPdSr+sysPbAvSr))
-        {
-            puPbAvSr=N;
-        }  
-        
-        else if (sysMaxPower>sysPdSr)
-        {
-            puPbAvSr=(N*(sysMaxPower-sysPdSr))/sysPbAvSr;
-        }
-        else
-        {
-            puPbAvSr=0;
-        }
-        
-        return ([puPbAvSr,puPbAvLd,puPbRqLd]);
-        
+        return(usrEnergyPriceNanoCent[msg.sender]/nano);
     }
-
-    function modifaySystemTarifeNumber(uint _sysTarNum) public checkRegistrationOfUser
+    
+    function getUserWalletInCent() public view returns(int)
     {
-        sysTarNum=_sysTarNum;
+        return(usrWalletNanoCent[msg.sender]/nano);
     }
-
-    function modifaySystemRunningStatus(bool _sysRunSta) public
-    {
-        sysRunSta=_sysRunSta;
-    }
-
-    function modifaySystemMaxPower(uint _sysMaxPower) public
-    {
-        sysMaxPower=_sysMaxPower;
-    }
-
-    function getUserIndex() public view returns(uint) 
+    
+        function getUserIndex() public view returns(uint) 
     {
         return(usrIndex[msg.sender]);
     }
     
-    function registrationNewUser(address _Address) public checkRegistrationOfUser
+    
+    function modifaySystemTarifPrice(int _TarNum,int _B3Wh, int _S3Wh) public
     {   
-        numberOfUser++;
-        usrRegistration[_Address]= true;
-        usrIndex[_Address]=numberOfUser++;
-        usrAddress[usrIndex[_Address]]=_Address;
+        TarNum=_TarNum;
+        S3Wh = _S3Wh;
+        B3Wh = _B3Wh;
+
+        B2Wh = B3Wh*(100+Q);
+        S2Wh = S3Wh*(100-Q);
+        
+        B1Wh = B3Wh+((S3Wh-B3Wh)/2);
+        S1Wh = B1Wh;
+
+        nB3Ws=(nano*B3Wh)/3600000; //Buy price Tariff 3 in nanoCent for Ws
+        nS3Ws=(nano*S3Wh)/3600000; //Sell price price Tariff 3 in nanoCent for Ws
+        nB2Ws=(nano*B2Wh)/3600000; //Buy price Tariff 2 in nanoCent for Ws
+        nS2Ws=(nano*S2Wh)/3600000; //Sell price Tariff 2 in nanoCent for Ws
+        nB1Ws=(nano*B1Wh)/3600000; //Buy price Tariff 1 in nanoCent for Ws
+        nS1Ws=(nano*S1Wh)/3600000; //Sell price Tariff 1 in nanoCent for Ws   
     }
     
 }
