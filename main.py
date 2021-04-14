@@ -191,7 +191,8 @@ while r<123:
 
         #Get assagned data
         GetArrPower=ethReg.getUserDataPower()
-        bms.processAllParametersAndRestrictions(ReqArrPower, GetArrPower)
+    
+    bms.processAllParametersAndRestrictions(ReqArrPower, GetArrPower)
         
 #------------------GET ACTUAL POWERS-----------------------------------
     

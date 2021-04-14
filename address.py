@@ -1,4 +1,4 @@
 
 
-addressConcractSystemRegulation="0x4f0A3FF04ef46BA47B23fa27Eb7bc744f64CfFA8"
+addressConcractSystemRegulation="0xc8baD39491cdDDFcE92B0182b40Ddc5a468B69c9"
 addressConcractElectricityBilling="0x8d22872E1a1C60b6daA0b6f117d5AfdEB1d6ba1F"
