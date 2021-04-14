@@ -93,6 +93,8 @@ r=0
 #----------------------OPEN FOLDER SCHEDULE USER---------------------------------
 while r<123:
 
+    StartTime=time.time_ns()
+
     wb = load_workbook(filename = PathUserSchedule)
     xlsxUserSchedule = wb["User "+str(UserNumber)]
     row=UserNumber+3
@@ -155,7 +157,6 @@ while r<123:
         ReqOnePcar=Car[q].getRequiredPower()
         ReqPcar=np.add(ReqPcar,ReqOnePcar)
 
-    
 
 #---------------------TOTAL CONSUPTION ----------------------
     
@@ -232,11 +233,7 @@ while r<123:
     for q in range (NumberOfCars):
         Car[q].setBatteryPower(puActArrPower)
 
-#-----------------------SLEEP-------------------------------
-
-    time.sleep(t)
-
-#---------------INTERNAL CLOCK----------------------------
+#--------------- TIME SLEEP-------------------
     Flg+=1
     Sec+=dt
 
@@ -348,3 +345,5 @@ while r<123:
     print("")
     print("---------------------------------------------------------")
 
+    while (StartTime+t*1000000000)>time.time_ns():
+        None
