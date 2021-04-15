@@ -20,8 +20,8 @@ class systemControling(object):
     def getUserIndex(self):
         return self.contract_inst.functions.getUserIndex().call({'from': self.web3.eth.accounts[self.account]})
 
-    def getSystemNeedsEnergy(self):
-        return self.contract_inst.functions.sysNedEne().call({'from': self.web3.eth.accounts[self.account]})
+    def getIfSystemNeedEnergy(self):
+        return self.contract_inst.functions.getIfSystemNeedEnergy().call({'from': self.web3.eth.accounts[self.account]})
 
     def getSystemRuning(self):
         return self.contract_inst.functions.sysRunSta().call({'from': self.web3.eth.accounts[self.account]})

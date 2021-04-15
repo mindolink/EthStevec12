@@ -17,27 +17,20 @@ contract systemRegulationSmartConcract
     //Informtion about system/grid
     uint public sysMaxPower=15000;   //[W]
     uint public sysTarNum;
-    bool public sysNedEne;
     bool public sysRunSta;
+
 
     //Users information
     mapping (uint=>address) usrAddress;
     mapping (address=>uint) usrIndex;
     mapping (address=>bool) usrRegistration;
+    mapping (address=>uint) usrActive;
+    mapping (address=>uint)  usrPdSr;
+    mapping (address=>uint)  usrPdLd;
+    mapping (address=>uint)  usrPbAvSr;
+    mapping (address=>uint)  usrPbAvLd;
+    mapping (address=>uint)  usrPbRqLd;
     
-    //User required and desired power
-    uint [] usrPdSr=[0];    //Array of User info abaut Not regulated power from diferent sources (Source power from Photo Voltaic, Winde Turbine,etc)
-    uint [] usrPdLd=[0];    //Array of User info abaut Not regulated power from diferent loads (Any load power devide except Battery)
-    uint [] usrPbAvSr=[0];  //rray of User info abaut Avalible power source from Battery or any other regulated source
-    uint [] usrPbAvLd=[0];  //Aray of User info abaut Avalible power load from Battery or any other regulated load
-    uint [] usrPbRqLd=[0];  //aray of User info abaut Requasted power load from Batterys or any other regulated load
-    
-    //System required and desired power
-    uint public sysPdSr;       //Total Not regulated power from diferent sources
-    uint public sysPdLd;       //Total Not regulated power from diferent loads
-    uint public sysPbAvSr;     //Total Avalible power source from Battery or any other regulated source
-    uint public sysPbAvLd;     //Total Avalible power load from Battery or any other regulated load
-    uint sysPbRqLd;     //Total Requasted power load from Batterys or any other regulated load
 
     bool [] usrAlredySendData;
 
@@ -60,120 +53,54 @@ contract systemRegulationSmartConcract
         usrRegistration[msg.sender]= true;
         usrIndex[msg.sender]=numberOfUser;
         usrAddress[usrIndex[msg.sender]]=msg.sender;
-        usrPdSr.push(0);
-        usrPdLd.push(0);
-        usrPbAvSr.push(0);
-        usrPbAvLd.push(0);
-        usrPbRqLd.push(0);
-    
     }
     
-    function deletePreviousData() private
-    {
-        usrPdSr= new uint[](numberOfUser+1);
-        usrPdLd= new uint[](numberOfUser+1);
-        usrPbAvSr= new uint[](numberOfUser+1);
-        usrPbAvLd= new uint[](numberOfUser+1);
-        usrPbRqLd= new uint[](numberOfUser+1);
-        usrAlredySendData= new bool [](numberOfUser+1);
-        
-        sysPdSr=0;
-        sysPdLd=0;
-        sysPbAvSr=0;
-        sysPbAvLd=0;
-        sysPbRqLd=0;  
-    }
+
     
     function setUserDataPower(uint [] memory P) public checkRegistrationOfUser
     { 
-        
-        if (block.number>blockNumber)
-        {
-            blockNumber=block.number;
-            deletePreviousData();
-        }
-        if (usrAlredySendData[usrIndex[msg.sender]]==false)
-        {   
-            //User safe required and desired power
-                
-            usrPdSr[usrIndex[msg.sender]]=P[0];   
-            usrPdLd[usrIndex[msg.sender]]=P[1];   
-            usrPbAvSr[usrIndex[msg.sender]]=P[2];   
-            usrPbAvLd[usrIndex[msg.sender]]=P[3];   
-            usrPbRqLd[usrIndex[msg.sender]]=P[4]; 
-                
-            //User add required and desired power in system System variables
-                
-            sysPdSr+=P[0];
-            sysPdLd+=P[1];
-            sysPbAvSr+=P[2];
-            sysPbAvLd+=P[3];
-            sysPbRqLd+=P[4];
-            usrAlredySendData[usrIndex[msg.sender]]=true;
-                
-            if (sysPdSr<(sysPdLd+sysPbRqLd))
-            {
-            sysNedEne=true;
-            }
-            else
-            {
-            sysNedEne=false;
-            }
-        }
+        usrPdSr[msg.sender]=P[0];
+        usrPdLd[msg.sender]=P[1];
+        usrPbAvSr[msg.sender]=P[2];
+        usrPbAvLd[msg.sender]=P[3];
+        usrPbRqLd[msg.sender]=P[4];
+        usrActive[msg.sender]=block.number;
+        blockNumber=block.number;
     }
 
-    function getUserDataPower() public view returns(uint [3] memory)
+    function sumSystemPower() public view returns(uint[5] memory)
     {
-        uint [3] memory puPmax= checkMaxPowerOfSystem();
-        uint sysMaxPbAvSr=(sysPbAvSr*puPmax[0])/N;
-        uint sysMaxPbAvLd=(sysPbAvLd*puPmax[1])/N;
-        uint sysMaxPbRqLd=(sysPbRqLd*puPmax[2])/N;
-    
-        uint C2=sysPdLd+sysMaxPbAvLd;
-        uint C3=sysPdLd+sysMaxPbAvLd+sysMaxPbRqLd;
-        uint S1=sysPdSr;      
-        uint S2=sysPdSr+sysMaxPbAvSr;
+        uint sysPdSr=0;
+        uint sysPdLd=0;
+        uint sysPbAvSr=0;
+        uint sysPbAvLd=0;
+        uint sysPbRqLd=0;
         
-        uint puX;
-        uint getPbAvSr;
-        uint getPbAvLd;
-        uint getPbRqLd;
-        
-        if (S1>C3)
+        for(uint i=1;i<=numberOfUser;i++)
         {
-            getPbAvSr=0;
-            getPbAvLd=(usrPbAvLd[usrIndex[msg.sender]]*puPmax[1])/N;
-            getPbRqLd=(usrPbRqLd[usrIndex[msg.sender]]*puPmax[2])/N;
-        }
-        
-        else if (S1>C2)
-        {   
-            puX=(N*(S1-C2))/sysMaxPbAvLd;
-            getPbAvSr=0;
-            getPbAvLd=(usrPbAvLd[usrIndex[msg.sender]]*puPmax[1]*puX)/(N*N);
-            getPbRqLd=(usrPbRqLd[usrIndex[msg.sender]]*puPmax[2])/N;
-        }
-        
-        else if (S2>C2)
-        {   
-            puX=(N*(C2-S1))/sysMaxPbAvSr;
-            getPbAvSr=(usrPbAvSr[usrIndex[msg.sender]]*puPmax[0]*puX)/(N*N);
-            getPbAvLd=0;
-            getPbRqLd=(usrPbRqLd[usrIndex[msg.sender]]*puPmax[2])/N;
-        }
-        else
-        {
-            getPbAvSr=(usrPbAvSr[usrIndex[msg.sender]]*puPmax[0])/N;
-            getPbAvLd=0;
-            getPbRqLd=(usrPbRqLd[usrIndex[msg.sender]]*puPmax[2])/N;
+            if (usrActive[usrAddress[i]]==(blockNumber))
+            {
+                sysPdSr+=usrPdSr[usrAddress[i]];
+                sysPdLd+=usrPdLd[usrAddress[i]];
+                sysPbAvSr+=usrPbAvSr[usrAddress[i]];
+                sysPbAvLd+=usrPbAvLd[usrAddress[i]];
+                sysPbRqLd+=usrPbRqLd[usrAddress[i]];
+            }
         }
 
-        return ([getPbAvSr,getPbAvLd,getPbRqLd]);
+        return([sysPdSr,sysPdLd,sysPbAvSr,sysPbAvLd,sysPbRqLd]);
     }
-
 
     function checkMaxPowerOfSystem() public view returns(uint [3] memory)
     {
+        uint [5] memory sysPsum=sumSystemPower();
+        
+        uint sysPdSr=sysPsum[0];
+        uint sysPdLd=sysPsum[1];
+        uint sysPbAvSr=sysPsum[2];
+        uint sysPbAvLd=sysPsum[3];
+        uint sysPbRqLd=sysPsum[4];
+    
         uint puPbAvSr=0;
         uint puPbAvLd=0;
         uint puPbRqLd=0;
@@ -216,6 +143,88 @@ contract systemRegulationSmartConcract
         return ([puPbAvSr,puPbAvLd,puPbRqLd]);
         
     }
+
+
+    function getUserDataPower() public view returns(uint [3] memory)
+    {
+        uint [3] memory puPmax= checkMaxPowerOfSystem();
+        uint [5] memory sysPsum=sumSystemPower();
+    
+    
+        uint sysMaxPbAvSr=(sysPsum[2]*puPmax[0])/N;
+        uint sysMaxPbAvLd=(sysPsum[3]*puPmax[1])/N;
+        uint sysMaxPbRqLd=(sysPsum[4]*puPmax[2])/N;
+    
+        uint S1=sysPsum[0];      
+        uint S2=sysPsum[0]+sysMaxPbAvSr;
+    
+        uint C2=sysPsum[1]+sysMaxPbRqLd;
+        uint C3=sysPsum[1]+sysMaxPbAvLd+sysMaxPbRqLd;
+
+        
+        uint puX;
+        uint getPbAvSr;
+        uint getPbAvLd;
+        uint getPbRqLd;
+        
+        if (usrActive[msg.sender]==(blockNumber))
+        {
+            if (S1>C3)
+            {
+                getPbAvSr=0;
+                getPbAvLd=(usrPbAvLd[msg.sender]*puPmax[1])/N;
+                getPbRqLd=(usrPbRqLd[msg.sender]*puPmax[2])/N;
+            }
+            
+            else if (S1>C2)
+            {   
+                puX=(N*(S1-C2))/sysMaxPbAvLd;
+                getPbAvSr=0;
+                getPbAvLd=(usrPbAvLd[msg.sender]*puPmax[1]*puX)/(N*N);
+                getPbRqLd=(usrPbRqLd[msg.sender]*puPmax[2])/N;
+            }
+            
+            else if (S2>C2)
+            {   
+                puX=(N*(C2-S1))/sysMaxPbAvSr;
+                getPbAvSr=(usrPbAvSr[msg.sender]*puPmax[0]*puX)/(N*N);
+                getPbAvLd=0;
+                getPbRqLd=(usrPbRqLd[msg.sender]*puPmax[2])/N;
+            }
+            else
+            {
+                getPbAvSr=(usrPbAvSr[msg.sender]*puPmax[0])/N;
+                getPbAvLd=0;
+                getPbRqLd=(usrPbRqLd[msg.sender]*puPmax[2])/N;
+            }
+        }   
+        else
+        {
+            getPbAvSr=0;
+            getPbAvLd=0;
+            getPbRqLd=0;
+        }
+        
+        return ([getPbAvSr,getPbAvLd,getPbRqLd]);
+    }
+
+    function getIfSystemNeedEnergy()public view returns(bool)
+    {
+        uint [5] memory sysPsum=sumSystemPower();
+        bool sysNedEne;
+        
+        if (sysPsum[0]<(sysPsum[1]+sysPsum[4]))
+        {
+            sysNedEne=true;
+        }
+        else
+        {
+            sysNedEne=false;
+        }
+        
+        return (sysNedEne);
+    }
+
 
     function modifaySystemTarifeNumber(uint _sysTarNum) public checkRegistrationOfUser
     {

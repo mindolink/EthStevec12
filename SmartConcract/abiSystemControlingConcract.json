@@ -86,6 +86,19 @@
 	},
 	{
 		"inputs": [],
+		"name": "getIfSystemNeedEnergy",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "getUserDataPower",
 		"outputs": [
 			{
@@ -125,12 +138,25 @@
 	},
 	{
 		"inputs": [],
-		"name": "sysNedEne",
+		"name": "sumSystemPower",
 		"outputs": [
 			{
-				"internalType": "bool",
+				"internalType": "uint256[5]",
 				"name": "",
-				"type": "bool"
+				"type": "uint256[5]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "sysMaxPower",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",

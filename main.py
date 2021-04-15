@@ -87,7 +87,7 @@ sm=savingMeasurements.savingMeasurements(UserNumber,TimeOfTest,NumberOfCars)
 #---------------------------READ PARAMETERS FROM ETH NETWORK-----------------------------
 
 SysRun=ethReg.getSystemRuning()
-SysNedEne=ethReg.getSystemNeedsEnergy()
+SysNedEne=ethReg.getIfSystemNeedEnergy()
 
 r=0
 #----------------------OPEN FOLDER SCHEDULE USER---------------------------------
@@ -187,10 +187,10 @@ while r<123:
         ethReg.setUserDataPower(SndReqPower)
         ethReg.modifaySystemTarifeNumber(TarNum)
 
-        SysNedEne=ethReg.getSystemNeedsEnergy()
-
-        #Get assagned data
+        SysNedEne=ethReg.getIfSystemNeedEnergy()
         GetArrPower=ethReg.getUserDataPower()
+        #Get assagned data
+    
     
     bms.processAllParametersAndRestrictions(ReqArrPower, GetArrPower)
         
