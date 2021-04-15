@@ -358,7 +358,7 @@ while r<23:
 
 
     else:
-        SysRun=ethReg.getSystemRuning()
+
         Day=1   
         Hour=0
         Min=0
@@ -368,9 +368,6 @@ while r<23:
         k=1000
 
         TarInt=0
-        SysRun=False
-        SysNedEne=False
-
         EnergyMeter=0
 
         ReqArrPower=[0]*5
@@ -387,6 +384,7 @@ while r<23:
         SumGrdEnergy=0
         SumProEnergy=0
         SumConEnergy=0
-        
+
         print(SysRun)
         
+        SysRun=ethReg.getSystemRuning()
