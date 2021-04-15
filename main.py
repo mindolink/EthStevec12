@@ -355,10 +355,12 @@ while r<23:
 
         SysRun=ethReg.getSystemRuning()
 
+        print((time.time_ns()-StartTime)/1000000000)
+
         while ((time.time_ns()-StartTime)<(t*1000000000)):
             None
 
-        print((time.time_ns()-StartTime)/1000000000)
+        
     else:
 
         Day=1   
