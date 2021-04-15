@@ -185,7 +185,7 @@ while r<123:
     if ethReg.checkBlock():
         #Send demanded and requasted data:
         ethReg.setUserDataPower(SndReqPower)
-        ethReg.modifaySystemTarifeNumber(TarNum)
+        #ethReg.modifaySystemTarifeNumber(TarNum)
 
         SysNedEne=ethReg.getIfSystemNeedEnergy()
         GetArrPower=ethReg.getUserDataPower()
