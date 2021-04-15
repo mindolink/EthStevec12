@@ -14,7 +14,7 @@ PathUserSchedule='./ImportData/userSchedule.xlsx'
 PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
 PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
 dt=30
-t=1.1
+t=1
 
 Day=1   
 Hour=0
@@ -74,9 +74,9 @@ Hsb=homeStorageBattery.homeStorageBattery(UserNumber,PathUserInfo)
 
 
 #----------------------INIT PROPERTISE USER CARS------------------------------------------
-wb = load_workbook(filename = PathUserInfo)
-xlsUserInfo = wb['userCarProperties']
-NumberOfCars=int(xlsUserInfo["C"+str(UserNumber+3)].value)
+wbInfo = load_workbook(filename = PathUserInfo)
+xlsUserCars= wbInfo['userCarProperties']
+NumberOfCars=int(xlsUserCars["C"+str(UserNumber+3)].value)
 
 Car=[0]*NumberOfCars
 for q in range (NumberOfCars):
@@ -93,6 +93,9 @@ SysRun=ethReg.getSystemRuning()
 SysNedEne=ethReg.getIfSystemNeedEnergy()
 print(SysRun)
 r=0
+
+wbSchedule = load_workbook(filename = PathUserSchedule)
+
 #----------------------OPEN FOLDER SCHEDULE USER---------------------------------
 while r<23:
     
@@ -102,8 +105,8 @@ while r<23:
 
         SysNedEne=ethReg.getIfSystemNeedEnergy()
 
-        wb = load_workbook(filename = PathUserSchedule)
-        xlsxUserSchedule = wb["User "+str(UserNumber)]
+        
+        xlsxUserSchedule = wbSchedule["User "+str(UserNumber)]
         row=UserNumber+3
 
         row=((Day-1)*24)+Hour+4
@@ -111,6 +114,7 @@ while r<23:
     #-------------------LOOKING DURATION PRICE ENERGY TARIFF-------------------------
         TarNum=xlsxUserSchedule["D"+str(row)].value
         TarInt=0
+
         for q in range (24):
             rowLop=row+q
             TarLop=xlsxUserSchedule["D"+str(rowLop)].value
@@ -163,7 +167,6 @@ while r<23:
             Car[q].processingBatterySetting(BatOn,BatSet,SOCstart,Day,Hour,TarNum,HomNedEne,SysNedEne)
             ReqOnePcar=Car[q].getRequiredPower()
             ReqPcar=np.add(ReqPcar,ReqOnePcar)
-
 
     #---------------------TOTAL CONSUPTION ----------------------
         
@@ -287,15 +290,13 @@ while r<23:
                 row=((Day-1)*24)+Hour+4
                 TarNumPre=xlsxUserSchedule["D"+str(row)].value
 
-            wb.close()
 
             StartFlg=False
 
-            wb = load_workbook(filename = PathUserInfo)
-            xlsxSystemTarifPrices = wb["systemTariffPrices"]
+            xlsxSystemTarifPrices = wbInfo["systemTariffPrices"]
             PriceBuy=xlsxSystemTarifPrices["C"+str(TarNumPre+2)].value
             PriceSell=xlsxSystemTarifPrices["D"+str(TarNumPre+2)].value
-            wb.close()
+        
 
             ethBil.modifaySystemTarifPrice(int(TarNumPre),int(PriceBuy), int(PriceSell))
             ethBil.setUserDataEnergy([int(SumArrGrdEnergy[0]),int(SumArrGrdEnergy[1]),int(SumArrGrdEnergy[2]),int(SumArrGrdEnergy[3]),int(SumArrGrdEnergy[4])])
