@@ -13,9 +13,8 @@ PathUserInfo='./ImportData/userInfo.xlsx'
 PathUserSchedule='./ImportData/userSchedule.xlsx'
 PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
 PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
-dt=30
-t=2
-
+dt=5
+t=0.5
 
 Day=1   
 Hour=0
@@ -351,12 +350,12 @@ while r<23:
         print("")
         print("---------------------------------------------------------")
 
+        SysRun=ethReg.getSystemRuning()
+
         while ((time.time_ns()-StartTime)<(t*1000000000)):
             None
 
-        SysRun=ethReg.getSystemRuning()
-
-
+        
     else:
 
         Day=1   
