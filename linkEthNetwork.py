@@ -15,7 +15,7 @@ class systemControling(object):
         abiFile.close()
         self.contract_inst = self.web3.eth.contract(abi=abi,address=self.contractAddress)
         self.blockNumber = self.web3.eth.blockNumber
-        self.gas=2000000
+        self.gas=400000
 
     def getUserIndex(self):
         return self.contract_inst.functions.getUserIndex().call({'from': self.web3.eth.accounts[self.account]})
@@ -62,7 +62,7 @@ class electricityBilling(object):
         abiFile.close()
         self.contract_inst = self.web3.eth.contract(abi=abi,address=self.contractAddress)
         self.blockNumber = self.web3.eth.blockNumber
-        self.gas=20000000
+        self.gas=200000
 
     def getUserIndex(self):
         return self.contract_inst.functions.getUserIndex().call({'from': self.web3.eth.accounts[self.account]})
@@ -83,4 +83,4 @@ class electricityBilling(object):
         self.contract_inst.functions.setUserDataEnergy(E).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
 
     def processingBillingForEnergy(self):
-        self.contract_inst.functions.processingBillingForEnergy().transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
+        self.contract_inst.functions.processingBillingForEnergy().transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas*5})
