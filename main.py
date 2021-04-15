@@ -13,8 +13,8 @@ PathUserInfo='./ImportData/userInfo.xlsx'
 PathUserSchedule='./ImportData/userSchedule.xlsx'
 PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
 PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
-dt=5
-t=0.5
+dt=30
+t=1
 
 Day=1   
 Hour=0
@@ -49,6 +49,9 @@ SumConEnergy=0
 #Init moduls parameters
 ethReg=linkEthNetwork.systemControling(AddrSC,PathAbiSC,Http,UserGethUnlockAccount)
 ethBil=linkEthNetwork.electricityBilling(AddrEB,PathAbiEB,Http,UserGethUnlockAccount)
+
+BlockNumber=ethReg.getBlock()
+
 
 #Registration in SmartConcract
 
@@ -95,9 +98,9 @@ while r<23:
     
     if SysRun==True:
 
-        SysNedEne=ethReg.getIfSystemNeedEnergy()
-
         StartTime=time.time_ns()
+
+        SysNedEne=ethReg.getIfSystemNeedEnergy()
 
         wb = load_workbook(filename = PathUserSchedule)
         xlsxUserSchedule = wb["User "+str(UserNumber)]
