@@ -13,8 +13,8 @@ PathUserInfo='./ImportData/userInfo.xlsx'
 PathUserSchedule='./ImportData/userSchedule.xlsx'
 PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
 PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
-dt=60
-t=1.5
+dt=30
+t=1.2
 
 Day=1   
 Hour=0
