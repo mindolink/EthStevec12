@@ -14,7 +14,7 @@ PathUserSchedule='./ImportData/userSchedule.xlsx'
 PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
 PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
 dt=30
-t=1.2
+t=2
 
 
 Day=1   
@@ -386,5 +386,5 @@ while r<23:
         SumConEnergy=0
 
         print(SysRun)
-        
+
         SysRun=ethReg.getSystemRuning()
