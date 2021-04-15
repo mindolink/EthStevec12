@@ -106,7 +106,7 @@ class carBattery(object):
 
     def batteryFunctionSettings1(self):
 
-        if (self.TarNum==3 and self.SOCmin<self.SOC and (self.HomNedEne==True or self.SysNedEne==True)):
+        if (self.TarNum==3 and self.SOCmin<self.SOC and (self.HomNedEne==True and self.SysNedEne==True)):
             self.PbAvSr=self.PbDh
             self.PbAvLd=0
             self.PbRqLd=0
@@ -128,7 +128,7 @@ class carBattery(object):
             self.PbAvSr=0
             self.PbAvLd=0
             self.PbRqLd=self.PbCh
-            
+
         elif (self.SOC<self.SOCmax):
             self.PbAvSr=0
             self.PbAvLd=self.PbCh

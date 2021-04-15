@@ -14,7 +14,7 @@ PathUserSchedule='./ImportData/userSchedule.xlsx'
 PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
 PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
 dt=30
-t=1
+t=1.0
 
 Day=1   
 Hour=0
@@ -358,7 +358,7 @@ while r<23:
         while ((time.time_ns()-StartTime)<(t*1000000000)):
             None
 
-        
+        print((time.time_ns()-StartTime)/1000000000)
     else:
 
         Day=1   
