@@ -1,19 +1,15 @@
-import linkEthNetwork, address, time
+import time
+
+TimeStart=time.time_ns()
+k=1000000
+
+print(TimeStart)
+
+while ((TimeStart+100000000)>time.time_ns()):
+    i=1
+
+
+print(time.time_ns())
 
 
 
-UserGethUnlockAccount=0
-Http='http://localhost:8545'
-AddrEB=address.addressConcractElectricityBilling
-AddrSC=address.addressConcractSystemRegulation
-PathUserInfo='./ImportData/userInfo.xlsx'
-PathUserSchedule='./ImportData/userSchedule.xlsx'
-PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
-PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
-ethReg=linkEthNetwork.systemControling(AddrSC,PathAbiSC,Http,UserGethUnlockAccount)
-
-i=0
-while i<223:
-    print(ethReg.checkBlock())
-
-    time.sleep(1)

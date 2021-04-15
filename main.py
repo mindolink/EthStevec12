@@ -351,7 +351,7 @@ while r<23:
         print("")
         print("---------------------------------------------------------")
 
-        while (StartTime+t*1000000000)>time.time_ns():
+        while ((time.time_ns()-StartTime)<(t*1000000000)):
             None
 
         SysRun=ethReg.getSystemRuning()
