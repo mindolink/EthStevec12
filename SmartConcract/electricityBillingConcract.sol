@@ -9,46 +9,38 @@ contract electricityBillingConcract {
     
     
     int N=100000;
+    
     mapping(uint => address) usrAddress;
     mapping(address => uint) usrIndex;
     mapping(address => bool) usrRegistration;
     mapping(address => int)  usrWalletNanoCent;
     mapping(address => int)  usrEnergyPriceNanoCent;
     
+    mapping(address => bool) usrActive;
+    mapping(address => int)  usrEdSr;
+    mapping(address => int)  usrEdLd;
+    mapping(address => int)  usrEbAvSr;
+    mapping(address => int)  usrEbAvLd;
+    mapping(address => int)  usrEbRqLd;
+
     address ownAddress;
-    uint blockTest=0;
     int  ownWalletNanoCent=0;
     int  ownEnergyDistributed=0;
     int  ownEnergyPriceNanoCent=0;
-
-    int [] usrFinalCost;
     
-    int Q=1;
-    
+    int Q=0;
+    bool flgProsecing=true;
     uint blockNumber;
+    
     uint public numberOfUser;
     
-    int [] usrEdSr;
-    int [] usrEdLd;
-    int [] usrEbAvSr;
-    int [] usrEbAvLd;
-    int [] usrEbRqLd;
-
-    int sysEdSr; //Array of User info abaut Not regulated Energy from diferent sources (Source power from Photo Voltaic, Winde Turbine,etc)
-    int sysEdLd; //Array of User info abaut Not regulated Energy from diferent loads (Any load power devide except Battery)
-    int sysEbAvSr; //Array of User info abaut Avalible Energy source from Battery or any other regulated source
-    int sysEbAvLd; //Array of User info abaut Avalible Energy load from Battery or any other regulated load
-    int sysEbRqLd; //Array of User info abaut Requasted Energy load from Batterys or any other regulated load
-
-    bool [] usrAlredySendData;
-    bool stateBillingProcess=false;
-    int TarNum = 3;
-    int B3Wh = 8;
-    int S3Wh = 24;
-    int B2Wh = 8;
-    int S2Wh = 24;
-    int B1Wh = 16;
-    int S1Wh = 16;
+    int public TarNum = 3;
+    int public B3Wh = 8;
+    int public S3Wh = 24;
+    int public B2Wh = 8;
+    int public S2Wh = 24;
+    int public B1Wh = 16;
+    int public S1Wh = 16;
 
     int nano=1000000000;
     
@@ -65,81 +57,72 @@ contract electricityBillingConcract {
         _;
     }
     
+    
     modifier checkRegistrationOfUser
     {
         require(usrRegistration[msg.sender]==true);
         _;
     }
-
-    modifier checkUserAlredySendData
+    
+        modifier checkIfProcessBillingAlradyMade
     {
-        require(usrAlredySendData[usrIndex[msg.sender]]==false);
-        _;   
-    }
-
-    modifier checkBillingProcessingForEnergy
-    {
-        require(stateBillingProcess==false);
-        _;   
+        require(flgProsecing==false);
+        _;
     }
 
 
     function autoRegistrationNewUser() public checkNonRegistrationOfUser
     {   
-        
+        numberOfUser+=1;
         usrRegistration[msg.sender]= true;
         usrIndex[msg.sender]=numberOfUser;
         usrAddress[usrIndex[msg.sender]]=msg.sender;
-        numberOfUser+=1;
-        
-        usrAlredySendData.push(false);
-        usrEdSr.push(0);
-        usrEdLd.push(0);
-        usrEbAvSr.push(0);
-        usrEbAvLd.push(0);
-        usrEbRqLd.push(0);
-        
     }
     
     
-    function deletePreviousData() private
-    {
-        usrEdSr= new int[](numberOfUser+1);
-        usrEdLd= new int[](numberOfUser+1);
-        usrEbAvSr= new int[](numberOfUser+1);
-        usrEbAvLd= new int[](numberOfUser+1);
-        usrEbRqLd= new int[](numberOfUser+1);
-        sysEdSr=0;
-        sysEdLd=0;
-        sysEbAvSr=0;
-        sysEbAvLd=0;
-        sysEbRqLd=0;
-        
-        usrAlredySendData= new bool [](numberOfUser+1);
-    }
-    
-    function setUserDataEnergy(int[] memory E) public checkRegistrationOfUser checkUserAlredySendData
+    function setUserDataEnergy(int[] memory E) public
     { 
-        usrEdSr[usrIndex[msg.sender]]=E[0];   //User unRegulated production power
-        usrEdLd[usrIndex[msg.sender]]=E[1];   //User unRegulated consuption power
-        usrEbAvSr[usrIndex[msg.sender]]=E[2];   //Avalible production power
-        usrEbAvLd[usrIndex[msg.sender]]=E[3];   //Avalible consuption power
-        usrEbRqLd[usrIndex[msg.sender]]=E[4];   //Reguasted consuption power 
-
-        sysEdSr+=E[0];
-        sysEdLd+=E[1];
-        sysEbAvSr+=E[2];
-        sysEbAvLd+=E[3];
-        sysEbRqLd+=E[4];
-    
-        usrAlredySendData[usrIndex[msg.sender]]=true;
-        stateBillingProcess=false;
+        usrEdSr[msg.sender]=E[0];   //User unRegulated production power
+        usrEdLd[msg.sender]=E[1];   //User unRegulated consuption power
+        usrEbAvSr[msg.sender]=E[2];   //Avalible production power
+        usrEbAvLd[msg.sender]=E[3];   //Avalible consuption power
+        usrEbRqLd[msg.sender]=E[4];   //Reguasted consuption power 
+        
+        usrActive[msg.sender]=true;
+        flgProsecing=false;
     }
 
-    function processingBillingForEnergy() public checkBillingProcessingForEnergy
+
+    function sumSystemEnergy() public view returns(int[5] memory)
     {
-        int sysCon=sysEbAvLd+sysEbRqLd+sysEdLd;
-        int sysPro=sysEdSr+sysEbAvSr;
+        int sysEdSr=0;
+        int sysEdLd=0;
+        int sysEbAvSr=0;
+        int sysEbAvLd=0;
+        int sysEbRqLd=0;
+        
+        for(uint i=1;i<=numberOfUser;i++)
+        {
+            if (usrActive[usrAddress[i]]==true)
+            {
+                sysEdSr+=usrEdSr[usrAddress[i]];
+                sysEdLd+=usrEdLd[usrAddress[i]];
+                sysEbAvSr+=usrEbAvSr[usrAddress[i]];
+                sysEbAvLd+=usrEbAvLd[usrAddress[i]];
+                sysEbRqLd+=usrEbRqLd[usrAddress[i]];
+            }
+        }
+
+        return([sysEdSr,sysEdLd,sysEbAvSr,sysEbAvLd,sysEbRqLd]);
+    }
+
+
+    function processBillingForEnergy() public checkIfProcessBillingAlradyMade
+    {
+        int [5] memory Esum=sumSystemEnergy();
+        
+        int sysCon=Esum[1]+Esum[3]+Esum[4];
+        int sysPro=Esum[0]+Esum[2];
         
         int sysProBaseCost;
         int sysConBaseCost;
@@ -150,8 +133,8 @@ contract electricityBillingConcract {
         int puPro;
         int puCon;
         
-        sysProBaseCost=(sysEdSr*nS1Ws)+(sysEbAvSr*nS2Ws);   
-        sysConBaseCost=(sysEdLd+sysEbRqLd)*nB1Ws+sysEbAvLd*nB2Ws;
+        sysProBaseCost=(Esum[0]*nS1Ws)+(Esum[2]*nS2Ws);   
+        sysConBaseCost=(Esum[1]+Esum[4])*nB1Ws+(Esum[3]*nB2Ws);
         
         
         if  (sysCon<sysPro)
@@ -197,18 +180,30 @@ contract electricityBillingConcract {
             ownEnergyDistributed=sysDif;
         }
         
-        for(uint i=0;i<numberOfUser;i++)
+        
+        for(uint i=1;i<=numberOfUser;i++)
         {   
-            int usrProPriceNanoCent=((puPro*nS1Ws*usrEdSr[i])/N)+((puPro*nS2Ws*usrEbAvSr[i])/N);
-            int usrConPriceNanoCent=((puCon*nB1Ws*usrEdLd[i])/N)+((puCon*nB2Ws*usrEbAvLd[i])/N)+((puCon*nB1Ws*usrEbRqLd[i])/N);
-            
-            usrEnergyPriceNanoCent[usrAddress[i]]=usrConPriceNanoCent-usrProPriceNanoCent;
-            usrWalletNanoCent[usrAddress[i]]+=usrConPriceNanoCent-usrProPriceNanoCent;
+            if (usrActive[usrAddress[i]]==true)
+            {
+                int usrProPriceNanoCent=((puPro*nS1Ws*usrEdSr[usrAddress[i]])/N)+((puPro*nS2Ws*usrEbAvSr[usrAddress[i]])/N);
+                int usrConPriceNanoCent=((puCon*nB1Ws*usrEdLd[usrAddress[i]])/N)+((puCon*nB2Ws*usrEbAvLd[usrAddress[i]])/N)+((puCon*nB1Ws*usrEbRqLd[usrAddress[i]])/N);
+                
+                usrEnergyPriceNanoCent[usrAddress[i]]=usrConPriceNanoCent-usrProPriceNanoCent;
+                usrWalletNanoCent[usrAddress[i]]+=usrEnergyPriceNanoCent[usrAddress[i]];
+                usrActive[usrAddress[i]]=false;
+            }
+            else
+            {
+                usrEdSr[usrAddress[i]]=0;
+                usrEdLd[usrAddress[i]]=0;
+                usrEbAvSr[usrAddress[i]]=0;
+                usrEbAvLd[usrAddress[i]]=0;
+                usrEbRqLd[usrAddress[i]]=0; 
+                
+            }
         }
         
-        deletePreviousData();
-        
-        stateBillingProcess=true;
+        flgProsecing=true;
         
     }
     
@@ -234,8 +229,8 @@ contract electricityBillingConcract {
         S3Wh = _S3Wh;
         B3Wh = _B3Wh;
 
-        B2Wh = B3Wh*(100+Q);
-        S2Wh = S3Wh*(100-Q);
+        B2Wh = (B3Wh*(100+Q))/100;
+        S2Wh = (S3Wh*(100-Q))/100;
         
         B1Wh = B3Wh+((S3Wh-B3Wh)/2);
         S1Wh = B1Wh;
@@ -247,5 +242,7 @@ contract electricityBillingConcract {
         nB1Ws=(nano*B1Wh)/3600000; //Buy price Tariff 1 in nanoCent for Ws
         nS1Ws=(nano*S1Wh)/3600000; //Sell price Tariff 1 in nanoCent for Ws   
     }
+    
+
     
 }

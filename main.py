@@ -14,7 +14,7 @@ PathUserSchedule='./ImportData/userSchedule.xlsx'
 PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
 PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
 
-t=1
+t=1.2
 dt=30
 Day=1   
 Hour=0
@@ -92,6 +92,8 @@ SysNedEne=ethReg.getIfSystemNeedEnergy()
 r=0
 #----------------------OPEN FOLDER SCHEDULE USER---------------------------------
 while r<123:
+
+    SysNedEne=ethReg.getIfSystemNeedEnergy()
 
     StartTime=time.time_ns()
 

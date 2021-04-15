@@ -83,4 +83,4 @@ class electricityBilling(object):
         self.contract_inst.functions.setUserDataEnergy(E).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
 
     def processingBillingForEnergy(self):
-        self.contract_inst.functions.processingBillingForEnergy().transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas*5})
+        self.contract_inst.functions.processBillingForEnergy().transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas*5})
