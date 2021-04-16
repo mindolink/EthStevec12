@@ -21,7 +21,7 @@ Hour=0
 Min=0
 Sec=0
 Flg=1
-StartFlg=True
+StartFlg=False
 k=1000
 
 TarInt=0
@@ -283,7 +283,7 @@ while r<23:
 
         if ((Min==0 or Min==15 or Min==30 or Min==45) and Sec==dt):
 
-            if Min==0 and StartFlg==False:
+            if Min==0 and StartFlg==True:
                 row=((Day-1)*24)+Hour+3
                 TarNumPre=xlsxUserSchedule["D"+str(row)].value
             else:
@@ -291,7 +291,7 @@ while r<23:
                 TarNumPre=xlsxUserSchedule["D"+str(row)].value
 
 
-            StartFlg=False
+            StartFlg=True
 
             xlsxSystemTarifPrices = wbInfo["systemTariffPrices"]
             PriceBuy=xlsxSystemTarifPrices["C"+str(TarNumPre+2)].value
@@ -369,7 +369,7 @@ while r<23:
         Min=0
         Sec=0
         Flg=1
-        StartFlg=True
+        StartFlg=False
         k=1000
 
         TarInt=0
