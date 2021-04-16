@@ -20,9 +20,12 @@ Day=1
 Hour=0
 Min=0
 Sec=0
-Flg=1
-StartFlg=False
+
 k=1000
+
+SecFlg=0
+AvgFlg=0
+StrFlg=False
 
 TarInt=0
 SysRun=False
@@ -101,14 +104,14 @@ while r<23:
     
     if SysRun==True:
 
-        StartTime=time.time_ns()
+        if (StrFlg==False):
+            StartTime=time.time_ns()
+            SecFlg=0
 
         SysNedEne=ethReg.getIfSystemNeedEnergy()
 
         
         xlsxUserSchedule = wbSchedule["User "+str(UserNumber)]
-        row=UserNumber+3
-
         row=((Day-1)*24)+Hour+4
 
     #-------------------LOOKING DURATION PRICE ENERGY TARIFF-------------------------
@@ -245,7 +248,9 @@ while r<23:
             Car[q].setBatteryPower(puActArrPower)
 
     #--------------- TIME SLEEP-------------------
-        Flg+=1
+        AvgFlg+=1
+        SecFlg+=1
+
         Sec+=dt
 
         if Sec>=60:
@@ -283,15 +288,14 @@ while r<23:
 
         if ((Min==0 or Min==15 or Min==30 or Min==45) and Sec==dt):
 
-            if Min==0 and StartFlg==True:
+            if Min==0 and StrFlg==True:
                 row=((Day-1)*24)+Hour+3
                 TarNumPre=xlsxUserSchedule["D"+str(row)].value
             else:
                 row=((Day-1)*24)+Hour+4
                 TarNumPre=xlsxUserSchedule["D"+str(row)].value
 
-
-            StartFlg=True
+            StrFlg=True
 
             xlsxSystemTarifPrices = wbInfo["systemTariffPrices"]
             PriceBuy=xlsxSystemTarifPrices["C"+str(TarNumPre+2)].value
@@ -305,20 +309,20 @@ while r<23:
 
     #------------------Safe measurment of energy and avg power-------------------------
 
-            AvgGrdPower=(SumGrdPower/Flg)
-            AvgProPower=(SumProPower/Flg)
-            AvgConPower=(SumConPower/Flg)
+            AvgGrdPower=(SumGrdPower/AvgFlg)
+            AvgProPower=(SumProPower/AvgFlg)
+            AvgConPower=(SumConPower/AvgFlg)
 
             sm.safeBasicMeasurements(Day,Hour,Min,SumGrdEnergy,SumProEnergy,SumConEnergy,AvgGrdPower,AvgProPower,AvgConPower)
 
             if (Hsb.BatOn==True):
-                InfoBat=Hsb.getBatteryInfo(Flg)
+                InfoBat=Hsb.getBatteryInfo(AvgFlg)
                 sm.safeHomeBatteryMeasurements(InfoBat)
 
             if (NumberOfCars>0):
 
                 for q in range (NumberOfCars):
-                    InfoBat=Car[q].getBatteryInfo(Flg)
+                    InfoBat=Car[q].getBatteryInfo(AvgFlg)
                     sm.safeCarMeasurements(q, InfoBat)
 
 
@@ -330,7 +334,7 @@ while r<23:
             SumProPower=0
             SumConPower=0
 
-            Flg=0
+            AvgFlg=0
             
     #---------------------ETH BILING PREVIOUS SENDED PRICE-------------------------
 
@@ -356,9 +360,11 @@ while r<23:
 
         SysRun=ethReg.getSystemRuning()
 
-        print((time.time_ns()-StartTime)/1000000000)
+        nano=1000000000
 
-        while ((time.time_ns()-StartTime)<(t*1000000000)):
+        print(((StartTime+(SecFlg*t)*nano)-(time.time_ns()))/nano)
+
+        while (StartTime+(SecFlg*t)*nano>time.time_ns()):
             None
 
         
