@@ -16,7 +16,7 @@ class savingMeasurements(object):
 
         self.alignmentStyle=Alignment(horizontal='center',vertical='center')
 
-        worksheet.cell(row = self.x, column = 2, value = 'Time[€]').font = self.fontStyleWord
+        worksheet.cell(row = self.x, column = 2, value = 'Time').font = self.fontStyleWord
         worksheet.cell(row = self.x, column = 3, value = 'Wallet[€]').font = self.fontStyleWord
         worksheet.cell(row = self.x, column = 4, value = 'Price[€]').font = self.fontStyleWord
         worksheet.cell(row = self.x, column = 5, value = 'Egrd[kW]').font = self.fontStyleWord
@@ -44,7 +44,7 @@ class savingMeasurements(object):
         wb.save(filename = self.FilePathName)
         wb.close()
 
-    def safeBasicMeasurements(self,Day,Hour,Min,Egrd,Epro,Econ,AvgPgrd,AvgPpro,AvgPcon):
+    def safeBasicMeasurements(self,DateTimeStr,Egrd,Epro,Econ,AvgPgrd,AvgPpro,AvgPcon):
 
         self.x+=1
         wb = openpyxl.load_workbook(filename =self.FilePathName)
@@ -52,7 +52,7 @@ class savingMeasurements(object):
         k=1000 #convert W to kW
         h=3600 #convert Ws to Wh
 
-        worksheet.cell(row = self.x, column = 2, value = str(Day)+":"+str(Hour)+":"+str(Min)).font = self.fontStyleNumber
+        worksheet.cell(row = self.x, column = 2, value = DateTimeStr).font = self.fontStyleNumber
         worksheet.cell(row = self.x, column = 5, value = ("%.3f" % (Egrd/(k*h)))).font = self.fontStyleNumber
         worksheet.cell(row = self.x, column = 6, value = ("%.3f" % (Epro/(k*h)))).font = self.fontStyleNumber
         worksheet.cell(row = self.x, column = 7, value = ("%.3f" % (Econ/(k*h)))).font = self.fontStyleNumber

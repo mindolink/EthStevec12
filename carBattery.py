@@ -49,7 +49,7 @@ class carBattery(object):
         self.Wsum=0
         self.Psum=0
 
-        self.Day=0
+        self.WeekNumber=0
         self.Hour=0
         self.TarNum=0       #Price tarif number
         self.OffOn=True        #Flag for init when car is connect to grid
@@ -59,7 +59,7 @@ class carBattery(object):
         self.PbRqLd=0  
 
 
-    def processingBatterySetting(self,BatOn,BatSet,SOCstart,Day,Hour,TarNum,HomNedEne,SysNedEne):
+    def processingBatterySetting(self,BatOn,BatSet,SOCstart,WeekNumber,Hour,TarNum,HomNedEne,SysNedEne):
     
         self.BatOn=BatOn
         self.BatSet=BatSet

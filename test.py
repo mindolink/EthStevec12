@@ -1,15 +1,9 @@
-import time
+from datetime import datetime
 
-TimeStart=time.time_ns()
-k=1000000
+DateTimeStr = '12/4/21 01:55:19'
 
-print(TimeStart)
+DateTimeObj = datetime.strptime(DateTimeStr, '%d/%m/%y %H:%M:%S')
 
-while ((TimeStart+100000000)>time.time_ns()):
-    i=1
+WeekNumber=datetime.date(DateTimeObj).weekday()
 
-
-print(time.time_ns())
-
-
-
+print(WeekNumber)

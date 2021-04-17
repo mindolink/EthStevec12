@@ -54,7 +54,7 @@ class homeStorageBattery(object):
         self.Wsum=0
         self.Psum=0
 
-        self.Day=0
+        self.WeekNumber=0
         self.Hour=0
         self.TarNum=0       #Price tarif number
         self.OffOn=True        #Flag for init when car is connect to grid
@@ -64,11 +64,11 @@ class homeStorageBattery(object):
         self.PbRqLd=0  
 
 
-    def processBatterySetting(self,SOCsmart,Day,Hour,TarNum,TarInt,HomNedEne,SysNedEne):
+    def processBatterySetting(self,SOCsmart,WeekNumber,Hour,TarNum,TarInt,HomNedEne,SysNedEne):
 
         if self.BatOn==True:
             
-            self.Day=Day
+            self.WeekNumber=WeekNumber
             self.Hour=Hour
             self.SOCsmart=SOCsmart/100
             self.HomNedEne=HomNedEne
@@ -108,7 +108,7 @@ class homeStorageBattery(object):
         return(self.setPb)
 
     def settingsTariff1(self):
-        if (self.Day<6):
+        if (self.WeekNumber<6):
             if (self.SOC<self.SOCsmart and (self.Hour<6 or 21<self.Hour)):
                 dtWb=(self.SOCsmart-self.SOC)*self.Wb
                 P=dtWb/(self.TarInt*0.9)
