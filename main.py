@@ -77,9 +77,11 @@ wbInfo = load_workbook(filename = PathUserInfo)
 xlsUserCars= wbInfo['userCarProperties']
 NumberOfCars=int(xlsUserCars["C"+str(UserNumber+3)].value)
 
-Car=[0]*NumberOfCars
-for q in range (NumberOfCars):
-    Car[q]=carBattery.carBattery(UserNumber,q,PathUserInfo)
+
+if NumberOfCars<0:
+    Car=[0]*NumberOfCars
+    for q in range (NumberOfCars):
+        Car[q]=carBattery.carBattery(UserNumber,q,PathUserInfo)
 
 
 #Init parameters for saving values
@@ -90,7 +92,7 @@ sm=savingMeasurements.savingMeasurements(UserNumber,TimeOfTest,NumberOfCars)
 
 SysRun=ethReg.getSystemRuning()
 SysNedEne=ethReg.getIfSystemNeedEnergy()
-print(SysRun)
+
 r=0
 
 wbSchedule = load_workbook(filename = PathUserSchedule)
@@ -161,29 +163,31 @@ while r<23:
 
         ReqPcar=[0]*3
 
-        for q in range (NumberOfCars):
+        if NumberOfCars<0:
 
-            BatOn=0
-            BatSet=0
-            SOCstart=0
+            for q in range (NumberOfCars):
 
-            try:
-                colume= get_column_letter(7+3*q)
-                BatOn=xlsxUserSchedule[str(colume)+str(row)].value
-
-                colume= get_column_letter(8+3*q)
-                BatSet=xlsxUserSchedule[str(colume)+str(row)].value
-
-                colume= get_column_letter(9+3*q)
-                SOCstart=xlsxUserSchedule[str(colume)+str(row)].value
-
-            except:
+                BatOn=0
                 BatSet=0
                 SOCstart=0
 
-            Car[q].processingBatterySetting(BatOn,BatSet,SOCstart,WeekNumber,Hour,TarNum,HomNedEne,SysNedEne)
-            ReqOnePcar=Car[q].getRequiredPower()
-            ReqPcar=np.add(ReqPcar,ReqOnePcar)
+                try:
+                    colume= get_column_letter(7+3*q)
+                    BatOn=xlsxUserSchedule[str(colume)+str(row)].value
+
+                    colume= get_column_letter(8+3*q)
+                    BatSet=xlsxUserSchedule[str(colume)+str(row)].value
+
+                    colume= get_column_letter(9+3*q)
+                    SOCstart=xlsxUserSchedule[str(colume)+str(row)].value
+
+                except:
+                    BatSet=0
+                    SOCstart=0
+
+                Car[q].processingBatterySetting(BatOn,BatSet,SOCstart,WeekNumber,Hour,TarNum,HomNedEne,SysNedEne)
+                ReqOnePcar=Car[q].getRequiredPower()
+                ReqPcar=np.add(ReqPcar,ReqOnePcar)
 
     #---------------------TOTAL CONSUPTION ----------------------
         
@@ -245,8 +249,9 @@ while r<23:
 
         Hsb.setBatteryPower(puActArrPower)
 
-        for q in range (NumberOfCars):
-            Car[q].setBatteryPower(puActArrPower)
+        if NumberOfCars<0:
+            for q in range (NumberOfCars):
+                Car[q].setBatteryPower(puActArrPower)
 
 
     #-------- SEND  ENERGY INFO IN ETEHREUM NETWORK ---------
@@ -255,6 +260,7 @@ while r<23:
 
             try:
                 TarNumPre=(xlsxUserSchedule["C"+str(row)].value)*1
+
             except:
                 TarNumPre=xlsxUserSchedule["C"+str(row-1)].value
 
@@ -294,7 +300,6 @@ while r<23:
                 sm.safeHomeBatteryMeasurements(InfoBat)
 
             if (NumberOfCars>0):
-
                 for q in range (NumberOfCars):
                     InfoBat=Car[q].getBatteryInfo(AvgFlg)
                     sm.safeCarBatteryMeasurements(q, InfoBat)

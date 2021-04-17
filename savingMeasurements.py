@@ -14,7 +14,7 @@ class savingMeasurements(object):
         PowerWorksheet = wb.create_sheet("PowerMeausurments")
         EnergyWorksheet= wb.create_sheet("EnergyMeausurments")
 
-        self.fontStyleWord = Font(name="Calibri",size = "7")
+        self.fontStyleWord = Font(name="Calibri",size = "8")
         self.fontStyleNumber=Font(name="Calibri",size = "10")
 
         self.alignmentStyle=Alignment(horizontal='center',vertical='center')
@@ -49,25 +49,29 @@ class savingMeasurements(object):
         PowerWorksheet.cell(row = self.x, column = 12, value = 'Phsb[kW]').font = self.fontStyleWord
         PowerWorksheet.cell(row = self.x, column = 13, value = 'SOChsb[%]').font = self.fontStyleWord
 
-        for q in range (self.NumberOfCars):
-            EnergyWorksheet.cell(row = self.x, column = 14+3*q, value = 'Ecar'+str(self.NumberOfCars)+'[kWh]').font = self.fontStyleWord
-            EnergyWorksheet.cell(row = self.x, column = 15+3*q, value = 'SOCcar'+str(self.NumberOfCars)+'[%]').font = self.fontStyleWord
+        numberOfCell=13
 
-            PowerWorksheet.cell(row = self.x, column = 14+3*q, value = 'Pcar'+str(self.NumberOfCars)+'[kW]').font = self.fontStyleWord
-            PowerWorksheet.cell(row = self.x, column = 15+3*q, value = 'SOCcar'+str(self.NumberOfCars)+'[%]').font = self.fontStyleWord
-            numberOfCell=10+3*q
+        if NumberOfCars<0:
+
+            for q in range (self.NumberOfCars):
+                EnergyWorksheet.cell(row = self.x, column = 14+3*q, value = 'Ecar'+str(self.NumberOfCars)+'[kWh]').font = self.fontStyleWord
+                EnergyWorksheet.cell(row = self.x, column = 15+3*q, value = 'SOCcar'+str(self.NumberOfCars)+'[%]').font = self.fontStyleWord
+
+                PowerWorksheet.cell(row = self.x, column = 14+3*q, value = 'Pcar'+str(self.NumberOfCars)+'[kW]').font = self.fontStyleWord
+                PowerWorksheet.cell(row = self.x, column = 15+3*q, value = 'SOCcar'+str(self.NumberOfCars)+'[%]').font = self.fontStyleWord
+                numberOfCell+=3
 
 
-        for q in range (2,16+3*q):
+        for q in range (2,numberOfCell+1):
             EnergyWorksheet.cell(row = self.x, column = q).alignment=self.alignmentStyle
             PowerWorksheet.cell(row = self.x, column = q).alignment=self.alignmentStyle
             colume= get_column_letter(q)
             EnergyWorksheet.column_dimensions[colume].width =9.4
             PowerWorksheet.column_dimensions[colume].width =9.4
 
-            EnergyWorksheet.column_dimensions["B"].width =14
-            PowerWorksheet.column_dimensions["B"].width =14
 
+        EnergyWorksheet.column_dimensions["B"].width =15
+        PowerWorksheet.column_dimensions["B"].width =15
 
 
         wb.save(filename = self.FilePathName)
