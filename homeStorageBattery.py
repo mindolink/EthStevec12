@@ -130,7 +130,7 @@ class homeStorageBattery(object):
                 self.PbAvLd=0
                 self.PbRqLd=0
         else:
-            if (self.Haour>15 and SOC>SOCmin and (self.HomNedEne==True and self.SysNedEne==True)):
+            if (self.Haour>15 and SOC>SOCmin and self.HomNedEne==True and self.SysNedEne==True):
                 self.PbAvSr=self.PbDh
                 self.PbAvLd=0
                 self.PbRqLd=0
@@ -157,11 +157,12 @@ class homeStorageBattery(object):
 
     def settingsTariff3(self):
 
-        if (self.SOC>self.SOCmin and (self.HomNedEne==True and self.SysNedEne==True)):
+        if (self.SOC>self.SOCmin and self.HomNedEne==True and self.SysNedEne==True):
             self.PbAvSr=self.PbDh
             self.PbAvLd=0
             self.PbRqLd=0
-
+        
+        
         elif (self.SOC<self.SOCmax):
             self.PbAvSr=0
             self.PbAvLd=self.PbCh
@@ -176,20 +177,19 @@ class homeStorageBattery(object):
     def setBatteryPower(self,puP):
 
         self.Pcur=-puP[2]*self.PbAvSr+puP[3]*self.PbAvLd+puP[4]*self.PbRqLd
+        self.Psum+=self.Pcur
+            
 
     def updateBatteryValues(self,dt):
 
         if (self.Pcur>0):
             self.Wcur=(self.Pcur*self.EffCh*dt)/3600
             self.SOC=(((self.SOC*self.Wb)+self.Wcur)/self.Wb)
-            self.Wsum+=self.Pcur*(dt/3600)
-            self.Psum+=self.Pcur
-
+            self.Wsum+=self.Pcur*dt
         else:
             self.Wcur=(self.Pcur*self.EffDh*dt)/3600
             self.SOC=(((self.SOC*self.Wb)+self.Wcur)/self.Wb)
-            self.Wsum+=self.Pcur*(dt/3600)
-            self.Psum+=self.Pcur
+            self.Wsum+=self.Pcur*dt
         
     def getBatteryInfo(self,Flg):
 

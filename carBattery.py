@@ -152,20 +152,21 @@ class carBattery(object):
     def setBatteryPower(self,puP):
 
         self.Pcur=-puP[2]*self.PbAvSr+puP[3]*self.PbAvLd+puP[4]*self.PbRqLd
+        self.Psum+=self.Pcur
 
     def updateBatteryValues(self,dt):
 
         if (self.Pcur>0):
             self.Wcur=(self.Pcur*self.EffCh*dt)/3600
             self.SOC=(((self.SOC*self.Wb)+self.Wcur)/self.Wb)
-            self.Wsum+=self.Pcur*(dt/3600)
-            self.Psum+=self.Pcur
+            self.Wsum+=self.Pcur*dt
+            
 
         else:
             self.Wcur=(self.Pcur*self.EffDh*dt)/3600
             self.SOC=(((self.SOC*self.Wb)+self.Wcur)/self.Wb)
-            self.Wsum+=self.Pcur*(dt/3600)
-            self.Psum+=self.Pcur
+            self.Wsum+=self.Pcur*dt
+            
         
     def getBatteryInfo(self,Flg):
 
