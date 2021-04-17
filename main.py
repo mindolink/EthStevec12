@@ -8,7 +8,7 @@ from openpyxl.utils import get_column_letter
 
 k=1000
 nano=1000000000
-
+a=0
 UserGethUnlockAccount=0
 Http='http://localhost:8545'
 AddrEB=address.addressConcractElectricityBilling
@@ -108,6 +108,7 @@ while r<23:
 
             StrTime=time.time_ns()
             StrSec=0
+            AvgFlg=1
         
         row=(Day*24)+Hour+4
         
@@ -350,19 +351,22 @@ while r<23:
         for q in range (NumberOfCars):
             Car[q].updateBatteryValues(dt)
 
-
-
         SysRun=ethReg.getSystemRuning()
 
 
         print("---------------------------------------------------------")
 
-
+        a=1
         while (StrTime+(StrSec*t)*nano>time.time_ns()):
             None
 
         
     else:
+
+        Sec=0
+        Min=0
+        Hour=0
+        Day=0
 
         AvgFlg=0
         StrFlg=False
@@ -381,6 +385,10 @@ while r<23:
         SumArrGrdPower=[0]*5
         ActArrTotEnergy=[0]*5
         SumArrTotPower=[0]*5
+
+        if a==1:
+            savingMeasurements.savingMeasurements(UserNumber,TimeOfTest,NumberOfCars)
+            a=0
 
         print("System don't work")
 
