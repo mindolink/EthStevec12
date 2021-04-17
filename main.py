@@ -110,7 +110,8 @@ while r<23:
             StrTime=time.time_ns()
             StrSec=0
             AvgFlg=1
-        
+            StrFlg=True
+
         row=(Day*24)+Hour+4
         
         DateTime = xlsxUserSchedule["B"+str(row)].value
@@ -118,7 +119,7 @@ while r<23:
         print("DATE: "+str(DayName[WeekNumber])+" "+str(DateTime.strftime("%d/%m/%Y")))
         print("TIME: "+str(Hour)+":"+str(Min)+":"+str(Sec))
 
-
+        print(AvgFlg)
         SysNedEne=ethReg.getIfSystemNeedEnergy()
 
         if Min==0:
@@ -252,9 +253,9 @@ while r<23:
 
         if ((Min==0 or Min==15 or Min==30 or Min==45) and Sec==0):
 
-            if Hour==0 and StrFlg==False:
-                TarNumPre=xlsxUserSchedule["C"+str(row)].value
-            else:
+            try:
+                TarNumPre=(xlsxUserSchedule["C"+str(row)].value)*1
+            except:
                 TarNumPre=xlsxUserSchedule["C"+str(row-1)].value
 
             xlsxSystemTarifPrices = wbInfo["systemTariffPrices"]
@@ -265,7 +266,7 @@ while r<23:
             ethBil.modifaySystemTarifPrice(int(TarNumPre),int(PriceBuy), int(PriceSell))
             ethBil.setUserDataEnergy([int(SumArrGrdEnergy[0]),int(SumArrGrdEnergy[1]),int(SumArrGrdEnergy[2]),int(SumArrGrdEnergy[3]),int(SumArrGrdEnergy[4])])
             
-            
+       
 
     #------------------Safe measurment of energy and avg power-------------------------
 
@@ -339,9 +340,7 @@ while r<23:
         if Hour>=24:
             Day+=1
             Hour=0
-            StrFlg=True
-
-
+            
     #----------------------UPDATE VALUES ------------------------
 
         SumArrTotEnergy+=np.multiply(ActArrTotPower,dt)
