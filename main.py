@@ -18,7 +18,7 @@ PathUserSchedule='./ImportData/userSchedule.xlsx'
 PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
 PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
 dt=30
-t=1
+t=0.5
 DayName=[0,'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSTDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
 
 Sec=0
@@ -82,7 +82,7 @@ for q in range (NumberOfCars):
 
 
 #Init parameters for saving values
-TimeOfTest = time.strftime(" %H-%d")
+TimeOfTest = time.strftime("%H -%d")
 sm=savingMeasurements.savingMeasurements(UserNumber,TimeOfTest,NumberOfCars)
 
 #---------------------------READ PARAMETERS FROM ETH NETWORK-----------------------------

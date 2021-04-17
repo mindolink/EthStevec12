@@ -92,7 +92,6 @@ class savingMeasurements(object):
         EnergyWorksheet.cell(row = self.x, column = 2, value = DataTime).font = self.fontStyleNumber
         PowerWorksheet.cell(row = self.x, column = 2, value = DataTime).font= self.fontStyleNumber
 
-
         EnergyWorksheet.cell(row = self.x, column = 5, value = "%.3f" % round(SumEin/(k*h),3)).font = self.fontStyleNumber
         EnergyWorksheet.cell(row = self.x, column = 6, value = "%.3f" % round(SumEout/(k*h),3)).font = self.fontStyleNumber
         EnergyWorksheet.cell(row = self.x, column = 7, value = "%.3f" % round(SumArrTotEnergy[0]/(k*h),3)).font = self.fontStyleNumber
