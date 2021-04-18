@@ -99,22 +99,36 @@ class savingMeasurements(object):
         EnergyWorksheet.cell(row = self.x, column = 2, value = date).font = self.fontStyleNumber
         PowerWorksheet.cell(row = self.x, column = 2, value = date).font= self.fontStyleNumber
 
-        EnergyWorksheet.cell(row = self.x, column = 5, value = "%.3f" % round(SumEin/(k*h),3)).font = self.fontStyleNumber
-        EnergyWorksheet.cell(row = self.x, column = 6, value = "%.3f" % round(SumEout/(k*h),3)).font = self.fontStyleNumber
-        EnergyWorksheet.cell(row = self.x, column = 7, value = "%.3f" % round(SumArrTotEnergy[0]/(k*h),3)).font = self.fontStyleNumber
-        EnergyWorksheet.cell(row = self.x, column = 8, value = "%.3f" % round(SumArrTotEnergy[1]/(k*h),3)).font = self.fontStyleNumber
-        EnergyWorksheet.cell(row = self.x, column = 9, value = "%.3f" % round(SumArrTotEnergy[2]/(k*h),3)).font = self.fontStyleNumber
-        EnergyWorksheet.cell(row = self.x, column = 10, value = "%.3f" % round(SumArrTotEnergy[3]/(k*h),3)).font = self.fontStyleNumber
-        EnergyWorksheet.cell(row = self.x, column = 11, value = "%.2f" % round(SumArrTotEnergy[4]/(k*h),3)).font = self.fontStyleNumber
+        EnergyWorksheet.cell(row = self.x, column = 2, value = date).number_format = 'DD/MM/YYYY HH:MM'
+        PowerWorksheet.cell(row = self.x, column = 2, value = date).number_format = 'DD/MM/YYYY HH:MM'
 
-        PowerWorksheet.cell(row = self.x, column = 5, value = "%.3f" % round(AvgPin/k,3)).font = self.fontStyleNumber
-        PowerWorksheet.cell(row = self.x, column = 6, value = "%.3f" % round(AvgPout/k,3)).font = self.fontStyleNumber
-        PowerWorksheet.cell(row = self.x, column = 7, value = "%.3f" % round(AvgArrTotPower[0]/k,3)).font = self.fontStyleNumber
-        PowerWorksheet.cell(row = self.x, column = 8, value = "%.3f" % round(AvgArrTotPower[1]/k,3)).font = self.fontStyleNumber
-        PowerWorksheet.cell(row = self.x, column = 9, value = "%.3f" % round(AvgArrTotPower[2]/k,3)).font = self.fontStyleNumber
-        PowerWorksheet.cell(row = self.x, column = 10, value = "%.3f" % round(AvgArrTotPower[3]/k,3)).font = self.fontStyleNumber
-        PowerWorksheet.cell(row = self.x, column = 11, value = "%.3f" % round(AvgArrTotPower[4]/k,3)).font = self.fontStyleNumber
 
+
+        EnergyWorksheet.cell(row = self.x, column = 5, value = round(SumEin/(k*h),3))
+        EnergyWorksheet.cell(row = self.x, column = 6, value = round(SumEout/(k*h),3)) 
+        EnergyWorksheet.cell(row = self.x, column = 7, value = round(SumArrTotEnergy[0]/(k*h),3))
+        EnergyWorksheet.cell(row = self.x, column = 8, value = round(SumArrTotEnergy[1]/(k*h),3))
+        EnergyWorksheet.cell(row = self.x, column = 9, value = round(SumArrTotEnergy[2]/(k*h),3))
+        EnergyWorksheet.cell(row = self.x, column = 10, value = round(SumArrTotEnergy[3]/(k*h),3))
+        EnergyWorksheet.cell(row = self.x, column = 11, value = round(SumArrTotEnergy[4]/(k*h),3))
+
+        PowerWorksheet.cell(row = self.x, column = 5, value = round(AvgPin/k,3))
+        PowerWorksheet.cell(row = self.x, column = 6, value = round(AvgPout/k,3))
+        PowerWorksheet.cell(row = self.x, column = 7, value = round(AvgArrTotPower[0]/k,3))
+        PowerWorksheet.cell(row = self.x, column = 8, value = round(AvgArrTotPower[1]/k,3))
+        PowerWorksheet.cell(row = self.x, column = 9, value = round(AvgArrTotPower[2]/k,3))
+        PowerWorksheet.cell(row = self.x, column = 10, value = round(AvgArrTotPower[3]/k,3))
+        PowerWorksheet.cell(row = self.x, column = 11, value = round(AvgArrTotPower[4]/k,3))
+
+        for q in range (2,12):
+
+            PowerWorksheet.cell(row = self.x, column = q).font = self.fontStyleNumber
+            EnergyWorksheet.cell(row = self.x, column = q).font = self.fontStyleNumber
+            EnergyWorksheet.cell(row = self.x, column = q).alignment=self.alignmentStyle
+            PowerWorksheet.cell(row = self.x, column = q).alignment=self.alignmentStyle
+            if q>2:
+                EnergyWorksheet.cell(row = self.x, column = q).number_format = '#,##0.000'
+                PowerWorksheet.cell(row = self.x, column = q).number_format = '#,##0.000'
 
         wb.save(filename = self.FilePathName)
         wb.close()
@@ -130,12 +144,25 @@ class savingMeasurements(object):
         PowerWorksheet = wb["PowerMeausurments"]
         EnergyWorksheet= wb["EnergyMeausurments"]
 
-        PowerWorksheet.cell(row = self.x, column = 12, value = "%.3f" % round(InfoBat[0]/k,3)).font = self.fontStyleNumber
-        PowerWorksheet.cell(row = self.x, column = 13, value = "%.3f" % round(InfoBat[2]*p,2)).font = self.fontStyleNumber
+        PowerWorksheet.cell(row = self.x, column = 12, value = InfoBat[0]/k)
+        PowerWorksheet.cell(row = self.x, column = 13, value = InfoBat[2]*p)
 
-        EnergyWorksheet.cell(row = self.x, column = 12, value = "%.2f" % round(InfoBat[1]/(k*h),3)).font = self.fontStyleNumber
-        EnergyWorksheet.cell(row = self.x, column = 13, value = "%.2f" % round(InfoBat[2]*p,2)).font = self.fontStyleNumber
+        EnergyWorksheet.cell(row = self.x, column = 12, value = InfoBat[1]/(k*h))
+        EnergyWorksheet.cell(row = self.x, column = 13, value = InfoBat[2]*p)
 
+
+        for q in range (12,14):
+            
+            PowerWorksheet.cell(row = self.x, column = q).font = self.fontStyleNumber
+            EnergyWorksheet.cell(row = self.x, column = q).font = self.fontStyleNumber
+            EnergyWorksheet.cell(row = self.x, column = q).alignment=self.alignmentStyle
+            PowerWorksheet.cell(row = self.x, column = q).alignment=self.alignmentStyle
+            if q==14:
+                EnergyWorksheet.cell(row = self.x, column = q).number_format = '#,##0.0'
+                PowerWorksheet.cell(row = self.x, column = q).number_format = '#,##0.0'
+            else:
+                EnergyWorksheet.cell(row = self.x, column = q).number_format = '#,##0.000'
+                PowerWorksheet.cell(row = self.x, column = q).number_format = '#,##0.000'
 
         wb.save(filename = self.FilePathName)
         wb.close()
@@ -149,11 +176,25 @@ class savingMeasurements(object):
         PowerWorksheet = wb["PowerMeausurments"]
         EnergyWorksheet= wb["EnergyMeausurments"]
 
-        PowerWorksheet.cell(row = self.x, column = 14+(3*CarNumber), value = "%.3f" % round(InfoBat[0]/k,3)).font = self.fontStyleNumber
-        PowerWorksheet.cell(row = self.x, column = 15+(3*CarNumber), value = "%.2f" % round(InfoBat[2]*p,2)).font = self.fontStyleNumber
+        PowerWorksheet.cell(row = self.x, column = 14+(3*CarNumber), value=InfoBat[0]/k)
+        PowerWorksheet.cell(row = self.x, column = 15+(3*CarNumber), value = InfoBat[2]*p)
 
-        EnergyWorksheet.cell(row = self.x, column = 14+(3*CarNumber), value = "%.3f" % round(InfoBat[1]/(k*h),3)).font = self.fontStyleNumber
-        EnergyWorksheet.cell(row = self.x, column = 15+(3*CarNumber), value = "%.2f" % round(InfoBat[2]*p,2)).font = self.fontStyleNumber
+        EnergyWorksheet.cell(row = self.x, column = 14+(3*CarNumber), value = InfoBat[1]/(k*h))
+        EnergyWorksheet.cell(row = self.x, column = 15+(3*CarNumber), value = InfoBat[2]*p)
+
+        for q in range (14+(3*CarNumber),16+(3*CarNumber)):
+            
+            PowerWorksheet.cell(row = self.x, column = q).font = self.fontStyleNumber
+            EnergyWorksheet.cell(row = self.x, column = q).font = self.fontStyleNumber
+            EnergyWorksheet.cell(row = self.x, column = q).alignment=self.alignmentStyle
+            PowerWorksheet.cell(row = self.x, column = q).alignment=self.alignmentStyle
+
+            if q==1:
+                EnergyWorksheet.cell(row = self.x, column = q).number_format = '#,##0.0'
+                PowerWorksheet.cell(row = self.x, column = q).number_format = '#,##0.0'
+            else:
+                EnergyWorksheet.cell(row = self.x, column = q).number_format = '#,##0.000'
+                PowerWorksheet.cell(row = self.x, column = q).number_format = '#,##0.000'
 
         wb.save(filename = self.FilePathName)
         wb.close()
@@ -165,12 +206,20 @@ class savingMeasurements(object):
         PowerWorksheet = wb["PowerMeausurments"]
         EnergyWorksheet= wb["EnergyMeausurments"]
 
-        EnergyWorksheet.cell(row = self.x, column = 3, value = "%.2f" % round(MonayWalletCent/100,3)).font = self.fontStyleNumber
-        EnergyWorksheet.cell(row = self.x, column = 4, value = "%.2f" % round(PriceForEnergyCent/100,3)).font = self.fontStyleNumber
+        EnergyWorksheet.cell(row = self.x, column = 3, value = MonayWalletCent/100)
+        EnergyWorksheet.cell(row = self.x, column = 4, value =PriceForEnergyCent/100)
 
-        PowerWorksheet.cell(row = self.x, column = 3, value = "%.2f" % round(MonayWalletCent/100,3)).font = self.fontStyleNumber
-        PowerWorksheet.cell(row = self.x, column = 4, value = "%.2f" % round(PriceForEnergyCent/100,3)).font = self.fontStyleNumber
+        PowerWorksheet.cell(row = self.x, column = 3, value = MonayWalletCent/100)
+        PowerWorksheet.cell(row = self.x, column = 4, value =PriceForEnergyCent/100)
 
+        for q in range (3,5):
+
+            PowerWorksheet.cell(row = self.x, column = q).font = self.fontStyleNumber
+            EnergyWorksheet.cell(row = self.x, column = q).font = self.fontStyleNumber
+            EnergyWorksheet.cell(row = self.x, column = q).alignment=self.alignmentStyle
+            PowerWorksheet.cell(row = self.x, column = q).alignment=self.alignmentStyle
+            EnergyWorksheet.cell(row = self.x, column = q).number_format = '#,##0.00'
+            PowerWorksheet.cell(row = self.x, column = q).number_format = '#,##0.00'
 
         wb.save(filename = self.FilePathName)
         wb.close()
