@@ -19,7 +19,7 @@ PathUserSchedule='./ImportData/userSchedule.xlsx'
 PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
 PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
 dt=30
-t=0.1
+t=1
 DayName=[0,'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSTDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
 
 Sec=0
@@ -121,7 +121,6 @@ while r<23:
         print("DATE: "+str(DayName[WeekNumber])+" "+str(DateTime.strftime("%d/%m/%Y")))
         print("TIME: "+str(Hour)+":"+str(Min)+":"+str(Sec))
 
-        print(AvgFlg)
         SysNedEne=ethReg.getIfSystemNeedEnergy()
 
         if Min==0:
@@ -285,14 +284,14 @@ while r<23:
 
             for q in range(5):
                 if q==0 or q==2:
-                    AvgPin+=SumArrGrdPower[q]/AvgFlg
-                    SumEin+=SumArrGrdEnergy[q]
-
-                else:
                     AvgPout+=SumArrGrdPower[q]/AvgFlg
                     SumEout+=SumArrGrdEnergy[q]
 
-            sm.safeBasicMeasurements(DateTimeStr, AvgPin, AvgPout, AvgArrTotPower, SumEin, SumEout, SumArrTotEnergy)
+                else:
+                    AvgPin+=SumArrGrdPower[q]/AvgFlg
+                    SumEin+=SumArrGrdEnergy[q]
+
+            sm.safeBasicMeasurements(DateTimeStr, AvgPout, AvgPin, AvgArrTotPower, SumEin, SumEout, SumArrTotEnergy)
 
 
             if (Hsb.BatOn==True):

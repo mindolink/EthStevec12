@@ -40,8 +40,8 @@ class savingMeasurements(object):
         PowerWorksheet.cell(row = self.x, column = 3, value = 'Wallet[€]').font = self.fontStyleWord
         PowerWorksheet.cell(row = self.x, column = 4, value = 'Price[€]').font = self.fontStyleWord
 
-        PowerWorksheet.cell(row = self.x, column = 5, value = 'Pin[kW]').font = self.fontStyleWord
-        PowerWorksheet.cell(row = self.x, column = 6, value = 'Pout[kW]').font = self.fontStyleWord
+        PowerWorksheet.cell(row = self.x, column = 5, value = 'Pout[kW]').font = self.fontStyleWord
+        PowerWorksheet.cell(row = self.x, column = 6, value = 'Pin[kW]').font = self.fontStyleWord
         PowerWorksheet.cell(row = self.x, column = 7, value = 'PdSr[kW]').font = self.fontStyleWord
         PowerWorksheet.cell(row = self.x, column = 8, value = 'PdLd[kW]').font = self.fontStyleWord
         PowerWorksheet.cell(row = self.x, column = 9, value = 'PdAvSr[kW]').font = self.fontStyleWord
@@ -84,7 +84,7 @@ class savingMeasurements(object):
         wb.save(filename = self.FilePathName)
         wb.close()
 
-    def safeBasicMeasurements(self,DataTime,AvgPin,AvgPout,AvgArrTotPower,SumEin,SumEout,SumArrTotEnergy):
+    def safeBasicMeasurements(self,DataTime,AvgPout,AvgPin,AvgArrTotPower,SumEout,SumEin,SumArrTotEnergy):
 
         self.x+=1
         wb = openpyxl.load_workbook(filename =self.FilePathName)
@@ -104,16 +104,16 @@ class savingMeasurements(object):
 
 
 
-        EnergyWorksheet.cell(row = self.x, column = 5, value = round(SumEin/(k*h),3))
-        EnergyWorksheet.cell(row = self.x, column = 6, value = round(SumEout/(k*h),3)) 
+        EnergyWorksheet.cell(row = self.x, column = 5, value = round(SumEout/(k*h),3))
+        EnergyWorksheet.cell(row = self.x, column = 6, value = round(SumEin/(k*h),3)) 
         EnergyWorksheet.cell(row = self.x, column = 7, value = round(SumArrTotEnergy[0]/(k*h),3))
         EnergyWorksheet.cell(row = self.x, column = 8, value = round(SumArrTotEnergy[1]/(k*h),3))
         EnergyWorksheet.cell(row = self.x, column = 9, value = round(SumArrTotEnergy[2]/(k*h),3))
         EnergyWorksheet.cell(row = self.x, column = 10, value = round(SumArrTotEnergy[3]/(k*h),3))
         EnergyWorksheet.cell(row = self.x, column = 11, value = round(SumArrTotEnergy[4]/(k*h),3))
 
-        PowerWorksheet.cell(row = self.x, column = 5, value = round(AvgPin/k,3))
-        PowerWorksheet.cell(row = self.x, column = 6, value = round(AvgPout/k,3))
+        PowerWorksheet.cell(row = self.x, column = 5, value = round(AvgPout/k,3))
+        PowerWorksheet.cell(row = self.x, column = 6, value = round(AvgPin/k,3))
         PowerWorksheet.cell(row = self.x, column = 7, value = round(AvgArrTotPower[0]/k,3))
         PowerWorksheet.cell(row = self.x, column = 8, value = round(AvgArrTotPower[1]/k,3))
         PowerWorksheet.cell(row = self.x, column = 9, value = round(AvgArrTotPower[2]/k,3))
