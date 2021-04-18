@@ -118,16 +118,19 @@ while r<23:
         
         DateTime = xlsxUserSchedule["B"+str(row)].value
         WeekNumber=datetime.date(DateTime).weekday()+1
-        print("DATE: "+str(DayName[WeekNumber])+" "+str(DateTime.strftime("%d/%m/%Y")))
-        print("TIME: "+str(Hour)+":"+str(Min)+":"+str(Sec))
 
-        print(AvgFlg)
-        SysNedEne=ethReg.getIfSystemNeedEnergy()
+        DateStr=DateTime.strftime("%d/%m/%Y")
 
         if Min==0:
-            DateTimeStr=(DateTime.strftime("%d/%m/%Y %H"))+":0"+str(Min)
+            TimeStr=str(Hour)+":0"+str(Min)
         else:
-            DateTimeStr=(DateTime.strftime("%d/%m/%Y %H"))+":"+str(Min)
+            TimeStr=str(Hour)+":"+str(Min)
+
+        print("DATE: "+str(DayName[WeekNumber])+" "+str(DateStr))
+        print("TIME: "+str(TimeStr)+":"+str(Sec))
+
+    
+        SysNedEne=ethReg.getIfSystemNeedEnergy()
 
 
     #-------------------LOOKING DURATION PRICE ENERGY TARIFF-------------------------
@@ -292,7 +295,7 @@ while r<23:
                     AvgPout+=SumArrGrdPower[q]/AvgFlg
                     SumEout+=SumArrGrdEnergy[q]
 
-            sm.safeBasicMeasurements(DateTimeStr, AvgPin, AvgPout, AvgArrTotPower, SumEin, SumEout, SumArrTotEnergy)
+            sm.safeBasicMeasurements(DateStr,TimeStr, AvgPin, AvgPout, AvgArrTotPower, SumEin, SumEout, SumArrTotEnergy)
 
 
             if (Hsb.BatOn==True):
