@@ -19,7 +19,7 @@ PathUserSchedule='./ImportData/userSchedule.xlsx'
 PathAbiSC='./SmartConcract/abiSystemControlingConcract.json'
 PathAbiEB='./SmartConcract/abiElectricityBillingConcract.json'
 dt=30
-t=1
+t=0.1
 DayName=[0,'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSTDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
 
 Sec=0
@@ -118,19 +118,16 @@ while r<23:
         
         DateTime = xlsxUserSchedule["B"+str(row)].value
         WeekNumber=datetime.date(DateTime).weekday()+1
+        print("DATE: "+str(DayName[WeekNumber])+" "+str(DateTime.strftime("%d/%m/%Y")))
+        print("TIME: "+str(Hour)+":"+str(Min)+":"+str(Sec))
 
-        DateStr=DateTime.strftime("%d/%m/%Y")
+        print(AvgFlg)
+        SysNedEne=ethReg.getIfSystemNeedEnergy()
 
         if Min==0:
-            TimeStr=str(Hour)+":0"+str(Min)
+            DateTimeStr=(DateTime.strftime("%d/%m/%Y %H"))+":0"+str(Min)
         else:
-            TimeStr=str(Hour)+":"+str(Min)
-
-        print("DATE: "+str(DayName[WeekNumber])+" "+str(DateStr))
-        print("TIME: "+str(TimeStr)+":"+str(Sec))
-
-    
-        SysNedEne=ethReg.getIfSystemNeedEnergy()
+            DateTimeStr=(DateTime.strftime("%d/%m/%Y %H"))+":"+str(Min)
 
 
     #-------------------LOOKING DURATION PRICE ENERGY TARIFF-------------------------
@@ -295,7 +292,7 @@ while r<23:
                     AvgPout+=SumArrGrdPower[q]/AvgFlg
                     SumEout+=SumArrGrdEnergy[q]
 
-            sm.safeBasicMeasurements(DateStr,TimeStr, AvgPin, AvgPout, AvgArrTotPower, SumEin, SumEout, SumArrTotEnergy)
+            sm.safeBasicMeasurements(DateTimeStr, AvgPin, AvgPout, AvgArrTotPower, SumEin, SumEout, SumArrTotEnergy)
 
 
             if (Hsb.BatOn==True):
