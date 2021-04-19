@@ -18,7 +18,7 @@ contract systemRegulationSmartConcract
     uint public sysMaxPower=15000;   //[W]
     uint public sysTarNum;
     bool public sysRunSta;
-
+    uint public TestNumber;
 
     //Users information
     mapping (uint=>address) usrAddress;
@@ -213,7 +213,7 @@ contract systemRegulationSmartConcract
         uint [5] memory sysPsum=sumSystemPower();
         bool sysNedEne;
         
-        if (sysPsum[0]<(sysPsum[1]+sysPsum[4]))
+        if (sysPsum[0]<=(sysPsum[1]+sysPsum[4]))
         {
             sysNedEne=true;
         }
@@ -231,9 +231,17 @@ contract systemRegulationSmartConcract
         sysTarNum=_sysTarNum;
     }
 
-    function modifaySystemRunningStatus(bool _sysRunSta) public
+    function modifaySystemRunningStatus() public
     {
-        sysRunSta=_sysRunSta;
+        
+        if (sysRunSta==true)
+        {
+            sysRunSta=false;
+        }
+        else 
+        {
+            sysRunSta=true;
+        } 
     }
 
     function modifaySystemMaxPower(uint _sysMaxPower) public
@@ -241,9 +249,19 @@ contract systemRegulationSmartConcract
         sysMaxPower=_sysMaxPower;
     }
 
+    function modifayTestNUmber(uint _TestNumber) public
+    {
+        TestNumber=_TestNumber;
+    }
+
     function getUserIndex() public view returns(uint) 
     {
         return(usrIndex[msg.sender]);
+    }
+    
+    function getTestNumber() public view returns(uint) 
+    {
+        return(TestNumber);
     }
     
     function registrationNewUser(address _Address) public checkRegistrationOfUser

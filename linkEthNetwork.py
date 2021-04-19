@@ -29,6 +29,9 @@ class systemControling(object):
     def getUserDataPower(self):
         return self.contract_inst.functions.getUserDataPower().call({'from': self.web3.eth.accounts[self.account]})
 
+    def getTestNumber(self):
+        return self.contract_inst.functions.getUserDataPower().call({'from': self.web3.eth.accounts[self.account]})
+
     def setUserDataPower(self,P):
         self.contract_inst.functions.setUserDataPower(P).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
 
@@ -84,3 +87,4 @@ class electricityBilling(object):
 
     def processingBillingForEnergy(self):
         self.contract_inst.functions.processBillingForEnergy().transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas*5})
+

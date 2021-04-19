@@ -64,7 +64,7 @@ if ethBil.getUserIndex()==0:
 
 
 UserNumber=ethReg.getUserIndex()
-
+TestNumber=ethReg.getTestNumber()
 #Init all parameters BMS
 bms=batteryManegmentSystem.batteryManegmentSystem()
 
@@ -85,8 +85,8 @@ if NumberOfCars<0:
 
 
 #Init parameters for saving values
-TimeOfTest = time.strftime("%H -%d")
-sm=savingMeasurements.savingMeasurements(UserNumber,TimeOfTest,NumberOfCars)
+
+sm=savingMeasurements.savingMeasurements(UserNumber,TestNumber,NumberOfCars)
 
 #---------------------------READ PARAMETERS FROM ETH NETWORK-----------------------------
 

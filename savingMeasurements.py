@@ -103,7 +103,6 @@ class savingMeasurements(object):
         PowerWorksheet.cell(row = self.x, column = 2, value = date).number_format = 'DD/MM/YYYY HH:MM'
 
 
-
         EnergyWorksheet.cell(row = self.x, column = 5, value = round(SumEout/(k*h),3))
         EnergyWorksheet.cell(row = self.x, column = 6, value = round(SumEin/(k*h),3)) 
         EnergyWorksheet.cell(row = self.x, column = 7, value = round(SumArrTotEnergy[0]/(k*h),3))
