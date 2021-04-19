@@ -1,5 +1,5 @@
 
 
-addressConcractSystemRegulation="0x8D7A50454a45D46bDF2612233B506d0F09bAaAe8"
+addressConcractSystemRegulation="0x59580Ed8E27CCf18E710fA3ED5d7E253CaF598A8"
 
 addressConcractElectricityBilling="0xEE07D6Dde6A45A7eDf52c43D55Fc20dFcC9278d8"

@@ -30,7 +30,7 @@ class systemControling(object):
         return self.contract_inst.functions.getUserDataPower().call({'from': self.web3.eth.accounts[self.account]})
 
     def getTestNumber(self):
-        return self.contract_inst.functions.getUserDataPower().call({'from': self.web3.eth.accounts[self.account]})
+        return self.contract_inst.functions.getTestNumber().call({'from': self.web3.eth.accounts[self.account]})
 
     def setUserDataPower(self,P):
         self.contract_inst.functions.setUserDataPower(P).transact({'from': self.web3.eth.accounts[self.account], 'gas': self.gas})
