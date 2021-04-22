@@ -132,11 +132,11 @@ def drawingPowerGraph4Users(FileDirecotoryUserData, TestNumber, DatetTimeTest, A
     for q in range (4):
         if q<2:
             drawingPowerGraph(axs[0][q],UserData[q],PowerLow,PowerHigh)
-            axs[0][q].set_title('UPORABNIK '+str(ArrUserNumber[q]),fontsize=12)
+            axs[0][q].set_title('UPORABNIK '+str(UserNumber),fontsize=12)
         
         else:
             drawingPowerGraph(axs[1][q-2],UserData[q],PowerLow,PowerHigh)
-            axs[1][q-2].set_title('UPORABNIK '+str(ArrUserNumber[q]),fontsize=12)
+            axs[1][q-2].set_title('UPORABNIK '+str(UserNumber),fontsize=12)
 
 
         if q==3:
@@ -147,7 +147,7 @@ def drawingPowerGraph4Users(FileDirecotoryUserData, TestNumber, DatetTimeTest, A
     plt.show()
 
 
-def drawingPowerSystemGraph(FileDirecotoryUserData, TestNumber, DatetTimeTest, ArrUserNumber):
+def drawingPowerSystemGraphTogether(FileDirecotoryUserData, TestNumber, DatetTimeTest, ArrUserNumber):
 
     NumberOfUser=len(ArrUserNumber)
     UserData=[0]*NumberOfUser
@@ -167,16 +167,13 @@ def drawingPowerSystemGraph(FileDirecotoryUserData, TestNumber, DatetTimeTest, A
                 for x in range (len(UserData[0])):
                     SystemData[y][x]+=UserData[y][x]
 
+                    Power=SystemData[y][x]
 
-    for y in range (1,8):
-        for x in range (len(SystemData[0])):
-            Power=SystemData[y][x]
-            if PowerLow>Power:
-                PowerLow=Power
-            if Power>PowerHigh:
-                PowerHigh=Power
- 
-    print(PowerLow)
+                    if PowerLow<Power:
+                        PowerLow=Power
+                    if Power>PowerHigh:
+                        PowerHigh=Power
+
 
     fig, ax = plt.subplots(figsize=(11,8),constrained_layout=True)
     drawingPowerGraph(ax,SystemData,PowerLow,PowerHigh)
@@ -187,32 +184,35 @@ def drawingPowerSystemGraph(FileDirecotoryUserData, TestNumber, DatetTimeTest, A
 def drawingPowerGraph(axs,UserData,PowerLow,PowerHigh):
 
 
-    axs.fill_between(UserData[0],UserData[3],  step="pre", alpha=0.3,facecolor='#1515ff', label="PdSr")
-    axs.plot(UserData[0],UserData[3],drawstyle="steps",color='#1515ff',linewidth=0.8, alpha=0.7)
 
     axs.fill_between(UserData[0],UserData[4],  step="pre", alpha=0.3,facecolor='red', label="PdLd")
-    axs.plot(UserData[0],UserData[4],drawstyle="steps",color='red',linewidth=0.8)
+    axs.plot(UserData[0],UserData[4],drawstyle="steps",color='red',linewidth=0.7)
 
-    axs.fill_between(UserData[0],UserData[5], step="pre", alpha=0.3,facecolor='darkgreen', label="PbAvSr")
-    axs.plot(UserData[0],UserData[5],drawstyle="steps",color='darkgreen',linewidth=0.8)
+    Psum=np.add(UserData[3],UserData[5])
+
+    axs.fill_between(UserData[0],Psum, step="pre", alpha=1,facecolor='darkgreen', label="PbAvSr")
+    axs.plot(UserData[0],Psum,drawstyle="steps",color='darkgreen',linewidth=0.7)
+
+    axs.fill_between(UserData[0],UserData[3],  step="pre", alpha=1,facecolor='blue', label="PdSr")
+    axs.plot(UserData[0],UserData[3],drawstyle="steps",color='blue',linewidth=0.7, alpha=0.7)
 
 
-    axs.fill_between(UserData[0],UserData[6],  step="pre", alpha=0.7,facecolor='orange', label="PbAvLd")
+    axs.fill_between(UserData[0],UserData[6],  step="pre", alpha=0.5,facecolor='orange', label="PbAvLd")
     axs.plot(UserData[0],UserData[6],drawstyle="steps",color='chocolate',linewidth=0.7)
 
 
-    axs.fill_between(UserData[0],UserData[7], step="pre", alpha=0.35,facecolor='purple', label="PbRqLd")
-    axs.plot(UserData[0],UserData[7],drawstyle="steps",color='purple',linewidth=0.8)
+    axs.fill_between(UserData[0],UserData[7], step="pre", alpha=0.3,facecolor='purple', label="PbRqLd")
+    axs.plot(UserData[0],UserData[7],drawstyle="steps",color='purple',linewidth=0.7)
 
 
     Pgrd=np.add(UserData[1],UserData[2])
-    axs.plot(UserData[0],Pgrd,drawstyle="steps",color='black',linewidth=1.5, label="Pgrd")
-    axs.fill_between(UserData[0],Pgrd ,step="pre", alpha=0.3,facecolor='gray')
+    axs.plot(UserData[0],Pgrd,drawstyle="steps",color='#222222',linewidth=1.5, label="Pgrd")
+    #axs.fill_between(UserData[0],Pgrd ,step="pre", alpha=0.4,facecolor='gray', label="PbRqLd")
 
     axs.set_xlim(UserData[0][0],UserData[0][len(UserData[0])-1])
 
     axs.xaxis.set_major_formatter(mdates.DateFormatter('%H'))
-    axs.xaxis.set_major_locator(mdates.HourLocator(interval = 2))
+    axs.xaxis.set_major_locator(mdates.HourLocator(interval = 4))
     axs.yaxis.set_major_locator(MaxNLocator(integer=True))
     axs.grid(b=True, which='major', color='#444444', linestyle='-', alpha=0.2)
 
@@ -246,5 +246,3 @@ TestNumber=0
 DateTime="01/02/2022 00:30"
 
 drawingPowerGraph4Users(FileDirecotory, TestNumber, DateTime,[1,2,3,4])
-
- 
