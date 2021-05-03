@@ -242,9 +242,9 @@ def drawingPriceGraph(axs,UserData,PowerLow,PowerHigh):
 
 NumberOfUser=1
 FileDirecotory="./"
-TestNumber=0
+TestNumber=1
 DateTime="01/02/2022 00:30"
 
-drawingPowerGraph4Users(FileDirecotory, TestNumber, DateTime,[1,2,3,4])
+drawingPowerGraph4Users(FileDirecotory, TestNumber, DateTime,[1,2,1,2])
 
  
