@@ -8,7 +8,7 @@ class savingMeasurements(object):
     def __init__(self, UserNumber,TestNumber,NumberOfCars):
         self.NumberOfCars=NumberOfCars
         self.x=3
-        self.FilePathName='./ExportData/Data User'+str(UserNumber)+' Test '+str(TestNumber)+'.xlsx'
+        self.FilePathName='./ExportData/Test '+str(TestNumber)+'User '+str(UserNumber)+'.xlsx'
 
         wb = openpyxl.Workbook()
 

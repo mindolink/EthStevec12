@@ -14,7 +14,7 @@ import numpy as np
 
 def readUserPowerData(FileDirecotoryUserData, TestNumber, DatetTimeTest,UserNumber):
 
-    FolderPath=str(FileDirecotoryUserData)+"Data User"+ str(UserNumber)+ " Test "+str(TestNumber)+".xlsx"
+    FolderPath=str(FileDirecotoryUserData)+'Test '+str(TestNumber)+' User '+str(UserNumber)+'.xlsx'
 
     wb = load_workbook(filename = FolderPath)
     xlsxPowerMeasurments = wb["PowerMeausurments"]
@@ -45,7 +45,7 @@ def readUserPowerData(FileDirecotoryUserData, TestNumber, DatetTimeTest,UserNumb
 
 def readUserEnergyData(FileDirecotoryUserData, TestNumber, DatetTimeTest,UserNumber):
 
-    FolderPath=str(FileDirecotoryUserData)+"Data User"+ str(UserNumber)+ " Test "+str(TestNumber)+".xlsx"
+    FolderPath=str(FileDirecotoryUserData)+'Test '+str(TestNumber)+' User '+str(UserNumber)+'.xlsx'
 
     wb = load_workbook(filename = FolderPath)
     xlsxPowerMeasurments = wb["EnergyMeausurments"]
@@ -180,6 +180,7 @@ def drawingPowerSystemGraph(FileDirecotoryUserData, TestNumber, DatetTimeTest, A
 
     fig, ax = plt.subplots(figsize=(11,8),constrained_layout=True)
     drawingPowerGraph(ax,SystemData,PowerLow,PowerHigh)
+    ax.legend(loc="lower right", borderaxespad=0.5,fontsize=11)
     plt.show()
 
 
@@ -245,6 +246,6 @@ FileDirecotory="./"
 TestNumber=1
 DateTime="01/02/2022 00:30"
 
-drawingPriceGraph4Users(FileDirecotory, TestNumber, DateTime,[1,2,3,4])
+drawingPowerSystemGraph(FileDirecotory, TestNumber, DateTime,[1,2,3,4])
 
  
