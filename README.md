@@ -10,4 +10,3 @@
 	pip3 install xlutils
 
 
-https://www.youtube.com/watch?v=-F1YP547qps
