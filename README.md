@@ -1,7 +1,7 @@
 # Install Python laybery
 
 
-# Update Ubuntu Linux packages for security and apply pending patches.  
+### Update Ubuntu Linux packages for security and apply pending patches.  
 
 	pip3 install xlrd
 	pip3 install numpy
@@ -10,4 +10,3 @@
 	pip3 install xlutils
 
 
-https://www.youtube.com/watch?v=-F1YP547qps
