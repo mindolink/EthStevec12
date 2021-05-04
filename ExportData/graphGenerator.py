@@ -98,11 +98,11 @@ def drawingPriceGraph4Users(FileDirecotoryUserData, TestNumber, DatetTimeTest, A
     for q in range (4):
         if q<2:
             drawingPriceGraph(axs[0][q],UserData[q],PriceLow,PriceHigh)
-            axs[0][q].set_title('UPORABNIK '+str(UserNumber),fontsize=12)
+            axs[0][q].set_title('UPORABNIK '+str(ArrUserNumber[q]),fontsize=12)
         
         else:
             drawingPriceGraph(axs[1][q-2],UserData[q],PriceLow,PriceHigh)
-            axs[1][q-2].set_title('UPORABNIK '+str(UserNumber),fontsize=12)
+            axs[1][q-2].set_title('UPORABNIK '+str(ArrUserNumber[q]),fontsize=12)
 
 
     plt.show()
@@ -245,6 +245,6 @@ FileDirecotory="./"
 TestNumber=1
 DateTime="01/02/2022 00:30"
 
-drawingPowerGraph4Users(FileDirecotory, TestNumber, DateTime,[1,2,3,4])
+drawingPriceGraph4Users(FileDirecotory, TestNumber, DateTime,[1,2,3,4])
 
  
