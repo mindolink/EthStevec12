@@ -245,6 +245,6 @@ FileDirecotory="./"
 TestNumber=1
 DateTime="01/02/2022 00:30"
 
-drawingPowerGraph4Users(FileDirecotory, TestNumber, DateTime,[1,2,1,2])
+drawingPowerGraph4Users(FileDirecotory, TestNumber, DateTime,[1,2,3,4])
 
  
