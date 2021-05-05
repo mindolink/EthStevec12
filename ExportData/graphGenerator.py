@@ -51,7 +51,7 @@ def readUserEnergyData(FileDirecotoryUserData, TestNumber, DatetTimeTest,UserNum
     wb = load_workbook(filename = FolderPath)
     xlsxPowerMeasurments = wb["EnergyMeausurments"]
 
-    row=100
+    row=101
     Price=[0]*97
     Wout=[0]*97
     Win=[0]*97
@@ -241,13 +241,14 @@ def drawingPriceGraph(axs,UserData,PowerLow,PowerHigh):
     axs.set_ylabel('¢/kWh',fontsize=11)
 
     axs.set_xlim(UserData[0][0],UserData[0][len(UserData[0])-1])
+    axs.set_ylim([1.1*PowerLow,1.1*PowerHigh])
+    
 
-
-SelectedUser=[1,2,3,4]
+SelectedUser=[3,4,3,4]
 FileDirecotory="./"
-TestNumber=2
+TestNumber=3
 DateTime="01/02/2022 00:30"
 
-drawingPowerSystemGraph(FileDirecotory, TestNumber, DateTime,SelectedUser)
+drawingPowerGraph4Users(FileDirecotory, TestNumber, DateTime,SelectedUser)
 
  
