@@ -19,7 +19,7 @@ def readUserPowerData(FileDirecotoryUserData, TestNumber, DatetTimeTest,UserNumb
     wb = load_workbook(filename = FolderPath)
     xlsxPowerMeasurments = wb["PowerMeausurments"]
 
-    row=5
+    row=100
     Pin=[0]*97
     Pout=[0]*97
     PdSr=[0]*97
@@ -42,6 +42,7 @@ def readUserPowerData(FileDirecotoryUserData, TestNumber, DatetTimeTest,UserNumb
         matrixUserData=[IntTime,Pout,Pin,PdSr,PdLd,PbAvSr,PbAvLd,PbRqLd]
 
     return(matrixUserData)
+
 
 def readUserEnergyData(FileDirecotoryUserData, TestNumber, DatetTimeTest,UserNumber):
 
@@ -106,6 +107,7 @@ def drawingPriceGraph4Users(FileDirecotoryUserData, TestNumber, DatetTimeTest, A
 
 
     plt.show()
+
 
 def drawingPowerGraph4Users(FileDirecotoryUserData, TestNumber, DatetTimeTest, ArrUserNumber):
 
@@ -184,7 +186,6 @@ def drawingPowerSystemGraph(FileDirecotoryUserData, TestNumber, DatetTimeTest, A
     plt.show()
 
 
-
 def drawingPowerGraph(axs,UserData,PowerLow,PowerHigh):
 
 
@@ -241,12 +242,12 @@ def drawingPriceGraph(axs,UserData,PowerLow,PowerHigh):
 
     axs.set_xlim(UserData[0][0],UserData[0][len(UserData[0])-1])
 
-NumberOfUser=1
+
+SelectedUser=[1,2,3,4]
 FileDirecotory="./"
 TestNumber=2
 DateTime="01/02/2022 00:30"
 
-
-drawingPowerGraph4Users(FileDirecotory, TestNumber, DateTime,[3,3,3,3])
+drawingPowerGraph4Users(FileDirecotory, TestNumber, DateTime,SelectedUser)
 
  
