@@ -19,7 +19,7 @@ def readUserPowerData(FileDirecotoryUserData, TestNumber, DatetTimeTest,UserNumb
     wb = load_workbook(filename = FolderPath)
     xlsxPowerMeasurments = wb["PowerMeausurments"]
 
-    row=100
+    row=5
     Pin=[0]*97
     Pout=[0]*97
     PdSr=[0]*97
@@ -243,9 +243,10 @@ def drawingPriceGraph(axs,UserData,PowerLow,PowerHigh):
 
 NumberOfUser=1
 FileDirecotory="./"
-TestNumber=1
+TestNumber=2
 DateTime="01/02/2022 00:30"
 
-drawingPowerSystemGraph(FileDirecotory, TestNumber, DateTime,[1,2,3,4])
+
+drawingPowerGraph4Users(FileDirecotory, TestNumber, DateTime,[3,3,3,3])
 
  
