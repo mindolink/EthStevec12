@@ -78,7 +78,7 @@ xlsUserCars= wbInfo['userCarProperties']
 NumberOfCars=int(xlsUserCars["C"+str(UserNumber+3)].value)
 
 
-if NumberOfCars<0:
+if NumberOfCars>0:
     Car=[0]*NumberOfCars
     for q in range (NumberOfCars):
         Car[q]=carBattery.carBattery(UserNumber,q,PathUserInfo)
@@ -162,7 +162,7 @@ while r<23:
 
         ReqPcar=[0]*3
 
-        if NumberOfCars<0:
+        if NumberOfCars>0:
 
             for q in range (NumberOfCars):
 
@@ -248,7 +248,7 @@ while r<23:
 
         Hsb.setBatteryPower(puActArrPower)
 
-        if NumberOfCars<0:
+        if NumberOfCars>0:
             for q in range (NumberOfCars):
                 Car[q].setBatteryPower(puActArrPower)
 
