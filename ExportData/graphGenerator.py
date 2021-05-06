@@ -244,11 +244,11 @@ def drawingPriceGraph(axs,UserData,PowerLow,PowerHigh):
     axs.set_ylim([1.1*PowerLow,1.1*PowerHigh])
     
 
-SelectedUser=[3,4,3,4]
+SelectedUser=[1,2,3,4]
 FileDirecotory="./"
 TestNumber=3
 DateTime="01/02/2022 00:30"
 
-drawingPowerGraph4Users(FileDirecotory, TestNumber, DateTime,SelectedUser)
+drawingPriceGraph4Users(FileDirecotory, TestNumber, DateTime,SelectedUser)
 
  
